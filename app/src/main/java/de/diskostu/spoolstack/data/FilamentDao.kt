@@ -12,4 +12,7 @@ interface FilamentDao {
 
     @Query("SELECT COUNT(*) FROM filament")
     suspend fun getCount(): Int
+
+    @Query("DELETE FROM filament")
+    suspend fun deleteAll()
 }
