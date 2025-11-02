@@ -40,7 +40,6 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(JVM_11)
-            freeCompilerArgs.add("-opt-in=androidx.compose.material3.ExperimentalMaterial3Api")
         }
     }
     buildFeatures {
@@ -58,6 +57,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons)
 
     // hilt
     implementation(libs.hilt.android)
@@ -80,7 +80,4 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
 }
