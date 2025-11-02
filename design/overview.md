@@ -38,3 +38,16 @@ Ich möchte eine App entwickeln, mit der ich eine Sammlung von Filamenten für 3
     * Bemerkung
     * bis zu 5 Foto-Anhänge erlaubt
 * Wenn ein Druck erfasst wird, wird in der Datenbank die Filament-Menge entsprechend reduziert.
+
+## TechStack
+
+* Plattform und Sprache: Kotlin
+* UI: Jetpack Compose mit Material Design 3
+* clean architecture mit MVVM
+* Nutzung von ViewModels
+* Repositories für Datenzugriff
+* dependency injection per Hilt
+* Room als database
+* Laden von Bildern per Coil
+* starke Nutzung von JUnit-Tests, sowohl für UI als auch für backend
+* primäre app-sprache: deutsch, sekundär: englisch
