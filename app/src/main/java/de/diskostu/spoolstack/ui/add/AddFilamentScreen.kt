@@ -1,5 +1,6 @@
 package de.diskostu.spoolstack.ui.add
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,17 +15,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +36,19 @@ fun AddFilamentScreen(
     onNavigateBack: () -> Unit,
     viewModel: AddFilamentViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.savedFilamentId.collectLatest { newId ->
+            Toast.makeText(
+                context,
+                context.getString(R.string.filament_saved_message, newId),
+                Toast.LENGTH_SHORT
+            ).show()
+            onNavigateBack()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,25 +62,35 @@ fun AddFilamentScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // vendor input field
             var vendor by remember { mutableStateOf("") }
+            var vendorError by remember { mutableStateOf<String?>(null) }
+            var color by remember { mutableStateOf("") }
+            var colorError by remember { mutableStateOf<String?>(null) }
+
             OutlinedTextField(
                 value = vendor,
-                onValueChange = { vendor = it },
+                onValueChange = { 
+                    vendor = it
+                    vendorError = null
+                 },
                 label = { Text(stringResource(R.string.vendor_label)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = vendorError != null,
+                supportingText = { vendorError?.let { Text(it) } }
             )
 
-            // color input field
-            var color by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = color,
-                onValueChange = { color = it },
+                onValueChange = { 
+                    color = it
+                    colorError = null
+                 },
                 label = { Text(stringResource(R.string.color_label)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = colorError != null,
+                supportingText = { colorError?.let { Text(it) } }
             )
 
-            // size dropdown
             val sizeOptions = listOf(
                 stringResource(R.string.size_500g),
                 stringResource(R.string.size_1kg),
@@ -102,11 +129,21 @@ fun AddFilamentScreen(
                 }
             }
 
-            // save button
             Button(
                 onClick = {
-                    viewModel.save(vendor, color, selectedSize)
-                    onNavigateBack()
+                    var hasError = false
+                    if (vendor.isBlank()) {
+                        vendorError = context.getString(R.string.error_field_cant_be_empty)
+                        hasError = true
+                    }
+                    if (color.isBlank()) {
+                        colorError = context.getString(R.string.error_field_cant_be_empty)
+                        hasError = true
+                    }
+
+                    if (!hasError) {
+                        viewModel.save(vendor, color, selectedSize)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

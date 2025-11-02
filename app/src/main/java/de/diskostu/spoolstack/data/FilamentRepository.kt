@@ -6,7 +6,7 @@ class FilamentRepository @Inject constructor(
     private val filamentDao: FilamentDao
 ) {
 
-    suspend fun insert(filament: Filament) {
-        filamentDao.insert(filament)
+    suspend fun insert(filament: Filament): Long {
+        return filamentDao.insert(filament)
     }
 }

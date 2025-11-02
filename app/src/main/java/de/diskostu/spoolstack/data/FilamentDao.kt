@@ -7,5 +7,5 @@ import androidx.room.Insert
 interface FilamentDao {
 
     @Insert
-    suspend fun insert(filament: Filament)
+    suspend fun insert(filament: Filament): Long
 }

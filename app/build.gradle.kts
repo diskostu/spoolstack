@@ -40,6 +40,7 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(JVM_11)
+            freeCompilerArgs.add("-opt-in=androidx.compose.material3.ExperimentalMaterial3Api")
         }
     }
     buildFeatures {
@@ -79,4 +80,7 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
