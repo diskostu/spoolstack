@@ -1,3 +1,3 @@
-ändere die hauptseite: hier soll zentriert ein button sein. ohne funktion. beschriftung: "Filament hinzufügen"
+Change the main page: there should be a button centered on this page. It should have no function. Label: "Add Filament"
 
-beachte und berücksichtige bei allen überlegungen und änderungen das design-dokument unter design/overview.md.
+Please consider and take into account the design document located at design/overview.md for all considerations and changes.
