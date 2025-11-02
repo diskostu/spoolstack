@@ -16,6 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import de.diskostu.spoolstack.ui.add.AddFilamentScreen
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,8 +29,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SpoolstackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = "main") {
+                    composable("main") {
+                        MainScreen(navController = navController)
+                    }
+                    composable("add_filament") {
+                        AddFilamentScreen(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
                 }
             }
         }
@@ -33,14 +47,19 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(onClick = { /* no-op */ }) {
-            Text(stringResource(R.string.add_filament))
+fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // opens the screen to add a new filament
+            Button(onClick = { navController.navigate("add_filament") }) {
+                Text(stringResource(R.string.add_filament))
+            }
         }
     }
 }
@@ -49,6 +68,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 @Composable
 fun MainScreenPreview() {
     SpoolstackTheme {
-        MainScreen()
+        // Note: Preview doesn't show navigation
+        MainScreen(navController = rememberNavController())
     }
 }
