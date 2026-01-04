@@ -9,4 +9,8 @@ class FilamentRepository @Inject constructor(
     suspend fun insert(filament: Filament): Long {
         return filamentDao.insert(filament)
     }
+
+    suspend fun getDistinctVendors(): List<String> {
+        return filamentDao.getDistinctVendors()
+    }
 }

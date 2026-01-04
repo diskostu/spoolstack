@@ -15,4 +15,7 @@ interface FilamentDao {
 
     @Query("DELETE FROM filament")
     suspend fun deleteAll()
+
+    @Query("SELECT DISTINCT vendor FROM filament ORDER BY vendor ASC")
+    suspend fun getDistinctVendors(): List<String>
 }

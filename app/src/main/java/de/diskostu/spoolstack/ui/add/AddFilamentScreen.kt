@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ fun AddFilamentScreen(
     viewModel: AddFilamentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val existingVendors by viewModel.vendors.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.savedFilamentId.collectLatest { newId ->
@@ -79,24 +81,59 @@ fun AddFilamentScreen(
             var color by remember { mutableStateOf("") }
             var colorError by remember { mutableStateOf<String?>(null) }
 
-            OutlinedTextField(
-                value = vendor,
-                onValueChange = { 
-                    vendor = it
-                    vendorError = null
-                 },
-                label = { Text(stringResource(R.string.vendor_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                isError = vendorError != null,
-                supportingText = { vendorError?.let { Text(it) } }
-            )
+            // Vendor Autocomplete
+            var vendorExpanded by remember { mutableStateOf(false) }
+            val filteredVendors = remember(vendor, existingVendors) {
+                if (vendor.isBlank()) existingVendors
+                else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
+            }
+
+            ExposedDropdownMenuBox(
+                expanded = vendorExpanded,
+                onExpandedChange = { vendorExpanded = !vendorExpanded }
+            ) {
+                OutlinedTextField(
+                    value = vendor,
+                    onValueChange = {
+                        vendor = it
+                        vendorError = null
+                        vendorExpanded = true
+                    },
+                    label = { Text(stringResource(R.string.vendor_label)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    isError = vendorError != null,
+                    supportingText = { vendorError?.let { Text(it) } },
+                    trailingIcon = if (existingVendors.isNotEmpty()) {
+                        { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
+                    } else null
+                )
+
+                if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
+                    ExposedDropdownMenu(
+                        expanded = vendorExpanded,
+                        onDismissRequest = { vendorExpanded = false }
+                    ) {
+                        filteredVendors.forEach { selectionOption ->
+                            DropdownMenuItem(
+                                text = { Text(selectionOption) },
+                                onClick = {
+                                    vendor = selectionOption
+                                    vendorExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = color,
-                onValueChange = { 
+                onValueChange = {
                     color = it
                     colorError = null
-                 },
+                },
                 label = { Text(stringResource(R.string.color_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 isError = colorError != null,
@@ -123,7 +160,9 @@ fun AddFilamentScreen(
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
