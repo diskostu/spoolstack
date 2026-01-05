@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -44,11 +45,14 @@ fun AddFilamentScreen(
     val context = LocalContext.current
     val existingVendors by viewModel.vendors.collectAsState()
 
+    val filamentSavedMessage = stringResource(R.string.filament_saved_message)
+    val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
+
     LaunchedEffect(Unit) {
         viewModel.savedFilamentId.collectLatest { newId ->
             Toast.makeText(
                 context,
-                context.getString(R.string.filament_saved_message, newId),
+                filamentSavedMessage.format(newId),
                 Toast.LENGTH_SHORT
             ).show()
             onNavigateBack()
@@ -102,7 +106,7 @@ fun AddFilamentScreen(
                     label = { Text(stringResource(R.string.vendor_label)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(),
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
                     isError = vendorError != null,
                     supportingText = { vendorError?.let { Text(it) } },
                     trailingIcon = if (existingVendors.isNotEmpty()) {
@@ -162,7 +166,7 @@ fun AddFilamentScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -184,11 +188,11 @@ fun AddFilamentScreen(
                 onClick = {
                     var hasError = false
                     if (vendor.isBlank()) {
-                        vendorError = context.getString(R.string.error_field_cant_be_empty)
+                        vendorError = errorFieldCantBeEmpty
                         hasError = true
                     }
                     if (color.isBlank()) {
-                        colorError = context.getString(R.string.error_field_cant_be_empty)
+                        colorError = errorFieldCantBeEmpty
                         hasError = true
                     }
 
