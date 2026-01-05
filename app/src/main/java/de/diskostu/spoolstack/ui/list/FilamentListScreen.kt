@@ -1,5 +1,6 @@
 package de.diskostu.spoolstack.ui.list
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,11 +31,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun FilamentListScreen(
     onNavigateBack: () -> Unit,
@@ -42,6 +44,18 @@ fun FilamentListScreen(
 ) {
     val filaments by viewModel.filaments.collectAsState()
 
+    FilamentListContent(
+        filaments = filaments,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilamentListContent(
+    filaments: List<Filament>,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -73,6 +87,8 @@ fun FilamentListScreen(
 
 @Composable
 fun FilamentCard(filament: Filament) {
+    val df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -88,7 +104,7 @@ fun FilamentCard(filament: Filament) {
             )
             Text(
                 text = filament.color,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = stringResource(R.string.remaining_weight, filament.size),
@@ -96,12 +112,12 @@ fun FilamentCard(filament: Filament) {
                 modifier = Modifier.padding(top = 4.dp)
             )
             Text(
-                text = stringResource(R.string.created_date_label, formatDate(filament.createdDate)),
+                text = stringResource(R.string.created_date_label, formatDate(filament.createdDate, df)),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.padding(top = 4.dp)
             )
             Text(
-                text = stringResource(R.string.changed_date_label, formatDate(filament.changeDate)),
+                text = stringResource(R.string.changed_date_label, formatDate(filament.changeDate, df)),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -109,20 +125,37 @@ fun FilamentCard(filament: Filament) {
     }
 }
 
-private fun formatDate(timestamp: Long): String {
-    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+private fun formatDate(timestamp: Long, df: DateFormat): String {
+    return df.format(Date(timestamp))
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 500, name = "Light Mode")
+@Preview(showBackground = true, heightDp = 500, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
 @Composable
 fun FilamentListScreenPreview() {
     SpoolstackTheme {
-        FilamentListScreen(onNavigateBack = {})
+        FilamentListContent(
+            filaments = listOf(
+                Filament(
+                    id = 1,
+                    vendor = "Prusament",
+                    color = "Galaxy Black",
+                    size = "1kg"
+                ),
+                Filament(
+                    id = 2,
+                    vendor = "Sunlu",
+                    color = "PLA White",
+                    size = "1kg"
+                )
+            ),
+            onNavigateBack = {}
+        )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Light Mode")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
 @Composable
 fun FilamentCardPreview() {
     SpoolstackTheme {
