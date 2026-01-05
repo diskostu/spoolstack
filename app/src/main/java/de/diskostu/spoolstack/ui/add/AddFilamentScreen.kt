@@ -1,10 +1,19 @@
 package de.diskostu.spoolstack.ui.add
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -13,19 +22,24 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -47,6 +61,8 @@ fun AddFilamentScreen(
 
     val filamentSavedMessage = stringResource(R.string.filament_saved_message)
     val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
+    val size1kg = stringResource(R.string.size_1kg)
+    val unitGrams = stringResource(R.string.unit_grams)
 
     LaunchedEffect(Unit) {
         viewModel.savedFilamentId.collectLatest { newId ->
@@ -72,113 +88,127 @@ fun AddFilamentScreen(
                     }
                 }
             )
-        }
+        },
+        modifier = Modifier.imePadding()
     ) { paddingValues ->
+        // State hoisting
+        var vendor by remember { mutableStateOf("") }
+        var vendorError by remember { mutableStateOf<String?>(null) }
+        var color by remember { mutableStateOf("") }
+        var colorError by remember { mutableStateOf<String?>(null) }
+        var isCustomSize by remember { mutableStateOf(false) }
+        var sliderValue by remember { mutableFloatStateOf(500f) }
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            var vendor by remember { mutableStateOf("") }
-            var vendorError by remember { mutableStateOf<String?>(null) }
-            var color by remember { mutableStateOf("") }
-            var colorError by remember { mutableStateOf<String?>(null) }
-
-            // Vendor Autocomplete
-            var vendorExpanded by remember { mutableStateOf(false) }
-            val filteredVendors = remember(vendor, existingVendors) {
-                if (vendor.isBlank()) existingVendors
-                else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
-            }
-
-            ExposedDropdownMenuBox(
-                expanded = vendorExpanded,
-                onExpandedChange = { vendorExpanded = !vendorExpanded }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
-                    value = vendor,
-                    onValueChange = {
-                        vendor = it
-                        vendorError = null
-                        vendorExpanded = true
-                    },
-                    label = { Text(stringResource(R.string.vendor_label)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
-                    isError = vendorError != null,
-                    supportingText = { vendorError?.let { Text(it) } },
-                    trailingIcon = if (existingVendors.isNotEmpty()) {
-                        { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
-                    } else null
-                )
 
-                if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
-                    ExposedDropdownMenu(
-                        expanded = vendorExpanded,
-                        onDismissRequest = { vendorExpanded = false }
-                    ) {
-                        filteredVendors.forEach { selectionOption ->
-                            DropdownMenuItem(
-                                text = { Text(selectionOption) },
-                                onClick = {
-                                    vendor = selectionOption
-                                    vendorExpanded = false
-                                }
-                            )
+                // Vendor Autocomplete
+                var vendorExpanded by remember { mutableStateOf(false) }
+                val filteredVendors = remember(vendor, existingVendors) {
+                    if (vendor.isBlank()) existingVendors
+                    else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
+                }
+
+                ExposedDropdownMenuBox(
+                    expanded = vendorExpanded,
+                    onExpandedChange = { vendorExpanded = !vendorExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = vendor,
+                        onValueChange = {
+                            vendor = it
+                            vendorError = null
+                            vendorExpanded = true
+                        },
+                        label = { Text(stringResource(R.string.vendor_label)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
+                        isError = vendorError != null,
+                        supportingText = { vendorError?.let { Text(it) } },
+                        trailingIcon = if (existingVendors.isNotEmpty()) {
+                            { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
+                        } else null
+                    )
+
+                    if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = vendorExpanded,
+                            onDismissRequest = { vendorExpanded = false }
+                        ) {
+                            filteredVendors.forEach { selectionOption ->
+                                DropdownMenuItem(
+                                    text = { Text(selectionOption) },
+                                    onClick = {
+                                        vendor = selectionOption
+                                        vendorExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            OutlinedTextField(
-                value = color,
-                onValueChange = {
-                    color = it
-                    colorError = null
-                },
-                label = { Text(stringResource(R.string.color_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                isError = colorError != null,
-                supportingText = { colorError?.let { Text(it) } }
-            )
-
-            val sizeOptions = listOf(
-                stringResource(R.string.size_500g),
-                stringResource(R.string.size_1kg),
-                stringResource(R.string.size_2kg)
-            )
-            var expanded by remember { mutableStateOf(false) }
-            var selectedSize by remember { mutableStateOf(sizeOptions[1]) }
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
                 OutlinedTextField(
-                    value = selectedSize,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.size_label)) },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    value = color,
+                    onValueChange = {
+                        color = it
+                        colorError = null
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+                    label = { Text(stringResource(R.string.color_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = colorError != null,
+                    supportingText = { colorError?.let { Text(it) } }
                 )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+
+                // Size Selection
+                Text(
+                    text = stringResource(R.string.size_label),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = !isCustomSize,
+                        onClick = { isCustomSize = false },
+                        label = { Text(size1kg) }
+                    )
+                    FilterChip(
+                        selected = isCustomSize,
+                        onClick = { isCustomSize = true },
+                        label = { Text(stringResource(R.string.size_custom)) }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = isCustomSize,
+                    enter = fadeIn(animationSpec = tween(150)),
+                    exit = fadeOut(animationSpec = tween(150))
                 ) {
-                    sizeOptions.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                selectedSize = selectionOption
-                                expanded = false
-                            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${sliderValue.toInt()}$unitGrams",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Slider(
+                            value = sliderValue,
+                            onValueChange = { sliderValue = it },
+                            valueRange = 100f..1000f,
+                            steps = 17 // (1000-100)/50 - 1 = 18 - 1 = 17 steps
                         )
                     }
                 }
@@ -197,7 +227,12 @@ fun AddFilamentScreen(
                     }
 
                     if (!hasError) {
-                        viewModel.save(vendor, color, selectedSize)
+                        val sizeToSave = if (isCustomSize) {
+                            "${sliderValue.toInt()}$unitGrams"
+                        } else {
+                            size1kg
+                        }
+                        viewModel.save(vendor, color, sizeToSave)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

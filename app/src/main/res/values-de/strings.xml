@@ -7,6 +7,8 @@
     <string name="size_500g">500g</string>
     <string name="size_1kg">1kg</string>
     <string name="size_2kg">2kg</string>
+    <string name="size_custom">Benutzerdefiniert</string>
+    <string name="unit_grams">g</string>
     <string name="save">Speichern</string>
     <string name="filament_saved_message">Filament mit ID: %1$d gespeichert</string>
     <string name="error_field_cant_be_empty">Feld darf nicht leer sein</string>
