@@ -16,4 +16,6 @@
     <string name="filament_list_title">Meine Filamente</string>
     <string name="view_filaments">Filamente ansehen</string>
     <string name="remaining_weight">Verbleibend: %1$s</string>
+    <string name="created_date_label">Erstellt: %1$s</string>
+    <string name="changed_date_label">Geändert: %1$s</string>
 </resources>
