@@ -11,4 +11,6 @@
     <string name="filament_saved_message">Filament mit ID: %1$d gespeichert</string>
     <string name="error_field_cant_be_empty">Feld darf nicht leer sein</string>
     <string name="back_button_content_description">Zurück</string>
+    <string name="debug_clear_filaments">Filamente löschen</string>
+    <string name="filaments_in_stock">Filamente vorhanden: %1$d</string>
 </resources>
