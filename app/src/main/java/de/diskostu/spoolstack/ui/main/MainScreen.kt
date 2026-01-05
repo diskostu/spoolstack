@@ -37,6 +37,7 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     var filamentCount by remember { mutableIntStateOf(0) }
+    val textFilamentsDeleted = stringResource(R.string.debug_filaments_deleted)
 
     LaunchedEffect(Unit) {
         viewModel.getFilamentCount { count ->
@@ -72,12 +73,11 @@ fun MainScreen(
 
             DebugButton(
                 onClick = {
-                    viewModel.clearAllFilaments()
-                    viewModel.getFilamentCount { count ->
-                        filamentCount = count
+                    viewModel.clearAllFilaments {
+                        filamentCount = 0
                         Toast.makeText(
                             context,
-                            "Filament count: $count",
+                            textFilamentsDeleted,
                             Toast.LENGTH_SHORT
                         ).show()
                     }

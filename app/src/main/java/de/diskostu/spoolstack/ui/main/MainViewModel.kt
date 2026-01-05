@@ -19,9 +19,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun clearAllFilaments() {
+    fun clearAllFilaments(onCompletion: () -> Unit) {
         viewModelScope.launch {
             filamentDao.deleteAll()
+            onCompletion()
         }
     }
 }
