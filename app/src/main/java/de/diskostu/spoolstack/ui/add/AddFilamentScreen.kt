@@ -37,7 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,13 +91,13 @@ fun AddFilamentScreen(
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
-        // State hoisting
-        var vendor by remember { mutableStateOf("") }
-        var vendorError by remember { mutableStateOf<String?>(null) }
-        var color by remember { mutableStateOf("") }
-        var colorError by remember { mutableStateOf<String?>(null) }
-        var isCustomSize by remember { mutableStateOf(false) }
-        var sliderValue by remember { mutableFloatStateOf(500f) }
+        // State hoisting with rememberSaveable to survive configuration changes
+        var vendor by rememberSaveable { mutableStateOf("") }
+        var vendorError by rememberSaveable { mutableStateOf<String?>(null) }
+        var color by rememberSaveable { mutableStateOf("") }
+        var colorError by rememberSaveable { mutableStateOf<String?>(null) }
+        var isCustomSize by rememberSaveable { mutableStateOf(false) }
+        var sliderValue by rememberSaveable { mutableFloatStateOf(500f) }
 
         Column(
             modifier = Modifier
@@ -114,8 +114,8 @@ fun AddFilamentScreen(
             ) {
 
                 // Vendor Autocomplete
-                var vendorExpanded by remember { mutableStateOf(false) }
-                val filteredVendors = remember(vendor, existingVendors) {
+                var vendorExpanded by rememberSaveable { mutableStateOf(false) }
+                val filteredVendors = rememberSaveable(vendor, existingVendors) {
                     if (vendor.isBlank()) existingVendors
                     else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
                 }
