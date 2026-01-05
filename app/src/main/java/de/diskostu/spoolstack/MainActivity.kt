@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import de.diskostu.spoolstack.ui.add.AddFilamentScreen
+import de.diskostu.spoolstack.ui.list.FilamentListScreen
 import de.diskostu.spoolstack.ui.main.MainScreen
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
@@ -27,6 +28,11 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("add_filament") {
                         AddFilamentScreen(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("filament_list") {
+                        FilamentListScreen(
                             onNavigateBack = { navController.popBackStack() }
                         )
                     }

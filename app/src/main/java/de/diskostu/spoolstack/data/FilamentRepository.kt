@@ -1,5 +1,6 @@
 package de.diskostu.spoolstack.data
 
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class FilamentRepository @Inject constructor(
@@ -12,5 +13,9 @@ class FilamentRepository @Inject constructor(
 
     suspend fun getDistinctVendors(): List<String> {
         return filamentDao.getDistinctVendors()
+    }
+
+    fun getAllFilaments(): Flow<List<Filament>> {
+        return filamentDao.getAllFilaments()
     }
 }

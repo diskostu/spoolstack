@@ -13,4 +13,7 @@
     <string name="back_button_content_description">Zurück</string>
     <string name="debug_clear_filaments">Filamente löschen</string>
     <string name="filaments_in_stock">Filamente vorhanden: %1$d</string>
+    <string name="filament_list_title">Meine Filamente</string>
+    <string name="view_filaments">Filamente ansehen</string>
+    <string name="remaining_weight">Verbleibend: %1$s</string>
 </resources>

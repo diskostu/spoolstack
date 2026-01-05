@@ -3,7 +3,9 @@ package de.diskostu.spoolstack.ui.main
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -19,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -51,10 +54,21 @@ fun MainScreen(
         ) {
             Text(text = stringResource(id = R.string.filaments_in_stock, filamentCount))
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             // opens the screen to add a new filament
             Button(onClick = { navController.navigate("add_filament") }) {
                 Text(stringResource(R.string.add_filament))
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // opens the screen to list all filaments
+            Button(onClick = { navController.navigate("filament_list") }) {
+                Text(stringResource(R.string.view_filaments))
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             DebugButton(
                 onClick = {

@@ -3,6 +3,7 @@ package de.diskostu.spoolstack.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FilamentDao {
@@ -18,4 +19,7 @@ interface FilamentDao {
 
     @Query("SELECT DISTINCT vendor FROM filament ORDER BY vendor ASC")
     suspend fun getDistinctVendors(): List<String>
+
+    @Query("SELECT * FROM filament ORDER BY id DESC")
+    fun getAllFilaments(): Flow<List<Filament>>
 }

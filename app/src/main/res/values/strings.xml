@@ -16,4 +16,8 @@
     <string name="debug_button" translatable="false">Debug Button</string>
     <string name="debug_clear_filaments">Clear filaments</string>
     <string name="filaments_in_stock">Filaments in stock: %1$d</string>
+
+    <string name="filament_list_title">My Filaments</string>
+    <string name="view_filaments">View Filaments</string>
+    <string name="remaining_weight">Remaining: %1$s</string>
 </resources>
