@@ -4,8 +4,6 @@ import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -20,6 +18,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddFilamentViewModelTest {
@@ -61,7 +60,7 @@ class AddFilamentViewModelTest {
         val filament = Filament(vendor = "Vendor", color = "Red", size = "1kg")
         val expectedId = 123L
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
-        `when`(filamentRepository.insert(filament)).thenReturn(expectedId)
+        `when`(filamentRepository.insert(any())).thenReturn(expectedId)
         viewModel = AddFilamentViewModel(filamentRepository)
         
         // We need to collect the flow *before* the emission happens, 

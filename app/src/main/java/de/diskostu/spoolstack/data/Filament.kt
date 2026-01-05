@@ -9,5 +9,7 @@ data class Filament(
     val id: Int = 0,
     val vendor: String,
     val color: String,
-    val size: String
+    val size: String,
+    val createdDate: Long = System.currentTimeMillis(),
+    val changeDate: Long = System.currentTimeMillis()
 )

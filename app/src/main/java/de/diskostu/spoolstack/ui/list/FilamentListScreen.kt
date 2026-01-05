@@ -30,6 +30,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,8 +95,23 @@ fun FilamentCard(filament: Filament) {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
             )
+            Text(
+                text = stringResource(R.string.created_date_label, formatDate(filament.createdDate)),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                text = stringResource(R.string.changed_date_label, formatDate(filament.changeDate)),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
+}
+
+private fun formatDate(timestamp: Long): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }
 
 @Preview(showBackground = true)

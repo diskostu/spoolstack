@@ -20,4 +20,6 @@
     <string name="filament_list_title">My Filaments</string>
     <string name="view_filaments">View Filaments</string>
     <string name="remaining_weight">Remaining: %1$s</string>
+    <string name="created_date_label">Created: %1$s</string>
+    <string name="changed_date_label">Modified: %1$s</string>
 </resources>
