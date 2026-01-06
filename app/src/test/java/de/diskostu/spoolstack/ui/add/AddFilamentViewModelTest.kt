@@ -1,5 +1,6 @@
 package de.diskostu.spoolstack.ui.add
 
+import androidx.lifecycle.SavedStateHandle
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ class AddFilamentViewModelTest {
         `when`(filamentRepository.getDistinctVendors()).thenReturn(vendors)
 
         // When
-        viewModel = AddFilamentViewModel(filamentRepository)
+        viewModel = AddFilamentViewModel(filamentRepository, SavedStateHandle())
         advanceUntilIdle()
 
         // Then
@@ -67,7 +68,7 @@ class AddFilamentViewModelTest {
         val expectedId = 123L
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
         `when`(filamentRepository.insert(any())).thenReturn(expectedId)
-        viewModel = AddFilamentViewModel(filamentRepository)
+        viewModel = AddFilamentViewModel(filamentRepository, SavedStateHandle())
         
         // We need to collect the flow *before* the emission happens, 
         // because SharedFlow without replay drops events if there are no subscribers.
@@ -99,7 +100,7 @@ class AddFilamentViewModelTest {
         val expectedId = 123L
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
         `when`(filamentRepository.insert(any())).thenReturn(expectedId)
-        viewModel = AddFilamentViewModel(filamentRepository)
+        viewModel = AddFilamentViewModel(filamentRepository, SavedStateHandle())
 
         val emittedIds = mutableListOf<Long>()
         val collectionJob = launch(UnconfinedTestDispatcher(testScheduler)) {
