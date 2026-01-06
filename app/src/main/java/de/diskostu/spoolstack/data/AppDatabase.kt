@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Filament::class, Print::class], version = 4, exportSchema = false)
+@Database(entities = [Filament::class, Print::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun filamentDao(): FilamentDao
     abstract fun printDao(): PrintDao
@@ -43,6 +43,12 @@ abstract class AppDatabase : RoomDatabase() {
                 """
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_prints_filamentId` ON `prints` (`filamentId`)")
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE prints ADD COLUMN name TEXT NOT NULL DEFAULT ''")
             }
         }
     }

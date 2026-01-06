@@ -85,11 +85,14 @@ fun RecordPrintScreen(
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
+        var name by remember { mutableStateOf("") }
+        var nameError by remember { mutableStateOf<String?>(null) }
+
         var selectedFilament by remember { mutableStateOf<Filament?>(null) }
         var filamentError by remember { mutableStateOf<String?>(null) }
 
-        var sliderValue by remember { mutableFloatStateOf(5.0f) }
         var maxAmount by remember { mutableFloatStateOf(1000f) }
+        var sliderValue by remember { mutableFloatStateOf(maxAmount / 2) }
 
         var url by remember { mutableStateOf("") }
         var comment by remember { mutableStateOf("") }
@@ -124,6 +127,22 @@ fun RecordPrintScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Name Field (Mandatory)
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = {
+                        name = it
+                        if (nameError != null && it.isNotBlank()) {
+                            nameError = null
+                        }
+                    },
+                    label = { Text(stringResource(R.string.print_name_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = nameError != null,
+                    supportingText = { nameError?.let { Text(it) } }
+                )
+
                 // Filament Selection Dropdown
                 var expanded by remember { mutableStateOf(false) }
 
@@ -227,10 +246,21 @@ fun RecordPrintScreen(
             // Save Button
             Button(
                 onClick = {
+                    var isValid = true
+
+                    if (name.isBlank()) {
+                        nameError = errorFieldCantBeEmpty
+                        isValid = false
+                    }
+
                     if (selectedFilament == null) {
                         filamentError = errorFieldCantBeEmpty
-                    } else {
+                        isValid = false
+                    }
+
+                    if (isValid) {
                         viewModel.savePrint(
+                            name = name,
                             filament = selectedFilament!!,
                             amountUsed = sliderValue.toDouble(),
                             url = url.ifBlank { null },

@@ -39,6 +39,7 @@ class RecordPrintViewModel @Inject constructor(
     }
 
     fun savePrint(
+        name: String,
         filament: Filament,
         amountUsed: Double,
         url: String?,
@@ -48,6 +49,7 @@ class RecordPrintViewModel @Inject constructor(
             // Save the print record
             filamentRepository.insertPrint(
                 Print(
+                    name = name,
                     filamentId = filament.id,
                     amountUsed = amountUsed,
                     url = url,

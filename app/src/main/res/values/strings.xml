@@ -35,6 +35,7 @@
     <string name="record_print_title">Record Print</string>
     <string name="view_prints">View Prints</string>
     <string name="print_list_title">My Prints</string>
+    <string name="print_name_label">Name *</string>
     <string name="filament_selection_label">Filament *</string>
     <string name="used_amount_label">Used Amount *</string>
     <string name="url_label">Link (optional)</string>

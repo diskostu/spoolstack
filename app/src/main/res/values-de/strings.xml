@@ -31,6 +31,7 @@
     <string name="record_print_title">Druckvorgang erfassen</string>
     <string name="view_prints">Druckvorgänge anzeigen</string>
     <string name="print_list_title">Meine Druckvorgänge</string>
+    <string name="print_name_label">Name *</string>
     <string name="filament_selection_label">Filament *</string>
     <string name="used_amount_label">Verwendete Menge *</string>
     <string name="url_label">Link (optional)</string>

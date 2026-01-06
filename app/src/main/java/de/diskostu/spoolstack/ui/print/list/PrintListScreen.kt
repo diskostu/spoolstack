@@ -101,6 +101,14 @@ fun PrintItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            // Print Name
+            Text(
+                text = print.name,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             // Filament details
             Text(
                 text = filament?.let {

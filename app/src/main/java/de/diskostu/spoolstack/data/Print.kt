@@ -22,6 +22,7 @@ import androidx.room.PrimaryKey
 data class Print(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val name: String,
     val filamentId: Int,
     val amountUsed: Double,
     val url: String? = null,
