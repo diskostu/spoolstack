@@ -16,6 +16,7 @@
     <string name="size_custom">Custom</string>
     <string name="unit_grams" translatable="false">g</string>
     <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
     <string name="filament_saved_message">Filament saved with ID: %1$d</string>
     <string name="error_field_cant_be_empty">Field cannot be empty</string>
     <string name="back_button_content_description">Back</string>

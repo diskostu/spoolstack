@@ -22,6 +22,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -243,34 +244,45 @@ fun RecordPrintScreen(
                 )
             }
 
-            // Save Button
-            Button(
-                onClick = {
-                    var isValid = true
-
-                    if (name.isBlank()) {
-                        nameError = errorFieldCantBeEmpty
-                        isValid = false
-                    }
-
-                    if (selectedFilament == null) {
-                        filamentError = errorFieldCantBeEmpty
-                        isValid = false
-                    }
-
-                    if (isValid) {
-                        viewModel.savePrint(
-                            name = name,
-                            filament = selectedFilament!!,
-                            amountUsed = sliderValue.toDouble(),
-                            url = url.ifBlank { null },
-                            comment = comment.ifBlank { null }
-                        )
-                    }
-                },
+            // Buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = stringResource(R.string.save))
+                OutlinedButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+                Button(
+                    onClick = {
+                        var isValid = true
+
+                        if (name.isBlank()) {
+                            nameError = errorFieldCantBeEmpty
+                            isValid = false
+                        }
+
+                        if (selectedFilament == null) {
+                            filamentError = errorFieldCantBeEmpty
+                            isValid = false
+                        }
+
+                        if (isValid) {
+                            viewModel.savePrint(
+                                name = name,
+                                filament = selectedFilament!!,
+                                amountUsed = sliderValue.toDouble(),
+                                url = url.ifBlank { null },
+                                comment = comment.ifBlank { null }
+                            )
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = stringResource(R.string.save))
+                }
             }
         }
     }

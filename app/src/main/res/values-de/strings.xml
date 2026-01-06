@@ -13,6 +13,7 @@
     <string name="size_2kg">2kg</string>
     <string name="size_custom">Benutzerdefiniert</string>
     <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
     <string name="filament_saved_message">Filament mit ID: %1$d gespeichert</string>
     <string name="error_field_cant_be_empty">Feld darf nicht leer sein</string>
     <string name="back_button_content_description">Zurück</string>

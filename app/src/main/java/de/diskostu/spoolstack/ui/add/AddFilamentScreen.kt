@@ -34,6 +34,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -372,39 +373,50 @@ fun AddFilamentScreen(
         }
 
         val saveButton: @Composable () -> Unit = {
-            Button(
-                onClick = {
-                    var hasError = false
-                    if (vendor.isBlank()) {
-                        vendorError = errorFieldCantBeEmpty
-                        hasError = true
-                    }
-                    if (color.isBlank()) {
-                        colorError = errorFieldCantBeEmpty
-                        hasError = true
-                    }
-
-                    if (!hasError) {
-                        val sizeToSave = if (isCustomSize) {
-                            "${sliderValue.roundToInt()}$unitGrams"
-                        } else {
-                            size1kg
-                        }
-                        viewModel.save(
-                            vendor,
-                            color,
-                            sizeToSave,
-                            boughtAt.ifBlank { null },
-                            boughtDateLong,
-                            price.toDoubleOrNull()
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .testTag("save_button")
-                    .fillMaxWidth()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = stringResource(id = R.string.save))
+                OutlinedButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+                Button(
+                    onClick = {
+                        var hasError = false
+                        if (vendor.isBlank()) {
+                            vendorError = errorFieldCantBeEmpty
+                            hasError = true
+                        }
+                        if (color.isBlank()) {
+                            colorError = errorFieldCantBeEmpty
+                            hasError = true
+                        }
+
+                        if (!hasError) {
+                            val sizeToSave = if (isCustomSize) {
+                                "${sliderValue.roundToInt()}$unitGrams"
+                            } else {
+                                size1kg
+                            }
+                            viewModel.save(
+                                vendor,
+                                color,
+                                sizeToSave,
+                                boughtAt.ifBlank { null },
+                                boughtDateLong,
+                                price.toDoubleOrNull()
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .testTag("save_button")
+                        .weight(1f)
+                ) {
+                    Text(text = stringResource(id = R.string.save))
+                }
             }
         }
 
