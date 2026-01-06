@@ -66,6 +66,7 @@ import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -230,7 +231,7 @@ fun AddFilamentScreen(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${sliderValue.toInt()}$unitGrams",
+                    text = "${sliderValue.roundToInt()}$unitGrams",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.width(60.dp), // Fixed width to prevent jumping
                     textAlign = TextAlign.End
@@ -358,7 +359,7 @@ fun AddFilamentScreen(
 
                     if (!hasError) {
                         val sizeToSave = if (isCustomSize) {
-                            "${sliderValue.toInt()}$unitGrams"
+                            "${sliderValue.roundToInt()}$unitGrams"
                         } else {
                             size1kg
                         }
