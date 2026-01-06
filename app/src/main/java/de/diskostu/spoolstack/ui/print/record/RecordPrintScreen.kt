@@ -154,7 +154,7 @@ fun RecordPrintScreen(
                     OutlinedTextField(
                         value = selectedFilament?.let {
                             stringResource(
-                                R.string.filament_display_format,
+                                R.string.filament_dropdown_format,
                                 it.vendor,
                                 it.color,
                                 it.size
@@ -181,7 +181,7 @@ fun RecordPrintScreen(
                                 text = {
                                     Text(
                                         stringResource(
-                                            R.string.filament_display_format,
+                                            R.string.filament_dropdown_format,
                                             filament.vendor,
                                             filament.color,
                                             filament.size

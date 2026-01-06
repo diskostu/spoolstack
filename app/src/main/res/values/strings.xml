@@ -45,5 +45,6 @@
     <string name="used_amount_format">Used: %1$.1fg</string>
     <string name="print_date_format">Date: %1$s</string>
     <string name="filament_display_format" translatable="false">%1$s - %2$s</string>
+    <string name="filament_dropdown_format" translatable="false">%1$s - %2$s (%3$s)</string>
     <string name="select_filament_hint">Select a filament</string>
 </resources>
