@@ -34,9 +34,27 @@ class AddFilamentViewModel @Inject constructor(
         }
     }
 
-    fun save(vendor: String, color: String, size: String) {
+    fun save(
+        vendor: String,
+        color: String,
+        size: String,
+        boughtAt: String?,
+        boughtDate: Long?,
+        price: Double?
+    ) {
         viewModelScope.launch {
-            val newId = filamentRepository.insert(Filament(vendor = vendor, color = color, size = size))
+            val newId = filamentRepository.insert(
+                Filament(
+                    vendor = vendor,
+                    color = color,
+                    size = size,
+                    boughtAt = boughtAt,
+                    boughtDate = boughtDate,
+                    price = price,
+                    createdDate = System.currentTimeMillis(),
+                    changeDate = System.currentTimeMillis()
+                )
+            )
             _savedFilamentId.emit(newId)
         }
     }

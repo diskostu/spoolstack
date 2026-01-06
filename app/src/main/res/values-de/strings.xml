@@ -1,9 +1,12 @@
 <resources>
     <string name="add_filament">Filament hinzufügen</string>
     <string name="add_filament_title">Filament hinzufügen</string>
-    <string name="vendor_label">Hersteller</string>
-    <string name="color_label">Farbe</string>
-    <string name="size_label">Größe</string>
+    <string name="vendor_label">Hersteller *</string>
+    <string name="color_label">Farbe *</string>
+    <string name="size_label">Größe *</string>
+    <string name="bought_at_label">Gekauft bei (optional)</string>
+    <string name="bought_date_label">Kaufdatum (optional)</string>
+    <string name="price_label">Preis (optional)</string>
     <string name="size_500g">500g</string>
     <string name="size_1kg">1kg</string>
     <string name="size_2kg">2kg</string>

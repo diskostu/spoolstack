@@ -23,7 +23,7 @@ class AppModule {
             AppDatabase::class.java,
             "spoolstack"
         )
-        .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
         .build()
     }
 

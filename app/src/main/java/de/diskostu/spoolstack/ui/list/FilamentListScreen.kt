@@ -32,7 +32,6 @@ import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -140,13 +139,17 @@ fun FilamentListScreenPreview() {
                     id = 1,
                     vendor = "Prusament",
                     color = "Galaxy Black",
-                    size = "1kg"
+                    size = "1kg",
+                    createdDate = System.currentTimeMillis(),
+                    changeDate = System.currentTimeMillis()
                 ),
                 Filament(
                     id = 2,
                     vendor = "Sunlu",
                     color = "PLA White",
-                    size = "1kg"
+                    size = "1kg",
+                    createdDate = System.currentTimeMillis(),
+                    changeDate = System.currentTimeMillis()
                 )
             ),
             onNavigateBack = {}
@@ -164,7 +167,9 @@ fun FilamentCardPreview() {
                 id = 1,
                 vendor = "Prusament",
                 color = "Galaxy Black",
-                size = "1kg"
+                size = "1kg",
+                createdDate = System.currentTimeMillis(),
+                changeDate = System.currentTimeMillis()
             )
         )
     }

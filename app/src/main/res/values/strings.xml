@@ -3,9 +3,12 @@
 
     <string name="add_filament">add filament</string>
     <string name="add_filament_title">add filament</string>
-    <string name="vendor_label">Vendor</string>
-    <string name="color_label">Color</string>
-    <string name="size_label">Size</string>
+    <string name="vendor_label">Vendor *</string>
+    <string name="color_label">Color *</string>
+    <string name="size_label">Size *</string>
+    <string name="bought_at_label">Bought at (optional)</string>
+    <string name="bought_date_label">Bought date (optional)</string>
+    <string name="price_label">Price (optional)</string>
     <string name="size_500g">500g</string>
     <string name="size_1kg">1kg</string>
     <string name="size_2kg">2kg</string>

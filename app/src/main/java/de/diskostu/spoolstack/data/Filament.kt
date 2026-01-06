@@ -10,6 +10,9 @@ data class Filament(
     val vendor: String,
     val color: String,
     val size: String,
+    val boughtAt: String? = null,
+    val boughtDate: Long? = null,
+    val price: Double? = null,
     val createdDate: Long = System.currentTimeMillis(),
     val changeDate: Long = System.currentTimeMillis()
 )

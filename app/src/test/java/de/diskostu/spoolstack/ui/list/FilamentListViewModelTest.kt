@@ -42,8 +42,22 @@ class FilamentListViewModelTest {
     fun `filaments are loaded from repository`() = runTest {
         // Given
         val filamentList = listOf(
-            Filament(1, "Vendor A", "Red", "1kg"),
-            Filament(2, "Vendor B", "Blue", "500g")
+            Filament(
+                1,
+                "Vendor A",
+                "Red",
+                "1kg",
+                createdDate = System.currentTimeMillis(),
+                changeDate = System.currentTimeMillis()
+            ),
+            Filament(
+                2,
+                "Vendor B",
+                "Blue",
+                "500g",
+                createdDate = System.currentTimeMillis(),
+                changeDate = System.currentTimeMillis()
+            )
         )
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
 
