@@ -98,25 +98,20 @@ fun FilamentCard(filament: Filament) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = filament.vendor,
+                text = filament.vendor + " | " + filament.color,
                 style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = filament.color,
-                style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = stringResource(R.string.remaining_weight, filament.size),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
             )
+            val created =
+                stringResource(R.string.created_date_label, formatDate(filament.createdDate, df))
+            val modified =
+                stringResource(R.string.changed_date_label, formatDate(filament.changeDate, df))
             Text(
-                text = stringResource(R.string.created_date_label, formatDate(filament.createdDate, df)),
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            Text(
-                text = stringResource(R.string.changed_date_label, formatDate(filament.changeDate, df)),
+                text = "$created | $modified",
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.padding(top = 4.dp)
             )
