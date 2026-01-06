@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -199,6 +200,7 @@ fun AddFilamentScreen(
                     },
                     label = { Text(stringResource(R.string.vendor_label)) },
                     modifier = Modifier
+                        .testTag("vendor_input")
                         .fillMaxWidth()
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
                     isError = vendorError != null,
@@ -235,7 +237,9 @@ fun AddFilamentScreen(
                     colorError = null
                 },
                 label = { Text(stringResource(R.string.color_label)) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .testTag("color_input")
+                    .fillMaxWidth(),
                 isError = colorError != null,
                 supportingText = { colorError?.let { Text(it) } }
             )
@@ -396,7 +400,9 @@ fun AddFilamentScreen(
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .testTag("save_button")
+                    .fillMaxWidth()
             ) {
                 Text(text = stringResource(id = R.string.save))
             }
