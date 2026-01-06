@@ -217,6 +217,27 @@ fun AddFilamentScreen(
             )
         }
 
+        val weightSliderRow: @Composable () -> Unit = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { sliderValue = it },
+                    valueRange = 100f..1000f,
+                    steps = 17,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "${sliderValue.toInt()}$unitGrams",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.width(60.dp), // Fixed width to prevent jumping
+                    textAlign = TextAlign.End
+                )
+            }
+        }
+
         val sizeField: @Composable (isLandscape: Boolean) -> Unit = { landscape ->
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (!landscape) {
@@ -256,24 +277,7 @@ fun AddFilamentScreen(
                             exit = fadeOut(animationSpec = tween(150)),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Slider(
-                                    value = sliderValue,
-                                    onValueChange = { sliderValue = it },
-                                    valueRange = 100f..1000f,
-                                    steps = 17,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    text = "${sliderValue.toInt()}$unitGrams",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.width(60.dp), // Fixed width to prevent jumping
-                                    textAlign = TextAlign.End
-                                )
-                            }
+                            weightSliderRow()
                         }
                     }
                 }
@@ -285,24 +289,7 @@ fun AddFilamentScreen(
                         enter = fadeIn(animationSpec = tween(150)),
                         exit = fadeOut(animationSpec = tween(150))
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Slider(
-                                value = sliderValue,
-                                onValueChange = { sliderValue = it },
-                                valueRange = 100f..1000f,
-                                steps = 17,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "${sliderValue.toInt()}$unitGrams",
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.width(60.dp), // Fixed width to prevent jumping
-                                textAlign = TextAlign.End
-                            )
-                        }
+                        weightSliderRow()
                     }
                 }
             }
