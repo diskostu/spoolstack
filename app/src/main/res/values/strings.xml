@@ -3,6 +3,7 @@
 
     <string name="add_filament">add filament</string>
     <string name="add_filament_title">add filament</string>
+    <string name="edit_filament_title">Edit filament</string>
     <string name="vendor_label">Vendor *</string>
     <string name="color_label">Color *</string>
     <string name="size_label">Size *</string>

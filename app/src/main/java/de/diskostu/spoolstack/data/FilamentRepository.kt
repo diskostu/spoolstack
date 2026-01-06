@@ -11,6 +11,14 @@ class FilamentRepository @Inject constructor(
         return filamentDao.insert(filament)
     }
 
+    suspend fun update(filament: Filament) {
+        filamentDao.update(filament)
+    }
+
+    suspend fun getFilamentById(id: Int): Filament? {
+        return filamentDao.getFilamentById(id)
+    }
+
     suspend fun getDistinctVendors(): List<String> {
         return filamentDao.getDistinctVendors()
     }

@@ -1,6 +1,7 @@
 package de.diskostu.spoolstack.ui.list
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,13 +23,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
@@ -40,13 +45,30 @@ import java.util.Locale
 @Composable
 fun FilamentListScreen(
     onNavigateBack: () -> Unit,
+    onFilamentClick: (Int) -> Unit,
     viewModel: FilamentListViewModel = hiltViewModel()
 ) {
     val filaments by viewModel.filaments.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                viewModel.onUiStart()
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onUiStop()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     FilamentListContent(
         filaments = filaments,
-        onNavigateBack = onNavigateBack
+        onNavigateBack = onNavigateBack,
+        onFilamentClick = onFilamentClick
     )
 }
 
@@ -54,7 +76,8 @@ fun FilamentListScreen(
 @Composable
 fun FilamentListContent(
     filaments: List<Filament>,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onFilamentClick: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -80,19 +103,32 @@ fun FilamentListContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(filaments) { filament ->
-                FilamentCard(filament = filament)
+            items(
+                items = filaments,
+                key = { it.id }
+            ) { filament ->
+                FilamentCard(
+                    filament = filament,
+                    onClick = { onFilamentClick(filament.id) },
+                    modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                )
             }
         }
     }
 }
 
 @Composable
-fun FilamentCard(filament: Filament) {
+fun FilamentCard(
+    filament: Filament,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -150,7 +186,8 @@ fun FilamentListScreenPreview() {
                     changeDate = System.currentTimeMillis()
                 )
             ),
-            onNavigateBack = {}
+            onNavigateBack = {},
+            onFilamentClick = {}
         )
     }
 }
@@ -168,7 +205,8 @@ fun FilamentCardPreview() {
                 size = "1kg",
                 createdDate = System.currentTimeMillis(),
                 changeDate = System.currentTimeMillis()
-            )
+            ),
+            onClick = {}
         )
     }
 }

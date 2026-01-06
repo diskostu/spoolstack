@@ -78,6 +78,7 @@ fun AddFilamentScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val existingVendors by viewModel.vendors.collectAsState()
+    val filamentState by viewModel.filamentState.collectAsState()
 
     val filamentSavedMessage = stringResource(R.string.filament_saved_message)
     val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
@@ -98,7 +99,7 @@ fun AddFilamentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_filament_title)) },
+                title = { Text(stringResource(if (filamentState == null) R.string.add_filament_title else R.string.edit_filament_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -123,6 +124,28 @@ fun AddFilamentScreen(
         var boughtAt by rememberSaveable { mutableStateOf("") }
         var price by rememberSaveable { mutableStateOf("") }
         var boughtDateLong by rememberSaveable { mutableStateOf<Long?>(null) }
+
+        // Load data if editing
+        LaunchedEffect(filamentState) {
+            filamentState?.let { filament ->
+                vendor = filament.vendor
+                color = filament.color
+                boughtAt = filament.boughtAt ?: ""
+                price = filament.price?.toString() ?: ""
+                boughtDateLong = filament.boughtDate
+
+                if (filament.size == size1kg) {
+                    isCustomSize = false
+                } else {
+                    isCustomSize = true
+                    // Try parsing size like "500g"
+                    val parsedSize = filament.size.replace(unitGrams, "").toFloatOrNull()
+                    if (parsedSize != null) {
+                        sliderValue = parsedSize
+                    }
+                }
+            }
+        }
 
         // Date Picker State
         var showDatePicker by remember { mutableStateOf(false) }

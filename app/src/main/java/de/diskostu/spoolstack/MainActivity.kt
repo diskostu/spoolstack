@@ -4,9 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import de.diskostu.spoolstack.ui.add.AddFilamentScreen
 import de.diskostu.spoolstack.ui.list.FilamentListScreen
@@ -22,18 +26,36 @@ class MainActivity : ComponentActivity() {
             SpoolstackTheme {
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = "main") {
+                NavHost(
+                    navController = navController,
+                    startDestination = "main",
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) {
                     composable("main") {
                         MainScreen(navController = navController)
                     }
-                    composable("add_filament") {
+                    composable(
+                        route = "add_filament?filamentId={filamentId}",
+                        arguments = listOf(
+                            navArgument("filamentId") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            }
+                        )
+                    ) {
                         AddFilamentScreen(
                             onNavigateBack = { navController.popBackStack() }
                         )
                     }
                     composable("filament_list") {
                         FilamentListScreen(
-                            onNavigateBack = { navController.popBackStack() }
+                            onNavigateBack = { navController.popBackStack() },
+                            onFilamentClick = { filamentId ->
+                                navController.navigate("add_filament?filamentId=$filamentId")
+                            }
                         )
                     }
                 }

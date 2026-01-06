@@ -1,6 +1,7 @@
 <resources>
     <string name="add_filament">Filament hinzufügen</string>
     <string name="add_filament_title">Filament hinzufügen</string>
+    <string name="edit_filament_title">Filament bearbeiten</string>
     <string name="vendor_label">Hersteller *</string>
     <string name="color_label">Farbe *</string>
     <string name="size_label">Größe *</string>
