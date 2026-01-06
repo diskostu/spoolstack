@@ -44,7 +44,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrintListScreen(
     onNavigateBack: () -> Unit,
@@ -53,6 +52,20 @@ fun PrintListScreen(
     val prints by viewModel.prints.collectAsState()
     val filaments by viewModel.filaments.collectAsState()
 
+    PrintListContent(
+        prints = prints,
+        filaments = filaments,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PrintListContent(
+    prints: List<Print>,
+    filaments: Map<Int, Filament>,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,7 +89,7 @@ fun PrintListScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(prints) { print ->
-                PrintItem(
+                PrintCard(
                     print = print,
                     filament = filaments[print.filamentId]
                 )
@@ -86,7 +99,7 @@ fun PrintListScreen(
 }
 
 @Composable
-fun PrintItem(
+fun PrintCard(
     print: Print,
     filament: Filament?
 ) {
@@ -112,7 +125,7 @@ fun PrintItem(
             // Filament details
             Text(
                 text = filament?.let {
-                    stringResource(R.string.filament_display_format, it.vendor, it.color, it.size)
+                    stringResource(R.string.filament_display_format, it.vendor, it.color)
                 } ?: "Unknown Filament (ID: ${print.filamentId})",
                 style = MaterialTheme.typography.titleMedium
             )
@@ -170,7 +183,35 @@ fun PrintItem(
 @Preview(showBackground = true)
 @Composable
 fun PrintListScreenPreview() {
+    val sampleFilament = Filament(
+        id = 1,
+        vendor = "Prusa",
+        color = "Orange",
+        size = "100"
+    )
+    val samplePrint1 = Print(
+        id = 1,
+        name = "Benchy",
+        filamentId = 1,
+        amountUsed = 12.5,
+        printDate = System.currentTimeMillis(),
+        comment = "Sample comment",
+        url = "https://www.google.com"
+    )
+    val samplePrint2 = Print(
+        id = 2,
+        name = "Boat",
+        filamentId = 1,
+        amountUsed = 60.0,
+        printDate = System.currentTimeMillis(),
+        url = "https://www.google.com"
+    )
+
     SpoolstackTheme {
-        PrintListScreen(onNavigateBack = {})
+        PrintListContent(
+            prints = listOf(samplePrint1, samplePrint2),
+            filaments = mapOf(1 to sampleFilament),
+            onNavigateBack = {}
+        )
     }
 }

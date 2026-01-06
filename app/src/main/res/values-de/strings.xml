@@ -12,7 +12,6 @@
     <string name="size_1kg">1kg</string>
     <string name="size_2kg">2kg</string>
     <string name="size_custom">Benutzerdefiniert</string>
-    <string name="unit_grams">g</string>
     <string name="save">Speichern</string>
     <string name="filament_saved_message">Filament mit ID: %1$d gespeichert</string>
     <string name="error_field_cant_be_empty">Feld darf nicht leer sein</string>
@@ -39,6 +38,5 @@
     <string name="print_saved_message">Druckvorgang erfolgreich gespeichert</string>
     <string name="used_amount_format">Verwendet: %1$.1fg</string>
     <string name="print_date_format">Datum: %1$s</string>
-    <string name="filament_display_format">%1$s - %2$s (%3$s)</string>
     <string name="select_filament_hint">Filament auswählen</string>
 </resources>
