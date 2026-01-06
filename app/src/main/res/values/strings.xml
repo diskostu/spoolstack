@@ -29,4 +29,19 @@
     <string name="remaining_weight">Remaining: %1$s</string>
     <string name="created_date_label">Created: %1$s</string>
     <string name="changed_date_label">Modified: %1$s</string>
+
+    <!-- Print related strings -->
+    <string name="record_print">Record Print</string>
+    <string name="record_print_title">Record Print</string>
+    <string name="view_prints">View Prints</string>
+    <string name="print_list_title">My Prints</string>
+    <string name="filament_selection_label">Filament *</string>
+    <string name="used_amount_label">Used Amount *</string>
+    <string name="url_label">Link (optional)</string>
+    <string name="comment_label">Comment (optional)</string>
+    <string name="print_saved_message">Print recorded successfully</string>
+    <string name="used_amount_format">Used: %1$.1fg</string>
+    <string name="print_date_format">Date: %1$s</string>
+    <string name="filament_display_format">%1$s - %2$s (%3$s)</string>
+    <string name="select_filament_hint">Select a filament</string>
 </resources>

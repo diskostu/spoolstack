@@ -71,6 +71,20 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // opens the screen to record a print
+            Button(onClick = { navController.navigate("record_print") }) {
+                Text(stringResource(R.string.record_print))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // opens the screen to list all prints
+            Button(onClick = { navController.navigate("print_list") }) {
+                Text(stringResource(R.string.view_prints))
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             DebugButton(
                 onClick = {
                     viewModel.clearAllFilaments {

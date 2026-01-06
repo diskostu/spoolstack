@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.diskostu.spoolstack.data.AppDatabase
 import de.diskostu.spoolstack.data.FilamentDao
+import de.diskostu.spoolstack.data.PrintDao
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -23,12 +24,21 @@ class AppModule {
             AppDatabase::class.java,
             "spoolstack"
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
-        .build()
+            .addMigrations(
+                AppDatabase.MIGRATION_1_2,
+                AppDatabase.MIGRATION_2_3,
+                AppDatabase.MIGRATION_3_4
+            )
+            .build()
     }
 
     @Provides
     fun provideFilamentDao(appDatabase: AppDatabase): FilamentDao {
         return appDatabase.filamentDao()
+    }
+
+    @Provides
+    fun providePrintDao(appDatabase: AppDatabase): PrintDao {
+        return appDatabase.printDao()
     }
 }

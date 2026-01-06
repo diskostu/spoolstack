@@ -15,6 +15,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.diskostu.spoolstack.ui.add.AddFilamentScreen
 import de.diskostu.spoolstack.ui.list.FilamentListScreen
 import de.diskostu.spoolstack.ui.main.MainScreen
+import de.diskostu.spoolstack.ui.print.list.PrintListScreen
+import de.diskostu.spoolstack.ui.print.record.RecordPrintScreen
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
 @AndroidEntryPoint
@@ -56,6 +58,16 @@ class MainActivity : ComponentActivity() {
                             onFilamentClick = { filamentId ->
                                 navController.navigate("add_filament?filamentId=$filamentId")
                             }
+                        )
+                    }
+                    composable("record_print") {
+                        RecordPrintScreen(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("print_list") {
+                        PrintListScreen(
+                            onNavigateBack = { navController.popBackStack() }
                         )
                     }
                 }

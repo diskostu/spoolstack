@@ -25,4 +25,19 @@
     <string name="remaining_weight">Verbleibend: %1$s</string>
     <string name="created_date_label">Erstellt: %1$s</string>
     <string name="changed_date_label">Geändert: %1$s</string>
+
+    <!-- Print related strings -->
+    <string name="record_print">Druckvorgang erfassen</string>
+    <string name="record_print_title">Druckvorgang erfassen</string>
+    <string name="view_prints">Druckvorgänge anzeigen</string>
+    <string name="print_list_title">Meine Druckvorgänge</string>
+    <string name="filament_selection_label">Filament *</string>
+    <string name="used_amount_label">Verwendete Menge *</string>
+    <string name="url_label">Link (optional)</string>
+    <string name="comment_label">Kommentar (optional)</string>
+    <string name="print_saved_message">Druckvorgang erfolgreich gespeichert</string>
+    <string name="used_amount_format">Verwendet: %1$.1fg</string>
+    <string name="print_date_format">Datum: %1$s</string>
+    <string name="filament_display_format">%1$s - %2$s (%3$s)</string>
+    <string name="select_filament_hint">Filament auswählen</string>
 </resources>
