@@ -2,6 +2,7 @@
     <string name="add_filament">Filament hinzufügen</string>
     <string name="add_filament_title">Filament hinzufügen</string>
     <string name="edit_filament_title">Filament bearbeiten</string>
+    <string name="edit">Bearbeiten</string>
     <string name="vendor_label">Hersteller *</string>
     <string name="color_label">Farbe *</string>
     <string name="size_label">Größe *</string>
@@ -25,6 +26,7 @@
     <string name="remaining_weight">Verbleibend: %1$s</string>
     <string name="created_date_label">Erstellt: %1$s</string>
     <string name="changed_date_label">Geändert: %1$s</string>
+    <string name="menu_more_options">Weitere Optionen</string>
 
     <!-- Print related strings -->
     <string name="record_print">Druckvorgang erfassen</string>
