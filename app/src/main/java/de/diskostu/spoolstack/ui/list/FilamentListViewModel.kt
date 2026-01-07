@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
-    filamentRepository: FilamentRepository
+    private val filamentRepository: FilamentRepository
 ) : ViewModel() {
 
     private val _filaments = MutableStateFlow<List<Filament>>(emptyList())
@@ -73,6 +73,12 @@ class FilamentListViewModel @Inject constructor(
                 delay(500)
                 _filaments.value = pending
             }
+        }
+    }
+
+    fun toggleArchived(filament: Filament) {
+        viewModelScope.launch {
+            filamentRepository.update(filament.copy(archived = !filament.archived))
         }
     }
 }

@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Filament::class, Print::class], version = 5, exportSchema = false)
+@Database(entities = [Filament::class, Print::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun filamentDao(): FilamentDao
     abstract fun printDao(): PrintDao
@@ -49,6 +49,12 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE prints ADD COLUMN name TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Filament ADD COLUMN archived INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -1,6 +1,7 @@
 package de.diskostu.spoolstack.ui.list
 
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
+import de.diskostu.spoolstack.ui.theme.ActiveGreen
+import de.diskostu.spoolstack.ui.theme.ActiveGreenDark
+import de.diskostu.spoolstack.ui.theme.ArchivedGray
+import de.diskostu.spoolstack.ui.theme.ArchivedGrayDark
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import java.text.DateFormat
 import java.util.Date
@@ -77,7 +82,10 @@ fun FilamentListScreen(
     FilamentListContent(
         filaments = filaments,
         onNavigateBack = onNavigateBack,
-        onFilamentClick = onFilamentClick
+        onFilamentClick = onFilamentClick,
+        onToggleArchive = { filament ->
+            viewModel.toggleArchived(filament)
+        }
     )
 }
 
@@ -86,7 +94,8 @@ fun FilamentListScreen(
 fun FilamentListContent(
     filaments: List<Filament>,
     onNavigateBack: () -> Unit,
-    onFilamentClick: (Int) -> Unit
+    onFilamentClick: (Int) -> Unit,
+    onToggleArchive: (Filament) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -120,6 +129,7 @@ fun FilamentListContent(
                 FilamentCard(
                     filament = filament,
                     onClick = { onFilamentClick(filament.id) },
+                    onToggleArchive = { onToggleArchive(filament) },
                     modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
                 )
             }
@@ -131,15 +141,26 @@ fun FilamentListContent(
 fun FilamentCard(
     filament: Filament,
     onClick: () -> Unit,
+    onToggleArchive: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
     var showMenu by remember { mutableStateOf(false) }
+    val isDark = isSystemInDarkTheme()
+
+    val backgroundColor = if (filament.archived) {
+        if (isDark) ArchivedGrayDark else ArchivedGray
+    } else {
+        if (isDark) ActiveGreenDark else ActiveGreen
+    }
 
     Card(
         modifier = modifier
             .testTag("filament_card")
             .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -191,6 +212,19 @@ fun FilamentCard(
                             onClick()
                         }
                     )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                stringResource(
+                                    if (filament.archived) R.string.unarchive else R.string.archive
+                                )
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            onToggleArchive()
+                        }
+                    )
                 }
             }
         }
@@ -226,7 +260,8 @@ fun FilamentListScreenPreview() {
                 )
             ),
             onNavigateBack = {},
-            onFilamentClick = {}
+            onFilamentClick = {},
+            onToggleArchive = {}
         )
     }
 }
@@ -245,7 +280,8 @@ fun FilamentCardPreview() {
                 createdDate = System.currentTimeMillis(),
                 changeDate = System.currentTimeMillis()
             ),
-            onClick = {}
+            onClick = {},
+            onToggleArchive = {}
         )
     }
 }

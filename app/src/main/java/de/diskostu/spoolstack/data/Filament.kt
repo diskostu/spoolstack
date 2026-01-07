@@ -13,6 +13,7 @@ data class Filament(
     val boughtAt: String? = null,
     val boughtDate: Long? = null,
     val price: Double? = null,
+    val archived: Boolean = false,
     val createdDate: Long = System.currentTimeMillis(),
     val changeDate: Long = System.currentTimeMillis()
 )

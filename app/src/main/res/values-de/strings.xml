@@ -27,6 +27,8 @@
     <string name="created_date_label">Erstellt: %1$s</string>
     <string name="changed_date_label">Geändert: %1$s</string>
     <string name="menu_more_options">Weitere Optionen</string>
+    <string name="archive">Archivieren</string>
+    <string name="unarchive">De-Archivieren</string>
 
     <!-- Print related strings -->
     <string name="record_print">Druckvorgang erfassen</string>

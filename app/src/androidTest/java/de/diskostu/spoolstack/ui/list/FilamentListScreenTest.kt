@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -91,7 +92,19 @@ class FilamentListScreenTest {
 
         composeTestRule.onNodeWithText(lastItemText).assertIsDisplayed()
 
-        // 4. Delete all filaments and ensure list is empty
+        // 4. Archive the last item
+        composeTestRule.onNodeWithText(lastItemText)
+            .assertIsDisplayed()
+
+        // Find the "more options" button in the same card. This is tricky in a list.
+        // For simplicity in this test, we might just try to find the button if it's unique or rely on hierarchy
+        // But since we have many items, finding the *specific* menu button is hard without specific test tags per item.
+        // Let's at least verifying we can see the item.
+        // To properly test the menu interaction, we should probably add a test tag to the menu button that includes the ID.
+        // But I will skip complex menu interaction test for now to keep it simple as requested,
+        // just focusing on the scrolling and existence.
+
+        // 5. Delete all filaments and ensure list is empty
         composeTestRule.activityRule.scenario.onActivity { activity ->
             activity.onBackPressedDispatcher.onBackPressed()
         }
@@ -104,5 +117,45 @@ class FilamentListScreenTest {
 
         composeTestRule.onNodeWithTag("filament_list").assertIsDisplayed()
         composeTestRule.onAllNodesWithTag("filament_card").assertCountEquals(0)
+    }
+
+    @Test
+    fun testArchiveFunctionality() {
+        // 1. Create a filament
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
+            .performClick()
+
+        composeTestRule.onNodeWithTag("vendor_input").performTextInput("TestVendor")
+        composeTestRule.onNodeWithTag("color_input").performTextInput("TestColor")
+        composeTestRule.onNodeWithTag("save_button").performClick()
+
+        // 2. Go to list
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
+            .performClick()
+
+        // 3. Open menu and click archive
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .performClick()
+
+        // 4. Open menu again and check if it says unarchive
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+            .assertIsDisplayed()
+
+        // 5. Click unarchive
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+            .performClick()
+
+        // 6. Check if it says archive again
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .assertIsDisplayed()
     }
 }
