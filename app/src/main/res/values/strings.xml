@@ -34,6 +34,12 @@
     <string name="remaining_weight">Remaining: %1$s</string>
     <string name="created_date_label">Created: %1$s</string>
     <string name="changed_date_label">Modified: %1$s</string>
+    <string name="filter_archived_label">Archived</string>
+    <string name="filter_active_label">Active</string>
+    <string name="filter_all_label">All</string>
+    <string name="search_button_content_description">Search</string>
+    <string name="clear_search_button_content_description">Clear search</string>
+    <string name="search_placeholder">Search…</string>
 
     <!-- Print related strings -->
     <string name="record_print">Record Print</string>
