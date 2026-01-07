@@ -51,4 +51,12 @@
     <string name="filament_display_format" translatable="false">%1$s - %2$s</string>
     <string name="filament_dropdown_format" translatable="false">%1$s - %2$s (%3$s)</string>
     <string name="select_filament_hint">Select a filament</string>
+
+    <!-- Filter chips and search -->
+    <string name="filter_archived">Archived</string>
+    <string name="filter_active">Active</string>
+    <string name="filter_all">All</string>
+    <string name="search_hint">Search...</string>
+    <string name="search_clear">Clear search</string>
+    <string name="search_icon_description">Search</string>
 </resources>

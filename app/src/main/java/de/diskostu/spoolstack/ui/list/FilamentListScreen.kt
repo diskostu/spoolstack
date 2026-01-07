@@ -1,6 +1,13 @@
 package de.diskostu.spoolstack.ui.list
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,26 +16,33 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +50,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -63,6 +80,10 @@ fun FilamentListScreen(
     viewModel: FilamentListViewModel = hiltViewModel()
 ) {
     val filaments by viewModel.filaments.collectAsState()
+    val filter by viewModel.filter.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val showFilters by viewModel.showFilters.collectAsState()
+
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
@@ -81,11 +102,16 @@ fun FilamentListScreen(
 
     FilamentListContent(
         filaments = filaments,
+        filter = filter,
+        searchQuery = searchQuery,
+        showFilters = showFilters,
         onNavigateBack = onNavigateBack,
         onFilamentClick = onFilamentClick,
         onToggleArchive = { filament ->
             viewModel.toggleArchived(filament)
-        }
+        },
+        onFilterChange = viewModel::setFilter,
+        onSearchQueryChange = viewModel::setSearchQuery
     )
 }
 
@@ -93,10 +119,25 @@ fun FilamentListScreen(
 @Composable
 fun FilamentListContent(
     filaments: List<Filament>,
+    filter: FilamentFilter,
+    searchQuery: String,
+    showFilters: Boolean,
     onNavigateBack: () -> Unit,
     onFilamentClick: (Int) -> Unit,
-    onToggleArchive: (Filament) -> Unit
+    onToggleArchive: (Filament) -> Unit,
+    onFilterChange: (FilamentFilter) -> Unit,
+    onSearchQueryChange: (String) -> Unit
 ) {
+    var isSearchActive by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    // When search becomes active, request focus
+    LaunchedEffect(isSearchActive) {
+        if (isSearchActive) {
+            focusRequester.requestFocus()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -112,26 +153,120 @@ fun FilamentListContent(
             )
         }
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 300.dp),
+        Column(
             modifier = Modifier
-                .testTag("filament_list")
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(paddingValues)
         ) {
-            items(
-                items = filaments,
-                key = { it.id }
-            ) { filament ->
-                FilamentCard(
-                    filament = filament,
-                    onClick = { onFilamentClick(filament.id) },
-                    onToggleArchive = { onToggleArchive(filament) },
-                    modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                )
+            if (showFilters) {
+                Box(
+                    modifier = Modifier.height(72.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedContent(
+                        targetState = isSearchActive,
+                        transitionSpec = {
+                            if (targetState) {
+                                // Search appears: Slide in from right, chips slide out to left
+                                (slideInHorizontally { it } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { -it } + fadeOut())
+                            } else {
+                                // Search disappears: Slide out to right, chips slide in from left
+                                (slideInHorizontally { -it } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { it } + fadeOut())
+                            }
+                        },
+                        label = "search_animation"
+                    ) { active ->
+                        if (active) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = onSearchQueryChange,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                                    .focusRequester(focusRequester),
+                                placeholder = { Text(stringResource(R.string.search_hint)) },
+                                singleLine = true,
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        onSearchQueryChange("")
+                                        isSearchActive = false
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.search_clear)
+                                        )
+                                    }
+                                },
+                                colors = androidx.compose.material3.TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                shape = MaterialTheme.shapes.medium
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .horizontalScroll(rememberScrollState()),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    FilterChip(
+                                        selected = filter == FilamentFilter.ARCHIVED,
+                                        onClick = { onFilterChange(FilamentFilter.ARCHIVED) },
+                                        label = { Text(stringResource(R.string.filter_archived)) }
+                                    )
+                                    FilterChip(
+                                        selected = filter == FilamentFilter.ACTIVE,
+                                        onClick = { onFilterChange(FilamentFilter.ACTIVE) },
+                                        label = { Text(stringResource(R.string.filter_active)) }
+                                    )
+                                    FilterChip(
+                                        selected = filter == FilamentFilter.ALL,
+                                        onClick = { onFilterChange(FilamentFilter.ALL) },
+                                        label = { Text(stringResource(R.string.filter_all)) }
+                                    )
+                                }
+                                IconButton(onClick = { isSearchActive = true }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = stringResource(R.string.search_icon_description)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 300.dp),
+                modifier = Modifier
+                    .testTag("filament_list")
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = filaments,
+                    key = { it.id }
+                ) { filament ->
+                    FilamentCard(
+                        filament = filament,
+                        onClick = { onFilamentClick(filament.id) },
+                        onToggleArchive = { onToggleArchive(filament) },
+                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                    )
+                }
             }
         }
     }
@@ -259,9 +394,14 @@ fun FilamentListScreenPreview() {
                     changeDate = System.currentTimeMillis()
                 )
             ),
+            filter = FilamentFilter.ALL,
+            searchQuery = "",
+            showFilters = true,
             onNavigateBack = {},
             onFilamentClick = {},
-            onToggleArchive = {}
+            onToggleArchive = {},
+            onFilterChange = {},
+            onSearchQueryChange = {}
         )
     }
 }

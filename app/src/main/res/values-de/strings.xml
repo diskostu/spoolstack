@@ -44,4 +44,12 @@
     <string name="used_amount_format">Verwendet: %1$.1fg</string>
     <string name="print_date_format">Datum: %1$s</string>
     <string name="select_filament_hint">Filament auswählen</string>
+
+    <!-- Filter chips and search -->
+    <string name="filter_archived">Archiviert</string>
+    <string name="filter_active">Aktiv</string>
+    <string name="filter_all">Alle</string>
+    <string name="search_hint">Suchen...</string>
+    <string name="search_clear">Suche löschen</string>
+    <string name="search_icon_description">Suchen</string>
 </resources>
