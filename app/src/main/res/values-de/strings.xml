@@ -29,6 +29,12 @@
     <string name="menu_more_options">Weitere Optionen</string>
     <string name="archive">Archivieren</string>
     <string name="unarchive">De-Archivieren</string>
+    <string name="filter_archived_label">Archiviert</string>
+    <string name="filter_active_label">Aktiv</string>
+    <string name="filter_all_label">Alle</string>
+    <string name="search_button_content_description">Suchen</string>
+    <string name="clear_search_button_content_description">Suche löschen</string>
+    <string name="search_placeholder">Suchen…</string>
 
     <!-- Print related strings -->
     <string name="record_print">Druckvorgang erfassen</string>
