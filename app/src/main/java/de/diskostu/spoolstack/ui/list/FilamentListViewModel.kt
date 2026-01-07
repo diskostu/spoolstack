@@ -10,8 +10,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+enum class FilterType {
+    ALL, ACTIVE, ARCHIVED
+}
 
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
@@ -21,13 +26,50 @@ class FilamentListViewModel @Inject constructor(
     private val _filaments = MutableStateFlow<List<Filament>>(emptyList())
     val filaments: StateFlow<List<Filament>> = _filaments.asStateFlow()
 
+    private val _filterState = MutableStateFlow(FilterType.ALL)
+    val filterState: StateFlow<FilterType> = _filterState.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _isSearchActive = MutableStateFlow(false)
+    val isSearchActive: StateFlow<Boolean> = _isSearchActive.asStateFlow()
+
+    private val _totalFilaments = MutableStateFlow(0)
+    val totalFilaments: StateFlow<Int> = _totalFilaments.asStateFlow()
+
     private var pendingList: List<Filament>? = null
     private var isUiVisible = false
     private var animationJob: Job? = null
 
     init {
         viewModelScope.launch {
-            filamentRepository.getAllFilaments().collect { newList ->
+            val allFilamentsFlow = filamentRepository.getAllFilaments()
+
+            allFilamentsFlow.collect { allFilaments ->
+                _totalFilaments.value = allFilaments.size
+            }
+
+            combine(
+                allFilamentsFlow,
+                _filterState,
+                _searchQuery,
+                _isSearchActive
+            ) { allFilaments, filter, query, isSearchActive ->
+                if (isSearchActive && query.isNotBlank()) {
+                    allFilaments.filter {
+                        it.vendor.contains(query, ignoreCase = true) ||
+                                it.color.contains(query, ignoreCase = true) ||
+                                it.boughtAt?.contains(query, ignoreCase = true) == true
+                    }
+                } else {
+                    when (filter) {
+                        FilterType.ACTIVE -> allFilaments.filter { !it.archived }
+                        FilterType.ARCHIVED -> allFilaments.filter { it.archived }
+                        FilterType.ALL -> allFilaments
+                    }
+                }
+            }.collect { newList ->
                 val oldList = _filaments.value
                 val oldIds = oldList.map { it.id }.toSet()
                 val newIds = newList.map { it.id }.toSet()
@@ -79,6 +121,21 @@ class FilamentListViewModel @Inject constructor(
     fun toggleArchived(filament: Filament) {
         viewModelScope.launch {
             filamentRepository.update(filament.copy(archived = !filament.archived))
+        }
+    }
+
+    fun setFilter(filterType: FilterType) {
+        _filterState.value = filterType
+    }
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun setSearchActive(isActive: Boolean) {
+        _isSearchActive.value = isActive
+        if (!isActive) {
+            setSearchQuery("")
         }
     }
 }
