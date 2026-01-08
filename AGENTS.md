@@ -52,6 +52,6 @@ recommendations.
 3. Write the implementation.
 4. Write the corresponding tests.
 5. See if the Gradle build is successful.
-6. Run all existing tests.
-7. If all this is successful, declare the task finished. Give the user a brief summary of the
-   changes.
+6. Tell the user: "I will run the tests now."
+7. Run all existing tests.
+8. If all this is successful, declare the task finished.
