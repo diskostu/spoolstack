@@ -6,6 +6,7 @@
     <string name="vendor_label">Hersteller *</string>
     <string name="color_label">Farbe *</string>
     <string name="size_label">Größe *</string>
+    <string name="purchase_info_title">Kaufinformationen</string>
     <string name="bought_at_label">Gekauft bei (optional)</string>
     <string name="bought_date_label">Kaufdatum (optional)</string>
     <string name="price_label">Preis (optional)</string>
@@ -26,6 +27,8 @@
     <string name="remaining_weight">Verbleibend: %1$s</string>
     <string name="created_date_label">Erstellt: %1$s</string>
     <string name="changed_date_label">Geändert: %1$s</string>
+    <string name="list_purchase_info_full">Gekauft bei %1$s (%2$.2f)</string>
+    <string name="list_purchase_info_vendor">Gekauft bei %1$s</string>
     <string name="menu_more_options">Weitere Optionen</string>
     <string name="archive">Archivieren</string>
     <string name="unarchive">De-Archivieren</string>

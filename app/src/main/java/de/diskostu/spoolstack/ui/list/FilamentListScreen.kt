@@ -316,6 +316,24 @@ fun FilamentCard(
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+
+                if (!filament.boughtAt.isNullOrEmpty()) {
+                    val purchaseInfo = if (filament.price != null && filament.price > 0) {
+                        stringResource(
+                            R.string.list_purchase_info_full,
+                            filament.boughtAt,
+                            filament.price
+                        )
+                    } else {
+                        stringResource(R.string.list_purchase_info_vendor, filament.boughtAt)
+                    }
+                    Text(
+                        text = purchaseInfo,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
                 val created =
                     stringResource(
                         R.string.created_date_label,

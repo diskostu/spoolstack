@@ -124,6 +124,7 @@ fun AddFilamentScreen(
 
         // Optional fields
         var boughtAt by rememberSaveable { mutableStateOf("") }
+        var boughtAtError by rememberSaveable { mutableStateOf<String?>(null) }
         var price by rememberSaveable { mutableStateOf("") }
         var boughtDateLong by rememberSaveable { mutableStateOf<Long?>(null) }
 
@@ -327,9 +328,14 @@ fun AddFilamentScreen(
         val boughtAtField: @Composable () -> Unit = {
             OutlinedTextField(
                 value = boughtAt,
-                onValueChange = { boughtAt = it },
+                onValueChange = {
+                    boughtAt = it
+                    boughtAtError = null
+                },
                 label = { Text(stringResource(R.string.bought_at_label)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = boughtAtError != null,
+                supportingText = { boughtAtError?.let { Text(it) } }
             )
         }
 
@@ -368,7 +374,7 @@ fun AddFilamentScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showDatePicker = true },
-                enabled = false
+                enabled = true
             )
         }
 
@@ -392,6 +398,11 @@ fun AddFilamentScreen(
                         }
                         if (color.isBlank()) {
                             colorError = errorFieldCantBeEmpty
+                            hasError = true
+                        }
+
+                        if (price.isNotBlank() && boughtAt.isBlank()) {
+                            boughtAtError = errorFieldCantBeEmpty
                             hasError = true
                         }
 
@@ -455,12 +466,14 @@ fun AddFilamentScreen(
                     colorField()
                     sizeField(false)
                     Text(
-                        text = "Optional Details",
+                        text = stringResource(R.string.purchase_info_title),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )
-                    boughtAtField()
-                    priceField()
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Box(Modifier.weight(1f)) { boughtAtField() }
+                        Box(Modifier.weight(1f)) { priceField() }
+                    }
                     boughtDateField()
                 }
             }

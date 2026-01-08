@@ -8,6 +8,7 @@
     <string name="vendor_label">Vendor *</string>
     <string name="color_label">Color *</string>
     <string name="size_label">Size *</string>
+    <string name="purchase_info_title">Purchase Information</string>
     <string name="bought_at_label">Bought at (optional)</string>
     <string name="bought_date_label">Bought date (optional)</string>
     <string name="price_label">Price (optional)</string>
@@ -34,6 +35,8 @@
     <string name="remaining_weight">Remaining: %1$s</string>
     <string name="created_date_label">Created: %1$s</string>
     <string name="changed_date_label">Modified: %1$s</string>
+    <string name="list_purchase_info_full">Bought at %1$s (%2$.2f)</string>
+    <string name="list_purchase_info_vendor">Bought at %1$s</string>
 
     <!-- Print related strings -->
     <string name="record_print">Record Print</string>

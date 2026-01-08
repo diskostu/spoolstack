@@ -60,13 +60,18 @@ class FilamentListScreenTest {
             composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
                 .performClick()
 
-            val randomVendor = vendors.random()
-            val randomColor = colors.random()
+            // For the last one, ensure it's unique by using a specific value not in the list
+            val randomVendor: String
+            val randomColor: String
 
-            // Keep track of the last one to verify scrolling
             if (it == 19) {
+                randomVendor = "UniqueVendor"
+                randomColor = "UniqueColor"
                 lastVendor = randomVendor
                 lastColor = randomColor
+            } else {
+                randomVendor = vendors.random()
+                randomColor = colors.random()
             }
 
             composeTestRule.onNodeWithTag("vendor_input")
@@ -95,14 +100,6 @@ class FilamentListScreenTest {
         // 4. Archive the last item
         composeTestRule.onNodeWithText(lastItemText)
             .assertIsDisplayed()
-
-        // Find the "more options" button in the same card. This is tricky in a list.
-        // For simplicity in this test, we might just try to find the button if it's unique or rely on hierarchy
-        // But since we have many items, finding the *specific* menu button is hard without specific test tags per item.
-        // Let's at least verifying we can see the item.
-        // To properly test the menu interaction, we should probably add a test tag to the menu button that includes the ID.
-        // But I will skip complex menu interaction test for now to keep it simple as requested,
-        // just focusing on the scrolling and existence.
 
         // 5. Delete all filaments and ensure list is empty
         composeTestRule.activityRule.scenario.onActivity { activity ->
