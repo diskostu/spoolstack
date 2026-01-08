@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -81,6 +82,7 @@ fun FilamentListScreen(
 ) {
     val filaments by viewModel.filaments.collectAsState()
     val filter by viewModel.filter.collectAsState()
+    val sort by viewModel.sort.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val showFilters by viewModel.showFilters.collectAsState()
 
@@ -103,6 +105,7 @@ fun FilamentListScreen(
     FilamentListContent(
         filaments = filaments,
         filter = filter,
+        sort = sort,
         searchQuery = searchQuery,
         showFilters = showFilters,
         onNavigateBack = onNavigateBack,
@@ -111,6 +114,7 @@ fun FilamentListScreen(
             viewModel.toggleArchived(filament)
         },
         onFilterChange = viewModel::setFilter,
+        onSortChange = viewModel::setSort,
         onSearchQueryChange = viewModel::setSearchQuery
     )
 }
@@ -120,15 +124,18 @@ fun FilamentListScreen(
 fun FilamentListContent(
     filaments: List<Filament>,
     filter: FilamentFilter,
+    sort: FilamentSort,
     searchQuery: String,
     showFilters: Boolean,
     onNavigateBack: () -> Unit,
     onFilamentClick: (Int) -> Unit,
     onToggleArchive: (Filament) -> Unit,
     onFilterChange: (FilamentFilter) -> Unit,
+    onSortChange: (FilamentSort) -> Unit,
     onSearchQueryChange: (String) -> Unit
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
     // When search becomes active, request focus
@@ -235,6 +242,42 @@ fun FilamentListContent(
                                         label = { Text(stringResource(R.string.filter_all)) }
                                     )
                                 }
+
+                                Box {
+                                    IconButton(onClick = { showSortMenu = true }) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Sort,
+                                            contentDescription = stringResource(R.string.sort_button_description)
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = showSortMenu,
+                                        onDismissRequest = { showSortMenu = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.sort_by_name)) },
+                                            onClick = {
+                                                onSortChange(FilamentSort.NAME)
+                                                showSortMenu = false
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.sort_by_last_modified)) },
+                                            onClick = {
+                                                onSortChange(FilamentSort.LAST_MODIFIED)
+                                                showSortMenu = false
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.sort_by_remaining_amount)) },
+                                            onClick = {
+                                                onSortChange(FilamentSort.REMAINING_AMOUNT)
+                                                showSortMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+
                                 IconButton(onClick = { isSearchActive = true }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
@@ -413,12 +456,14 @@ fun FilamentListScreenPreview() {
                 )
             ),
             filter = FilamentFilter.ALL,
+            sort = FilamentSort.NAME,
             searchQuery = "",
             showFilters = true,
             onNavigateBack = {},
             onFilamentClick = {},
             onToggleArchive = {},
             onFilterChange = {},
+            onSortChange = {},
             onSearchQueryChange = {}
         )
     }

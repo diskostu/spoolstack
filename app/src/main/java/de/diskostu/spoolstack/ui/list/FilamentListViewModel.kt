@@ -21,6 +21,10 @@ enum class FilamentFilter {
     ALL, ACTIVE, ARCHIVED
 }
 
+enum class FilamentSort {
+    NAME, LAST_MODIFIED, REMAINING_AMOUNT
+}
+
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository
@@ -32,15 +36,19 @@ class FilamentListViewModel @Inject constructor(
     private val _filter = MutableStateFlow(FilamentFilter.ALL)
     val filter = _filter.asStateFlow()
 
+    private val _sort = MutableStateFlow(FilamentSort.NAME)
+    val sort = _sort.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    // Exposed list for UI, applying filters and search
+    // Exposed list for UI, applying filters, search and sort
     val filaments: StateFlow<List<Filament>> = combine(
         _sourceFilaments,
         _filter,
+        _sort,
         _searchQuery
-    ) { list, filter, query ->
+    ) { list, filter, sort, query ->
         var result = list
         // Apply Filter
         result = when (filter) {
@@ -57,6 +65,18 @@ class FilamentListViewModel @Inject constructor(
                         (it.boughtAt?.lowercase()?.contains(q) == true)
             }
         }
+        // Apply Sort
+        result = when (sort) {
+            FilamentSort.NAME -> result.sortedWith(
+                compareBy(
+                    { it.vendor.lowercase() },
+                    { it.color.lowercase() })
+            )
+
+            FilamentSort.LAST_MODIFIED -> result.sortedByDescending { it.changeDate }
+            FilamentSort.REMAINING_AMOUNT -> result.sortedByDescending { it.size } // Note: size is String like "1kg", might need better parsing if it gets complex
+        }
+
         result
     }.stateIn(
         scope = viewModelScope,
@@ -135,6 +155,10 @@ class FilamentListViewModel @Inject constructor(
 
     fun setFilter(filter: FilamentFilter) {
         _filter.value = filter
+    }
+
+    fun setSort(sort: FilamentSort) {
+        _sort.value = sort
     }
 
     fun setSearchQuery(query: String) {

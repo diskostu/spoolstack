@@ -62,4 +62,10 @@
     <string name="search_hint">Search...</string>
     <string name="search_clear">Clear search</string>
     <string name="search_icon_description">Search</string>
+
+    <!-- Sort -->
+    <string name="sort_button_description">Sort</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_last_modified">Last modified</string>
+    <string name="sort_by_remaining_amount">Remaining amount</string>
 </resources>

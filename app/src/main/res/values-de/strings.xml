@@ -55,4 +55,10 @@
     <string name="search_hint">Suchen...</string>
     <string name="search_clear">Suche löschen</string>
     <string name="search_icon_description">Suchen</string>
+
+    <!-- Sort -->
+    <string name="sort_button_description">Sortieren</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_last_modified">Zuletzt geändert</string>
+    <string name="sort_by_remaining_amount">Verbleibende Menge</string>
 </resources>

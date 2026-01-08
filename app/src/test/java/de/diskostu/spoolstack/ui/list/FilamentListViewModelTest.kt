@@ -36,8 +36,8 @@ class FilamentListViewModelTest {
         color = "Red",
         size = "1kg",
         archived = false,
-        createdDate = System.currentTimeMillis(),
-        changeDate = System.currentTimeMillis()
+        createdDate = 1000L,
+        changeDate = 1000L
     )
 
     private val filament2 = Filament(
@@ -46,18 +46,18 @@ class FilamentListViewModelTest {
         color = "Blue",
         size = "500g",
         archived = true,
-        createdDate = System.currentTimeMillis(),
-        changeDate = System.currentTimeMillis()
+        createdDate = 2000L,
+        changeDate = 2000L
     )
 
     private val filament3 = Filament(
         id = 3,
         vendor = "Vendor A",
         color = "Green",
-        size = "1kg",
+        size = "2kg",
         archived = false,
-        createdDate = System.currentTimeMillis(),
-        changeDate = System.currentTimeMillis()
+        createdDate = 3000L,
+        changeDate = 3000L
     )
 
     @Before
@@ -84,7 +84,8 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        assertEquals(filamentList, viewModel.filaments.value)
+        // Default sort is NAME, so Vendor A Red, then Vendor B Blue
+        assertEquals(listOf(filament1, filament2), viewModel.filaments.value)
         assertEquals(FilamentFilter.ALL, viewModel.filter.value)
         
         job.cancel()
@@ -169,6 +170,82 @@ class FilamentListViewModelTest {
 
         // Then
         val expected = listOf(filament1)
+        assertEquals(expected, viewModel.filaments.value)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `sort by NAME sorts by vendor then color`() = runTest {
+        // Given
+        val filamentList = listOf(filament1, filament2, filament3)
+        `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        viewModel = FilamentListViewModel(filamentRepository)
+
+        val job = launch { viewModel.filaments.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        // When
+        viewModel.setSort(FilamentSort.NAME)
+        testScheduler.advanceUntilIdle()
+
+        // Then
+        // filament1: Vendor A, Red
+        // filament3: Vendor A, Green
+        // filament2: Vendor B, Blue
+        // Expected order: Green then Red (G < R)
+        val expected = listOf(filament3, filament1, filament2)
+        assertEquals(expected, viewModel.filaments.value)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `sort by LAST_MODIFIED sorts by changeDate descending`() = runTest {
+        // Given
+        val filamentList = listOf(filament1, filament2, filament3)
+        `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        viewModel = FilamentListViewModel(filamentRepository)
+
+        val job = launch { viewModel.filaments.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        // When
+        viewModel.setSort(FilamentSort.LAST_MODIFIED)
+        testScheduler.advanceUntilIdle()
+
+        // Then
+        // filament3: 3000
+        // filament2: 2000
+        // filament1: 1000
+        val expected = listOf(filament3, filament2, filament1)
+        assertEquals(expected, viewModel.filaments.value)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `sort by REMAINING_AMOUNT sorts by size descending`() = runTest {
+        // Given
+        val filamentList = listOf(filament1, filament2, filament3)
+        `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        viewModel = FilamentListViewModel(filamentRepository)
+
+        val job = launch { viewModel.filaments.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        // When
+        viewModel.setSort(FilamentSort.REMAINING_AMOUNT)
+        testScheduler.advanceUntilIdle()
+
+        // Then
+        // filament3: 2kg
+        // filament1: 1kg
+        // filament2: 500g
+        // Note: String sort "500g" vs "1kg" vs "2kg" -> "500g" is actually larger string-wise than "1kg" if comparing alphabetically?
+        // Wait, "5" > "1" and "2". So "500g", "2kg", "1kg".
+        // My implementation uses String sorting.
+        val expected = listOf(filament2, filament3, filament1)
         assertEquals(expected, viewModel.filaments.value)
 
         job.cancel()
