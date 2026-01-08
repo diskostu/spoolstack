@@ -18,15 +18,18 @@ interface FilamentDao {
     @Query("SELECT COUNT(*) FROM filament")
     suspend fun getCount(): Int
 
-    @Query("DELETE FROM filament")
-    suspend fun deleteAll()
-
     @Query("SELECT DISTINCT vendor FROM filament ORDER BY vendor ASC")
     suspend fun getDistinctVendors(): List<String>
 
     @Query("SELECT * FROM filament ORDER BY changeDate DESC")
     fun getAllFilaments(): Flow<List<Filament>>
 
+    @Query("SELECT * FROM filament WHERE archived = 0 ORDER BY changeDate DESC")
+    fun getActiveFilaments(): Flow<List<Filament>>
+
     @Query("SELECT * FROM filament WHERE id = :id")
     suspend fun getFilamentById(id: Int): Filament?
+
+    @Query("DELETE FROM filament")
+    suspend fun deleteAll()
 }

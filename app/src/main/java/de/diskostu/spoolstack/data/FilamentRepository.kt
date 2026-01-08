@@ -28,7 +28,10 @@ class FilamentRepository @Inject constructor(
         return filamentDao.getAllFilaments()
     }
 
-    // Print related operations
+    fun getActiveFilaments(): Flow<List<Filament>> {
+        return filamentDao.getActiveFilaments()
+    }
+
     suspend fun insertPrint(print: Print): Long {
         return printDao.insert(print)
     }

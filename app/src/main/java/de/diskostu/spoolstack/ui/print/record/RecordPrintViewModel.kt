@@ -32,7 +32,7 @@ class RecordPrintViewModel @Inject constructor(
 
     private fun loadFilaments() {
         viewModelScope.launch {
-            filamentRepository.getAllFilaments().collect {
+            filamentRepository.getActiveFilaments().collect {
                 _filaments.value = it
             }
         }
