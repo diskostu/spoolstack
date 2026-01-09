@@ -59,7 +59,7 @@
     <string name="filter_archived">Archived</string>
     <string name="filter_active">Active</string>
     <string name="filter_all">All</string>
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search…</string>
     <string name="search_clear">Clear search</string>
     <string name="search_icon_description">Search</string>
 
