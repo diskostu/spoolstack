@@ -227,9 +227,9 @@ fun FilamentListContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     FilterChip(
-                                        selected = filter == FilamentFilter.ARCHIVED,
-                                        onClick = { onFilterChange(FilamentFilter.ARCHIVED) },
-                                        label = { Text(stringResource(R.string.filter_archived)) }
+                                        selected = filter == FilamentFilter.ALL,
+                                        onClick = { onFilterChange(FilamentFilter.ALL) },
+                                        label = { Text(stringResource(R.string.filter_all)) }
                                     )
                                     FilterChip(
                                         selected = filter == FilamentFilter.ACTIVE,
@@ -237,9 +237,9 @@ fun FilamentListContent(
                                         label = { Text(stringResource(R.string.filter_active)) }
                                     )
                                     FilterChip(
-                                        selected = filter == FilamentFilter.ALL,
-                                        onClick = { onFilterChange(FilamentFilter.ALL) },
-                                        label = { Text(stringResource(R.string.filter_all)) }
+                                        selected = filter == FilamentFilter.ARCHIVED,
+                                        onClick = { onFilterChange(FilamentFilter.ARCHIVED) },
+                                        label = { Text(stringResource(R.string.filter_archived)) }
                                     )
                                 }
 
