@@ -170,11 +170,11 @@ fun AddFilamentScreen(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // AREA 1: Filament Details
                 SectionContainer(title = "Filament Details") {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                         VendorField(
                             vendor = vendor,
                             onVendorChange = {
@@ -215,7 +215,7 @@ fun AddFilamentScreen(
 
                 // AREA 3: Purchase Information
                 SectionContainer(title = stringResource(R.string.purchase_info_title)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                         BoughtAtField(
                             boughtAt = boughtAt,
                             onBoughtAtChange = {
@@ -284,7 +284,7 @@ private fun SectionContainer(
         )
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             ),
             shape = MaterialTheme.shapes.medium
         ) {
