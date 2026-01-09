@@ -2,10 +2,6 @@ package de.diskostu.spoolstack.ui.add
 
 import android.content.res.Configuration
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,14 +11,17 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -31,6 +30,8 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,8 +58,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -114,15 +115,13 @@ fun AddFilamentScreen(
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
-        // State hoisting with rememberSaveable to survive configuration changes
+        // State hoisting
         var vendor by rememberSaveable { mutableStateOf("") }
         var vendorError by rememberSaveable { mutableStateOf<String?>(null) }
         var color by rememberSaveable { mutableStateOf("") }
         var colorError by rememberSaveable { mutableStateOf<String?>(null) }
-        var isCustomSize by rememberSaveable { mutableStateOf(false) }
-        var sliderValue by rememberSaveable { mutableFloatStateOf(500f) }
-
-        // Optional fields
+        var sliderValue by rememberSaveable { mutableFloatStateOf(1000f) }
+        var sizeInput by rememberSaveable { mutableStateOf("1000") }
         var boughtAt by rememberSaveable { mutableStateOf("") }
         var boughtAtError by rememberSaveable { mutableStateOf<String?>(null) }
         var price by rememberSaveable { mutableStateOf("") }
@@ -136,18 +135,12 @@ fun AddFilamentScreen(
                 boughtAt = filament.boughtAt ?: ""
                 price = filament.price?.toString() ?: ""
                 boughtDateLong = filament.boughtDate
-
-                if (filament.size == 1000) {
-                    isCustomSize = false
-                    sliderValue = 1000f
-                } else {
-                    isCustomSize = true
-                    sliderValue = filament.size.toFloat()
-                }
+                sliderValue = filament.size.toFloat()
+                sizeInput = filament.size.toString()
             }
         }
 
-        // Date Picker State
+        // Date Picker
         var showDatePicker by remember { mutableStateOf(false) }
         val datePickerState = rememberDatePickerState()
 
@@ -155,277 +148,15 @@ fun AddFilamentScreen(
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showDatePicker = false
-                            boughtDateLong = datePickerState.selectedDateMillis
-                        }
-                    ) {
-                        Text("OK")
-                    }
+                    TextButton(onClick = {
+                        showDatePicker = false
+                        boughtDateLong = datePickerState.selectedDateMillis
+                    }) { Text("OK") }
                 },
                 dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showDatePicker = false
-                        }
-                    ) {
-                        Text("Cancel")
-                    }
+                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
                 }
-            ) {
-                DatePicker(state = datePickerState)
-            }
-        }
-
-        // Field Composables
-        val vendorField: @Composable () -> Unit = {
-            var vendorExpanded by rememberSaveable { mutableStateOf(false) }
-            val filteredVendors = rememberSaveable(vendor, existingVendors) {
-                if (vendor.isBlank()) existingVendors
-                else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
-            }
-
-            ExposedDropdownMenuBox(
-                expanded = vendorExpanded,
-                onExpandedChange = { vendorExpanded = !vendorExpanded }
-            ) {
-                OutlinedTextField(
-                    value = vendor,
-                    onValueChange = {
-                        vendor = it
-                        vendorError = null
-                        vendorExpanded = true
-                    },
-                    label = { Text(stringResource(R.string.vendor_label)) },
-                    modifier = Modifier
-                        .testTag("vendor_input")
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
-                    isError = vendorError != null,
-                    supportingText = { vendorError?.let { Text(it) } },
-                    trailingIcon = if (existingVendors.isNotEmpty()) {
-                        { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
-                    } else null
-                )
-
-                if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
-                    ExposedDropdownMenu(
-                        expanded = vendorExpanded,
-                        onDismissRequest = { vendorExpanded = false }
-                    ) {
-                        filteredVendors.forEach { selectionOption ->
-                            DropdownMenuItem(
-                                text = { Text(selectionOption) },
-                                onClick = {
-                                    vendor = selectionOption
-                                    vendorExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val colorField: @Composable () -> Unit = {
-            OutlinedTextField(
-                value = color,
-                onValueChange = {
-                    color = it
-                    colorError = null
-                },
-                label = { Text(stringResource(R.string.color_label)) },
-                modifier = Modifier
-                    .testTag("color_input")
-                    .fillMaxWidth(),
-                isError = colorError != null,
-                supportingText = { colorError?.let { Text(it) } }
-            )
-        }
-
-        val weightSliderRow: @Composable () -> Unit = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Slider(
-                    value = sliderValue,
-                    onValueChange = { sliderValue = it },
-                    valueRange = 0f..1000f,
-                    steps = 99,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "${sliderValue.roundToInt()}$unitGrams",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.width(60.dp), // Fixed width to prevent jumping
-                    textAlign = TextAlign.End
-                )
-            }
-        }
-
-        val sizeField: @Composable (isLandscape: Boolean) -> Unit = { landscape ->
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (!landscape) {
-                    Text(
-                        text = stringResource(R.string.size_label),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (landscape) {
-                        Text(
-                            text = stringResource(R.string.size_label),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-
-                    FilterChip(
-                        selected = !isCustomSize,
-                        onClick = { isCustomSize = false },
-                        label = { Text(size1kg) }
-                    )
-                    FilterChip(
-                        selected = isCustomSize,
-                        onClick = { isCustomSize = true },
-                        label = { Text(stringResource(R.string.size_custom)) }
-                    )
-
-                    // In landscape mode, if custom size is selected, show slider here in the same row
-                    if (landscape) {
-                        AnimatedVisibility(
-                            visible = isCustomSize,
-                            enter = fadeIn(animationSpec = tween(150)),
-                            exit = fadeOut(animationSpec = tween(150)),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            weightSliderRow()
-                        }
-                    }
-                }
-
-                // In portrait mode, the slider remains below
-                if (!landscape) {
-                    AnimatedVisibility(
-                        visible = isCustomSize,
-                        enter = fadeIn(animationSpec = tween(150)),
-                        exit = fadeOut(animationSpec = tween(150))
-                    ) {
-                        weightSliderRow()
-                    }
-                }
-            }
-        }
-
-        val boughtAtField: @Composable () -> Unit = {
-            OutlinedTextField(
-                value = boughtAt,
-                onValueChange = {
-                    boughtAt = it
-                    boughtAtError = null
-                },
-                label = { Text(stringResource(R.string.bought_at_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                isError = boughtAtError != null,
-                supportingText = { boughtAtError?.let { Text(it) } }
-            )
-        }
-
-        val priceField: @Composable () -> Unit = {
-            OutlinedTextField(
-                value = price,
-                onValueChange = {
-                    if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                        price = it
-                    }
-                },
-                label = { Text(stringResource(R.string.price_label)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        val boughtDateField: @Composable () -> Unit = {
-            OutlinedTextField(
-                value = boughtDateLong?.let {
-                    val date = Date(it)
-                    val format = SimpleDateFormat.getDateInstance(
-                        SimpleDateFormat.MEDIUM,
-                        Locale.getDefault()
-                    )
-                    format.format(date)
-                } ?: "",
-                onValueChange = { },
-                readOnly = true,
-                label = { Text(stringResource(R.string.bought_date_label)) },
-                trailingIcon = {
-                    IconButton(onClick = { showDatePicker = true }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Select Date")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showDatePicker = true },
-                enabled = true
-            )
-        }
-
-        val saveButton: @Composable () -> Unit = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick = onNavigateBack,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = stringResource(id = R.string.cancel))
-                }
-                Button(
-                    onClick = {
-                        var hasError = false
-                        if (vendor.isBlank()) {
-                            vendorError = errorFieldCantBeEmpty
-                            hasError = true
-                        }
-                        if (color.isBlank()) {
-                            colorError = errorFieldCantBeEmpty
-                            hasError = true
-                        }
-
-                        if (price.isNotBlank() && boughtAt.isBlank()) {
-                            boughtAtError = errorFieldCantBeEmpty
-                            hasError = true
-                        }
-
-                        if (!hasError) {
-                            val sizeToSave = if (isCustomSize) {
-                                sliderValue.roundToInt()
-                            } else {
-                                1000
-                            }
-                            viewModel.save(
-                                vendor,
-                                color,
-                                sizeToSave,
-                                boughtAt.ifBlank { null },
-                                boughtDateLong,
-                                price.toDoubleOrNull()
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .testTag("save_button")
-                        .weight(1f)
-                ) {
-                    Text(text = stringResource(id = R.string.save))
-                }
-            }
+            ) { DatePicker(state = datePickerState) }
         }
 
         Column(
@@ -439,46 +170,350 @@ fun AddFilamentScreen(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                if (isLandscape) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Box(Modifier.weight(1f)) { vendorField() }
-                        Box(Modifier.weight(1f)) { colorField() }
+                // AREA 1: Filament Details
+                SectionContainer(title = "Filament Details") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        VendorField(
+                            vendor = vendor,
+                            onVendorChange = {
+                                vendor = it
+                                vendorError = null
+                            },
+                            vendorError = vendorError,
+                            existingVendors = existingVendors
+                        )
+                        ColorField(
+                            color = color,
+                            onColorChange = {
+                                color = it
+                                colorError = null
+                            },
+                            colorError = colorError
+                        )
                     }
-                    // Size field spans full width (both columns)
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Box(Modifier.weight(1f)) { sizeField(true) }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Box(Modifier.weight(1f)) { boughtAtField() }
-                        Box(Modifier.weight(1f)) { priceField() }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Box(Modifier.weight(1f)) { boughtDateField() }
-                        Box(Modifier.weight(1f)) { /* Empty placeholder to balance grid or just leave as is */ }
-                    }
-                } else {
-                    vendorField()
-                    colorField()
-                    sizeField(false)
-                    Text(
-                        text = stringResource(R.string.purchase_info_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp)
+                }
+
+                // AREA 2: Size
+                SectionContainer(title = stringResource(R.string.size_label)) {
+                    SizeSection(
+                        sizeInput = sizeInput,
+                        onSizeInputChange = { input, value ->
+                            sizeInput = input
+                            sliderValue = value
+                        },
+                        sliderValue = sliderValue,
+                        onSliderChange = { input, value ->
+                            sizeInput = input
+                            sliderValue = value
+                        },
+                        unitGrams = unitGrams,
+                        size1kg = size1kg
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Box(Modifier.weight(1f)) { boughtAtField() }
-                        Box(Modifier.weight(1f)) { priceField() }
+                }
+
+                // AREA 3: Purchase Information
+                SectionContainer(title = stringResource(R.string.purchase_info_title)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        BoughtAtField(
+                            boughtAt = boughtAt,
+                            onBoughtAtChange = {
+                                boughtAt = it
+                                boughtAtError = null
+                            },
+                            boughtAtError = boughtAtError
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                PriceField(price = price, onPriceChange = { price = it })
+                            }
+                            Box(modifier = Modifier.weight(1.2f)) {
+                                BoughtDateField(
+                                    boughtDateLong = boughtDateLong,
+                                    onShowDatePicker = { showDatePicker = true }
+                                )
+                            }
+                        }
                     }
-                    boughtDateField()
                 }
             }
-            saveButton()
+
+            // Save Button
+            SaveButtonRow(
+                onCancel = onNavigateBack,
+                onSave = {
+                    var hasError = false
+                    if (vendor.isBlank()) {
+                        vendorError = errorFieldCantBeEmpty
+                        hasError = true
+                    }
+                    if (color.isBlank()) {
+                        colorError = errorFieldCantBeEmpty
+                        hasError = true
+                    }
+                    if (price.isNotBlank() && boughtAt.isBlank()) {
+                        boughtAtError = errorFieldCantBeEmpty
+                        hasError = true
+                    }
+
+                    if (!hasError) {
+                        val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
+                        viewModel.save(
+                            vendor, color, sizeToSave,
+                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull()
+                        )
+                    }
+                }
+            )
         }
     }
 }
 
+@Composable
+private fun SectionContainer(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            ),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Box(modifier = Modifier.padding(12.dp)) {
+                content()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VendorField(
+    vendor: String,
+    onVendorChange: (String) -> Unit,
+    vendorError: String?,
+    existingVendors: List<String>
+) {
+    var vendorExpanded by rememberSaveable { mutableStateOf(false) }
+    val filteredVendors = rememberSaveable(vendor, existingVendors) {
+        if (vendor.isBlank()) existingVendors
+        else existingVendors.filter { it.contains(vendor, ignoreCase = true) }
+    }
+
+    ExposedDropdownMenuBox(
+        expanded = vendorExpanded,
+        onExpandedChange = { vendorExpanded = !vendorExpanded }
+    ) {
+        OutlinedTextField(
+            value = vendor,
+            onValueChange = {
+                onVendorChange(it)
+                vendorExpanded = true
+            },
+            label = { Text(stringResource(R.string.vendor_label)) },
+            modifier = Modifier
+                .testTag("vendor_input")
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
+            isError = vendorError != null,
+            supportingText = { vendorError?.let { Text(it) } },
+            trailingIcon = if (existingVendors.isNotEmpty()) {
+                { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
+            } else null,
+            singleLine = true
+        )
+
+        if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
+            ExposedDropdownMenu(
+                expanded = vendorExpanded,
+                onDismissRequest = { vendorExpanded = false }
+            ) {
+                filteredVendors.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            onVendorChange(selectionOption)
+                            vendorExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorField(
+    color: String,
+    onColorChange: (String) -> Unit,
+    colorError: String?
+) {
+    OutlinedTextField(
+        value = color,
+        onValueChange = onColorChange,
+        label = { Text(stringResource(R.string.color_label)) },
+        modifier = Modifier
+            .testTag("color_input")
+            .fillMaxWidth(),
+        isError = colorError != null,
+        supportingText = { colorError?.let { Text(it) } },
+        singleLine = true
+    )
+}
+
+@Composable
+private fun SizeSection(
+    sizeInput: String,
+    onSizeInputChange: (String, Float) -> Unit,
+    sliderValue: Float,
+    onSliderChange: (String, Float) -> Unit,
+    unitGrams: String,
+    size1kg: String
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedTextField(
+                value = sizeInput,
+                onValueChange = {
+                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                        val valInt = it.toIntOrNull() ?: 0
+                        onSizeInputChange(it, valInt.toFloat())
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("size_input"),
+                label = { Text(stringResource(R.string.size_label)) },
+                suffix = { Text(unitGrams) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            FilterChip(
+                selected = sliderValue == 1000f,
+                onClick = { onSliderChange("1000", 1000f) },
+                label = { Text(size1kg) },
+                leadingIcon = if (sliderValue == 1000f) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null
+            )
+        }
+
+        Slider(
+            value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
+            onValueChange = {
+                val rounded = (it / 10).roundToInt() * 10
+                onSliderChange(rounded.toString(), rounded.toFloat())
+            },
+            valueRange = 0f..maxOf(1000f, sliderValue),
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+    }
+}
+
+@Composable
+private fun BoughtAtField(
+    boughtAt: String,
+    onBoughtAtChange: (String) -> Unit,
+    boughtAtError: String?
+) {
+    OutlinedTextField(
+        value = boughtAt,
+        onValueChange = onBoughtAtChange,
+        label = { Text(stringResource(R.string.bought_at_label)) },
+        modifier = Modifier.fillMaxWidth(),
+        isError = boughtAtError != null,
+        supportingText = { boughtAtError?.let { Text(it) } },
+        singleLine = true
+    )
+}
+
+@Composable
+private fun PriceField(
+    price: String,
+    onPriceChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = price,
+        onValueChange = {
+            if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                onPriceChange(it)
+            }
+        },
+        label = { Text(stringResource(R.string.price_label)) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true
+    )
+}
+
+@Composable
+private fun BoughtDateField(
+    boughtDateLong: Long?,
+    onShowDatePicker: () -> Unit
+) {
+    OutlinedTextField(
+        value = boughtDateLong?.let {
+            val date = Date(it)
+            val format =
+                SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM, Locale.getDefault())
+            format.format(date)
+        } ?: "",
+        onValueChange = { },
+        readOnly = true,
+        label = { Text(stringResource(R.string.bought_date_label)) },
+        trailingIcon = {
+            IconButton(onClick = onShowDatePicker) {
+                Icon(Icons.Default.DateRange, contentDescription = "Select Date")
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onShowDatePicker() },
+        enabled = true,
+        singleLine = true
+    )
+}
+
+@Composable
+private fun SaveButtonRow(
+    onCancel: () -> Unit,
+    onSave: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.weight(1f)
+        ) { Text(text = stringResource(id = R.string.cancel)) }
+        Button(
+            onClick = onSave,
+            modifier = Modifier
+                .testTag("save_button")
+                .weight(1f)
+        ) { Text(text = stringResource(id = R.string.save)) }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
