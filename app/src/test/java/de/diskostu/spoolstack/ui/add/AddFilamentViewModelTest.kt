@@ -61,7 +61,7 @@ class AddFilamentViewModelTest {
         val filament = Filament(
             vendor = "Vendor",
             color = "Red",
-            size = "1kg",
+            size = 1000,
             createdDate = System.currentTimeMillis(),
             changeDate = System.currentTimeMillis()
         )
@@ -92,7 +92,7 @@ class AddFilamentViewModelTest {
         // Given
         val vendor = "Vendor"
         val color = "Red"
-        val size = "1kg"
+        val size = 1000
         val boughtAt = "Shop"
         val boughtDate = 123456789L
         val price = 25.50

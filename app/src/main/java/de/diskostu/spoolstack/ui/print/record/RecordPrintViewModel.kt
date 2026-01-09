@@ -58,36 +58,16 @@ class RecordPrintViewModel @Inject constructor(
             )
 
             // Update filament size
-            val currentSizeStr = filament.size
-            val currentSize = parseSize(currentSizeStr)
-            val newSize = currentSize - amountUsed
-            val newSizeStr = "${newSize.roundToInt()}g"
+            val currentSize = filament.size
+            val newSize = (currentSize - amountUsed).roundToInt()
 
             val updatedFilament = filament.copy(
-                size = newSizeStr,
+                size = newSize,
                 changeDate = System.currentTimeMillis()
             )
             filamentRepository.update(updatedFilament)
 
             _printSaved.emit(Unit)
-        }
-    }
-
-    private fun parseSize(sizeStr: String): Double {
-        // Remove "g" or "kg" and parse
-        // Assuming format like "500g" or "1kg"
-        // Based on AddFilamentScreen logic:
-        // "1kg" -> 1000.0
-        // "500g" -> 500.0
-
-        // This simple parsing might need to be more robust if formats change
-        val lower = sizeStr.lowercase()
-        return if (lower.endsWith("kg")) {
-            lower.replace("kg", "").toDoubleOrNull()?.times(1000) ?: 0.0
-        } else if (lower.endsWith("g")) {
-            lower.replace("g", "").toDoubleOrNull() ?: 0.0
-        } else {
-            0.0
         }
     }
 }

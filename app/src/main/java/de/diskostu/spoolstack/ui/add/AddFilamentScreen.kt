@@ -137,15 +137,12 @@ fun AddFilamentScreen(
                 price = filament.price?.toString() ?: ""
                 boughtDateLong = filament.boughtDate
 
-                if (filament.size == size1kg) {
+                if (filament.size == 1000) {
                     isCustomSize = false
+                    sliderValue = 1000f
                 } else {
                     isCustomSize = true
-                    // Try parsing size like "500g"
-                    val parsedSize = filament.size.replace(unitGrams, "").toFloatOrNull()
-                    if (parsedSize != null) {
-                        sliderValue = parsedSize
-                    }
+                    sliderValue = filament.size.toFloat()
                 }
             }
         }
@@ -408,9 +405,9 @@ fun AddFilamentScreen(
 
                         if (!hasError) {
                             val sizeToSave = if (isCustomSize) {
-                                "${sliderValue.roundToInt()}$unitGrams"
+                                sliderValue.roundToInt()
                             } else {
-                                size1kg
+                                1000
                             }
                             viewModel.save(
                                 vendor,

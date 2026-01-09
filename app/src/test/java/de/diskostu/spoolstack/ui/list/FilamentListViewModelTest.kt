@@ -34,7 +34,7 @@ class FilamentListViewModelTest {
         id = 1,
         vendor = "Vendor A",
         color = "Red",
-        size = "1kg",
+        size = 1000,
         archived = false,
         createdDate = 1000L,
         changeDate = 1000L
@@ -44,7 +44,7 @@ class FilamentListViewModelTest {
         id = 2,
         vendor = "Vendor B",
         color = "Blue",
-        size = "500g",
+        size = 500,
         archived = true,
         createdDate = 2000L,
         changeDate = 2000L
@@ -54,7 +54,7 @@ class FilamentListViewModelTest {
         id = 3,
         vendor = "Vendor A",
         color = "Green",
-        size = "2kg",
+        size = 2000,
         archived = false,
         createdDate = 3000L,
         changeDate = 3000L
@@ -239,13 +239,10 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        // filament3: 2kg
-        // filament1: 1kg
-        // filament2: 500g
-        // Note: String sort "500g" vs "1kg" vs "2kg" -> "500g" is actually larger string-wise than "1kg" if comparing alphabetically?
-        // Wait, "5" > "1" and "2". So "500g", "2kg", "1kg".
-        // My implementation uses String sorting.
-        val expected = listOf(filament2, filament3, filament1)
+        // filament3: 2000
+        // filament1: 1000
+        // filament2: 500
+        val expected = listOf(filament3, filament1, filament2)
         assertEquals(expected, viewModel.filaments.value)
 
         job.cancel()

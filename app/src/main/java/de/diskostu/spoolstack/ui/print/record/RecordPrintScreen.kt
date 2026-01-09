@@ -101,12 +101,7 @@ fun RecordPrintScreen(
         // Update max amount when filament changes
         LaunchedEffect(selectedFilament) {
             selectedFilament?.let {
-                val sizeStr = it.size.lowercase()
-                maxAmount = if (sizeStr.endsWith("kg")) {
-                    (sizeStr.replace("kg", "").toDoubleOrNull() ?: 1.0) * 1000
-                } else {
-                    sizeStr.replace("g", "").toDoubleOrNull() ?: 1000.0
-                }.toFloat()
+                maxAmount = it.size.toFloat()
 
                 // Reset slider if it exceeds new max
                 if (sliderValue > maxAmount) {
@@ -157,7 +152,7 @@ fun RecordPrintScreen(
                                 R.string.filament_dropdown_format,
                                 it.vendor,
                                 it.color,
-                                it.size
+                                "${it.size}g"
                             )
                         } ?: "",
                         onValueChange = {},
@@ -184,7 +179,7 @@ fun RecordPrintScreen(
                                             R.string.filament_dropdown_format,
                                             filament.vendor,
                                             filament.color,
-                                            filament.size
+                                            "${filament.size}g"
                                         )
                                     )
                                 },
@@ -212,7 +207,7 @@ fun RecordPrintScreen(
                         value = sliderValue,
                         onValueChange = { sliderValue = it },
                         valueRange = 5f..maxAmount,
-                        steps = ((maxAmount - 5) / 5).toInt() - 1, // Calculate steps for 5g increments
+                        steps = if (maxAmount > 5) ((maxAmount - 5) / 5).toInt() - 1 else 0, // Calculate steps for 5g increments
                         modifier = Modifier.weight(1f),
                         enabled = selectedFilament != null
                     )

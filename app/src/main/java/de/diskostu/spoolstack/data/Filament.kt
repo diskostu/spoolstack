@@ -9,7 +9,7 @@ data class Filament(
     val id: Int = 0,
     val vendor: String,
     val color: String,
-    val size: String,
+    val size: Int,
     val boughtAt: String? = null,
     val boughtDate: Long? = null,
     val price: Double? = null,

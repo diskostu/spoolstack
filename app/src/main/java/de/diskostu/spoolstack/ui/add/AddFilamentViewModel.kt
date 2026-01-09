@@ -53,7 +53,7 @@ class AddFilamentViewModel @Inject constructor(
     fun save(
         vendor: String,
         color: String,
-        size: String,
+        size: Int,
         boughtAt: String?,
         boughtDate: Long?,
         price: Double?

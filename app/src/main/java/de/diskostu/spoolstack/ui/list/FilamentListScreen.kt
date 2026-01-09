@@ -355,7 +355,7 @@ fun FilamentCard(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = stringResource(R.string.remaining_weight, filament.size),
+                    text = stringResource(R.string.remaining_weight, "${filament.size}g"),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 4.dp)
                 )
@@ -442,7 +442,7 @@ fun FilamentListScreenPreview() {
                     id = 1,
                     vendor = "Prusament",
                     color = "Galaxy Black",
-                    size = "1kg",
+                    size = 1000,
                     createdDate = System.currentTimeMillis(),
                     changeDate = System.currentTimeMillis()
                 ),
@@ -450,7 +450,7 @@ fun FilamentListScreenPreview() {
                     id = 2,
                     vendor = "Sunlu",
                     color = "PLA White",
-                    size = "1kg",
+                    size = 1000,
                     createdDate = System.currentTimeMillis(),
                     changeDate = System.currentTimeMillis()
                 )
@@ -479,7 +479,7 @@ fun FilamentCardPreview() {
                 id = 1,
                 vendor = "Prusament",
                 color = "Galaxy Black",
-                size = "1kg",
+                size = 1000,
                 createdDate = System.currentTimeMillis(),
                 changeDate = System.currentTimeMillis()
             ),
