@@ -61,4 +61,8 @@
     <string name="sort_by_name">Name</string>
     <string name="sort_by_last_modified">Zuletzt geändert</string>
     <string name="sort_by_remaining_amount">Verbleibende Menge</string>
+
+    <!-- Confirmation Dialog -->
+    <string name="archive_confirmation_title">Filament archivieren?</string>
+    <string name="archive_confirmation_message">Soll dieses Filament wirklich archiviert werden? Es sind noch %1$d g vorhanden.</string>
 </resources>

@@ -97,10 +97,6 @@ class FilamentListScreenTest {
 
         composeTestRule.onNodeWithText(lastItemText).assertIsDisplayed()
 
-        // 4. Archive the last item
-        composeTestRule.onNodeWithText(lastItemText)
-            .assertIsDisplayed()
-
         // 5. Delete all filaments and ensure list is empty
         composeTestRule.activityRule.scenario.onActivity { activity ->
             activity.onBackPressedDispatcher.onBackPressed()
@@ -117,13 +113,14 @@ class FilamentListScreenTest {
     }
 
     @Test
-    fun testArchiveFunctionality() {
-        // 1. Create a filament
+    fun testArchiveConfirmationDialog() {
+        // 1. Create a filament with size > 0
         composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
             .performClick()
 
-        composeTestRule.onNodeWithTag("vendor_input").performTextInput("TestVendor")
-        composeTestRule.onNodeWithTag("color_input").performTextInput("TestColor")
+        composeTestRule.onNodeWithTag("vendor_input").performTextInput("ConfirmationVendor")
+        composeTestRule.onNodeWithTag("color_input").performTextInput("ConfirmationColor")
+        // Size is 1000 by default in the UI usually, but let's assume it is > 0
         composeTestRule.onNodeWithTag("save_button").performClick()
 
         // 2. Go to list
@@ -137,22 +134,73 @@ class FilamentListScreenTest {
         composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
             .performClick()
 
-        // 4. Open menu again and check if it says unarchive
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+        // 4. Check if confirmation dialog is displayed
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive_confirmation_title))
             .assertIsDisplayed()
 
-        // 5. Click unarchive
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+        // 5. Click cancel
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
             .performClick()
 
-        // 6. Check if it says archive again
+        // 6. Dialog should be gone
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive_confirmation_title))
+            .assertDoesNotExist()
+
+        // 7. Verify it's still "Archive" (not archived yet)
         composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
             .performClick()
-
         composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
             .assertIsDisplayed()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .performClick()
+
+        // 8. Click confirm (Archive)
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .performClick()
+
+        // 9. Verify it's now archived (menu should show "Unarchive")
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun testUnarchiveDirectly() {
+        // 1. Create a filament
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
+            .performClick()
+
+        composeTestRule.onNodeWithTag("vendor_input").performTextInput("UnarchiveVendor")
+        composeTestRule.onNodeWithTag("color_input").performTextInput("UnarchiveColor")
+        composeTestRule.onNodeWithTag("save_button").performClick()
+
+        // 2. Go to list
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
+            .performClick()
+
+        // 3. Archive it (confirm dialog)
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .performClick()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .performClick()
+
+        // 4. Now Unarchive it - should NOT show dialog
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.unarchive))
+            .performClick()
+
+        // 5. Verify it's unarchived (menu shows Archive)
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
+            .performClick()
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive))
+            .assertIsDisplayed()
+
+        // 6. Ensure dialog didn't show up during unarchiving
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.archive_confirmation_title))
+            .assertDoesNotExist()
     }
 }

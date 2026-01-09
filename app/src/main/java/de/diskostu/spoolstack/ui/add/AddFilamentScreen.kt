@@ -252,8 +252,8 @@ fun AddFilamentScreen(
                 Slider(
                     value = sliderValue,
                     onValueChange = { sliderValue = it },
-                    valueRange = 100f..1000f,
-                    steps = 17,
+                    valueRange = 0f..1000f,
+                    steps = 99,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
