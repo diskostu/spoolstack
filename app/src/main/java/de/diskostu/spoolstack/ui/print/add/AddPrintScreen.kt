@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
 @Composable
 fun RecordPrintScreen(
     onNavigateBack: () -> Unit,
-    viewModel: RecordPrintViewModel = hiltViewModel()
+    viewModel: AddPrintViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val filaments by viewModel.filaments.collectAsState()

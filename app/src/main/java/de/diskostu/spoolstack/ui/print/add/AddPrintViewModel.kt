@@ -16,7 +16,7 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 @HiltViewModel
-class RecordPrintViewModel @Inject constructor(
+class AddPrintViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository
 ) : ViewModel() {
 
