@@ -236,3 +236,17 @@ fun MainScreenPreviewEmpty() {
         )
     }
 }
+
+@ThemePreviews
+@Composable
+fun MainScreenPreviewFilamentsEmptyPrintsNotEmpty() {
+    SpoolstackTheme {
+        MainScreenContent(
+            navController = rememberNavController(),
+            filamentCount = 0,
+            printCount = 3,
+            onClearFilaments = { },
+            onClearPrints = { }
+        )
+    }
+}
