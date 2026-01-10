@@ -40,9 +40,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     var filamentCount by remember { mutableIntStateOf(0) }
-    val textFilamentsDeleted = stringResource(R.string.debug_filaments_deleted)
 
     LaunchedEffect(Unit) {
         viewModel.getFilamentCount { count ->
@@ -50,9 +48,29 @@ fun MainScreen(
         }
     }
 
+    MainScreenContent(
+        navController = navController,
+        modifier = modifier,
+        filamentCount = filamentCount,
+        onClearAll = { onCompletion ->
+            viewModel.clearAllFilaments(onCompletion)
+        }
+    )
+}
+
+@Composable
+private fun MainScreenContent(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    filamentCount: Int,
+    onClearAll: (() -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    val textFilamentsDeleted = stringResource(R.string.debug_filaments_deleted)
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow // Expressive background
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -120,8 +138,7 @@ fun MainScreen(
 
             DebugButton(
                 onClick = {
-                    viewModel.clearAllFilaments {
-                        filamentCount = 0
+                    onClearAll {
                         Toast.makeText(
                             context,
                             textFilamentsDeleted,
@@ -139,6 +156,10 @@ fun MainScreen(
 @Composable
 fun MainScreenPreview() {
     SpoolstackTheme {
-        MainScreen(navController = rememberNavController())
+        MainScreenContent(
+            navController = rememberNavController(),
+            filamentCount = 12,
+            onClearAll = { }
+        )
     }
 }
