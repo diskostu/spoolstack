@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import org.junit.Rule
@@ -23,7 +22,8 @@ class MainScreenTest {
                     navController = rememberNavController(),
                     filamentCount = 0,
                     printCount = 0,
-                    onClearAll = {}
+                    onClearFilaments = {},
+                    onClearPrints = {}
                 )
             }
         }
@@ -49,7 +49,8 @@ class MainScreenTest {
                     navController = rememberNavController(),
                     filamentCount = 5,
                     printCount = 10,
-                    onClearAll = {}
+                    onClearFilaments = {},
+                    onClearPrints = {}
                 )
             }
         }
