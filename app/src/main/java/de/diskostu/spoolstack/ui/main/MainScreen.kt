@@ -2,8 +2,8 @@ package de.diskostu.spoolstack.ui.main
 
 import android.content.res.Configuration
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,131 +75,128 @@ internal fun MainScreenContent(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) { innerPadding ->
-        Column(
-            modifier = modifier
+        Box(
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App Name / Title with Material 3 Expressive styling
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
+                modifier = modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                /*                Image(
-                                    painter = painterResource(id = R.drawable.app_logo_1),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .height(120.dp)
-                                        .padding(top = 8.dp)
-                                )*/
-            }
+                // App Name / Title
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
 
-            // AREA 1: Filaments
-            SectionContainer(
-                title = stringResource(R.string.section_filaments),
-                badgeCount = filamentCount
-            ) {
+                // AREA 1: Filaments
+                SectionContainer(
+                    title = stringResource(R.string.section_filaments),
+                    badgeCount = filamentCount
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { navController.navigate("add_filament") },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.add))
+                        }
+
+                        Button(
+                            onClick = { navController.navigate("filament_list") },
+                            modifier = Modifier.weight(1f),
+                            enabled = filamentCount > 0
+                        ) {
+                            Text(stringResource(R.string.view))
+                        }
+                    }
+                }
+
+                // AREA 2: Prints
+                SectionContainer(
+                    title = stringResource(R.string.section_prints),
+                    badgeCount = printCount
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { navController.navigate("record_print") },
+                            modifier = Modifier.weight(1f),
+                            enabled = filamentCount > 0
+                        ) {
+                            Text(stringResource(R.string.add))
+                        }
+
+                        Button(
+                            onClick = { navController.navigate("print_list") },
+                            modifier = Modifier.weight(1f),
+                            enabled = printCount > 0
+                        ) {
+                            Text(stringResource(R.string.view))
+                        }
+                    }
+                }
+
+                // Debug buttons moved up
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
-                        onClick = { navController.navigate("add_filament") },
+                    DebugButton(
+                        onClick = {
+                            onClearFilaments {
+                                Toast.makeText(
+                                    context,
+                                    textFilamentsDeleted,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        text = stringResource(R.string.debug_clear_filaments),
                         modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.add))
-                    }
+                    )
 
-                    Button(
-                        onClick = { navController.navigate("filament_list") },
-                        modifier = Modifier.weight(1f),
-                        enabled = filamentCount > 0
-                    ) {
-                        Text(stringResource(R.string.view))
-                    }
+                    DebugButton(
+                        onClick = {
+                            onClearPrints {
+                                Toast.makeText(
+                                    context,
+                                    textPrintsDeleted,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        text = stringResource(R.string.debug_clear_prints),
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-            }
 
-            // AREA 2: Prints
-            SectionContainer(
-                title = stringResource(R.string.section_prints),
-                badgeCount = printCount
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { navController.navigate("record_print") },
-                        modifier = Modifier.weight(1f),
-                        enabled = filamentCount > 0
-                    ) {
-                        Text(stringResource(R.string.add))
-                    }
-
-                    Button(
-                        onClick = { navController.navigate("print_list") },
-                        modifier = Modifier.weight(1f),
-                        enabled = printCount > 0
-                    ) {
-                        Text(stringResource(R.string.view))
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                DebugButton(
-                    onClick = {
-                        onClearFilaments {
-                            Toast.makeText(
-                                context,
-                                textFilamentsDeleted,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    },
-                    text = stringResource(R.string.debug_clear_filaments),
-                    modifier = Modifier.weight(1f)
-                )
-
-                DebugButton(
-                    onClick = {
-                        onClearPrints {
-                            Toast.makeText(
-                                context,
-                                textPrintsDeleted,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    },
-                    text = stringResource(R.string.debug_clear_prints),
-                    modifier = Modifier.weight(1f)
-                )
+                // Spacer to push content up if needed
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }
 }
 
-/**
- * Multipreview annotation that shows both Light and Dark themes.
- */
 @Preview(name = "Light Mode", showBackground = true)
 @Preview(
     name = "Dark Mode",
@@ -217,34 +213,6 @@ fun MainScreenPreview() {
             navController = rememberNavController(),
             filamentCount = 12,
             printCount = 42,
-            onClearFilaments = { },
-            onClearPrints = { }
-        )
-    }
-}
-
-@ThemePreviews
-@Composable
-fun MainScreenPreviewEmpty() {
-    SpoolstackTheme {
-        MainScreenContent(
-            navController = rememberNavController(),
-            filamentCount = 0,
-            printCount = 0,
-            onClearFilaments = { },
-            onClearPrints = { }
-        )
-    }
-}
-
-@ThemePreviews
-@Composable
-fun MainScreenPreviewFilamentsEmptyPrintsNotEmpty() {
-    SpoolstackTheme {
-        MainScreenContent(
-            navController = rememberNavController(),
-            filamentCount = 0,
-            printCount = 3,
             onClearFilaments = { },
             onClearPrints = { }
         )
