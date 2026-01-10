@@ -1,5 +1,6 @@
 package de.diskostu.spoolstack.ui.print.add
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,7 +51,6 @@ import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordPrintScreen(
     onNavigateBack: () -> Unit,
@@ -60,8 +60,6 @@ fun RecordPrintScreen(
     val filaments by viewModel.filaments.collectAsState()
 
     val printSavedMessage = stringResource(R.string.print_saved_message)
-    val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
-    val unitGrams = stringResource(R.string.unit_grams)
 
     LaunchedEffect(Unit) {
         viewModel.printSaved.collectLatest {
@@ -69,6 +67,25 @@ fun RecordPrintScreen(
             onNavigateBack()
         }
     }
+
+    RecordPrintScreenContent(
+        filaments = filaments,
+        onNavigateBack = onNavigateBack,
+        onSavePrint = { name, filament, amountUsed, url, comment ->
+            viewModel.savePrint(name, filament, amountUsed, url, comment)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RecordPrintScreenContent(
+    filaments: List<Filament>,
+    onNavigateBack: () -> Unit,
+    onSavePrint: (String, Filament, Double, String?, String?) -> Unit
+) {
+    val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
+    val unitGrams = stringResource(R.string.unit_grams)
 
     Scaffold(
         topBar = {
@@ -265,12 +282,12 @@ fun RecordPrintScreen(
                         }
 
                         if (isValid) {
-                            viewModel.savePrint(
-                                name = name,
-                                filament = selectedFilament!!,
-                                amountUsed = sliderValue.toDouble(),
-                                url = url.ifBlank { null },
-                                comment = comment.ifBlank { null }
+                            onSavePrint(
+                                name,
+                                selectedFilament!!,
+                                sliderValue.toDouble(),
+                                url.ifBlank { null },
+                                comment.ifBlank { null }
                             )
                         }
                     },
@@ -283,10 +300,42 @@ fun RecordPrintScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "bright", group = "portrait", showBackground = true)
+@Preview(
+    name = "dark",
+    group = "portrait",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+annotation class PortraitPreviews
+
+@Preview(
+    name = "bright",
+    group = "landscape",
+    showBackground = true,
+    device = "spec:width=800dp,height=480dp,orientation=landscape"
+)
+@Preview(
+    name = "dark",
+    group = "landscape",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    device = "spec:width=800dp,height=480dp,orientation=landscape"
+)
+annotation class LandscapePreviews
+
+@PortraitPreviews
+@LandscapePreviews
 @Composable
 fun RecordPrintScreenPreview() {
     SpoolstackTheme {
-        RecordPrintScreen(onNavigateBack = {})
+        RecordPrintScreenContent(
+            filaments = listOf(
+                Filament(1, "Prusa", "Galaxy Black", 1000),
+                Filament(2, "Overture", "White", 1000)
+            ),
+            onNavigateBack = {},
+            onSavePrint = { _, _, _, _, _ -> }
+        )
     }
 }
