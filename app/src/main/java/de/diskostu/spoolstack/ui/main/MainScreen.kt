@@ -98,13 +98,13 @@ internal fun MainScreenContent(
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo_1),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(120.dp)
-                        .padding(top = 8.dp)
-                )
+                /*                Image(
+                                    painter = painterResource(id = R.drawable.app_logo_1),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .height(120.dp)
+                                        .padding(top = 8.dp)
+                                )*/
             }
 
             // AREA 1: Filaments
