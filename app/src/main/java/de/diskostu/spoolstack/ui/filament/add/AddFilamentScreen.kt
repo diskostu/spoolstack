@@ -1,4 +1,4 @@
-package de.diskostu.spoolstack.ui.add
+package de.diskostu.spoolstack.ui.filament.add
 
 import android.content.res.Configuration
 import android.widget.Toast
@@ -31,7 +31,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -42,7 +41,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +57,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
+import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -68,22 +68,16 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFilamentScreen(
     onNavigateBack: () -> Unit,
     viewModel: AddFilamentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val existingVendors by viewModel.vendors.collectAsState()
-    val filamentState by viewModel.filamentState.collectAsState()
+    val existingVendors by viewModel.vendors.collectAsStateWithLifecycle()
+    val filamentState by viewModel.filamentState.collectAsStateWithLifecycle()
 
     val filamentSavedMessage = stringResource(R.string.filament_saved_message)
-    val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
-    val size1kg = stringResource(R.string.size_1kg)
-    val unitGrams = stringResource(R.string.unit_grams)
 
     LaunchedEffect(Unit) {
         viewModel.savedFilamentId.collectLatest { newId ->
@@ -95,6 +89,26 @@ fun AddFilamentScreen(
             onNavigateBack()
         }
     }
+
+    AddFilamentContent(
+        existingVendors = existingVendors,
+        filamentState = filamentState,
+        onNavigateBack = onNavigateBack,
+        onSave = viewModel::save
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddFilamentContent(
+    existingVendors: List<String>,
+    filamentState: Filament?,
+    onNavigateBack: () -> Unit,
+    onSave: (String, String, Int, String?, Long?, Double?) -> Unit
+) {
+    val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
+    val size1kg = stringResource(R.string.size_1kg)
+    val unitGrams = stringResource(R.string.unit_grams)
 
     Scaffold(
         topBar = {
@@ -256,7 +270,7 @@ fun AddFilamentScreen(
 
                     if (!hasError) {
                         val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
-                        viewModel.save(
+                        onSave(
                             vendor, color, sizeToSave,
                             boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull()
                         )
@@ -487,10 +501,33 @@ private fun SaveButtonRow(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+annotation class ThemePreviews
+
+@Preview(
+    name = "Landscape Light",
+    showBackground = true,
+    device = "spec:width=800dp,height=480dp,orientation=landscape"
+)
+@Preview(
+    name = "Landscape Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    device = "spec:width=800dp,height=480dp,orientation=landscape"
+)
+annotation class OrientationPreviews
+
+@ThemePreviews
+@OrientationPreviews
 @Composable
 fun AddFilamentScreenPreview() {
     SpoolstackTheme {
-        AddFilamentScreen(onNavigateBack = {})
+        AddFilamentContent(
+            existingVendors = listOf("Prusa", "Creality", "Extrudr"),
+            filamentState = null,
+            onNavigateBack = {},
+            onSave = { _, _, _, _, _, _ -> }
+        )
     }
 }

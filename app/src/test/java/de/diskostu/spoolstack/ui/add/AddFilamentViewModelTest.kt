@@ -3,6 +3,7 @@ package de.diskostu.spoolstack.ui.add
 import androidx.lifecycle.SavedStateHandle
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
+import de.diskostu.spoolstack.ui.filament.add.AddFilamentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch

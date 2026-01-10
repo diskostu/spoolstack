@@ -1,4 +1,4 @@
-package de.diskostu.spoolstack.ui.list
+package de.diskostu.spoolstack.ui.filament.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

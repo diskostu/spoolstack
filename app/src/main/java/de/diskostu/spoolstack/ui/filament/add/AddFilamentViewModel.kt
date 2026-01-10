@@ -1,4 +1,4 @@
-package de.diskostu.spoolstack.ui.add
+package de.diskostu.spoolstack.ui.filament.add
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

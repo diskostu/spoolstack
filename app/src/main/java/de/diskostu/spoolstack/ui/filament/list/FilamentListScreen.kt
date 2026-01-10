@@ -1,4 +1,4 @@
-package de.diskostu.spoolstack.ui.list
+package de.diskostu.spoolstack.ui.filament.list
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
@@ -43,6 +43,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -211,7 +212,7 @@ fun FilamentListContent(
                                         )
                                     }
                                 },
-                                colors = androidx.compose.material3.TextFieldDefaults.colors(
+                                colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),

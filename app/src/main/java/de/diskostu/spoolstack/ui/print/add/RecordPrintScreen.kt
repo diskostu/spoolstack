@@ -1,4 +1,4 @@
-package de.diskostu.spoolstack.ui.print.record
+package de.diskostu.spoolstack.ui.print.add
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

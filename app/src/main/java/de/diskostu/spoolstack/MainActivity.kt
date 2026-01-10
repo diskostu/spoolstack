@@ -12,11 +12,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
-import de.diskostu.spoolstack.ui.add.AddFilamentScreen
-import de.diskostu.spoolstack.ui.list.FilamentListScreen
+import de.diskostu.spoolstack.ui.filament.add.AddFilamentScreen
+import de.diskostu.spoolstack.ui.filament.list.FilamentListScreen
 import de.diskostu.spoolstack.ui.main.MainScreen
 import de.diskostu.spoolstack.ui.print.list.PrintListScreen
-import de.diskostu.spoolstack.ui.print.record.RecordPrintScreen
+import de.diskostu.spoolstack.ui.print.add.RecordPrintScreen
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
 @AndroidEntryPoint
