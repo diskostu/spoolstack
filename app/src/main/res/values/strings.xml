@@ -75,4 +75,6 @@
     <string name="section_filament_details">Filament Details</string>
     <string name="section_size">Size</string>
     <string name="section_purchase_info">Purchase Information</string>
+    <string name="section_filaments">Filaments</string>
+    <string name="section_prints">Prints</string>
 </resources>

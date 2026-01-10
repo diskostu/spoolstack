@@ -68,4 +68,6 @@
     <string name="section_filament_details">Filament-Details</string>
     <string name="section_size">Größe</string>
     <string name="section_purchase_info">Kaufinformationen</string>
+    <string name="section_filaments">Filamente</string>
+    <string name="section_prints">Druckvorgänge</string>
 </resources>

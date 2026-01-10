@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +31,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.ui.components.DebugButton
+import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
 @Composable
@@ -45,45 +50,73 @@ fun MainScreen(
         }
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow // Expressive background
+    ) { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Center,
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(id = R.string.filaments_in_stock, filamentCount))
+            // AREA 1: Filaments
+            SectionContainer(title = stringResource(R.string.section_filaments)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.filaments_in_stock, filamentCount),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            // opens the screen to add a new filament
-            Button(onClick = { navController.navigate("add_filament") }) {
-                Text(stringResource(R.string.add_filament))
+                    Button(
+                        onClick = { navController.navigate("add_filament") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.add_filament))
+                    }
+
+                    Button(
+                        onClick = { navController.navigate("filament_list") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.view_filaments))
+                    }
+                }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
 
-            // opens the screen to list all filaments
-            Button(onClick = { navController.navigate("filament_list") }) {
-                Text(stringResource(R.string.view_filaments))
+            // AREA 2: Prints
+            SectionContainer(title = stringResource(R.string.section_prints)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { navController.navigate("record_print") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.record_print))
+                    }
+
+                    Button(
+                        onClick = { navController.navigate("print_list") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.view_prints))
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // opens the screen to record a print
-            Button(onClick = { navController.navigate("record_print") }) {
-                Text(stringResource(R.string.record_print))
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // opens the screen to list all prints
-            Button(onClick = { navController.navigate("print_list") }) {
-                Text(stringResource(R.string.view_prints))
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             DebugButton(
                 onClick = {
@@ -106,7 +139,6 @@ fun MainScreen(
 @Composable
 fun MainScreenPreview() {
     SpoolstackTheme {
-        // Note: Preview doesn't show navigation
         MainScreen(navController = rememberNavController())
     }
 }

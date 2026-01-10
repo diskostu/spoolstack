@@ -20,8 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -57,12 +55,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import de.diskostu.spoolstack.R
+import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
@@ -265,31 +263,6 @@ fun AddFilamentScreen(
                     }
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun SectionContainer(
-    title: String,
-    content: @Composable () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Box(modifier = Modifier.padding(12.dp)) {
-                content()
-            }
         }
     }
 }
