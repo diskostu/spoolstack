@@ -6,8 +6,7 @@
     <string name="vendor_label">Hersteller *</string>
     <string name="color_label">Farbe *</string>
     <string name="size_label">Größe *</string>
-    <string name="purchase_info_title">Kaufinformationen</string>
-    <string name="bought_at_label">Gekauft bei (optional)</string>
+    <string name="bought_at_label">Gekauft bei</string>
     <string name="bought_date_label">Kaufdatum (optional)</string>
     <string name="price_label">Preis (optional)</string>
     <string name="size_500g">500g</string>
@@ -67,4 +66,6 @@
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament-Details</string>
+    <string name="section_size">Größe</string>
+    <string name="section_purchase_info">Kaufinformationen</string>
 </resources>

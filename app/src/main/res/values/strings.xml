@@ -8,9 +8,8 @@
     <string name="vendor_label">Vendor *</string>
     <string name="color_label">Color *</string>
     <string name="size_label">Size *</string>
-    <string name="purchase_info_title">Purchase Information</string>
-    <string name="bought_at_label">Bought at (optional)</string>
-    <string name="bought_date_label">Bought date (optional)</string>
+    <string name="bought_at_label">Bought at</string>
+    <string name="bought_date_label">Bought date</string>
     <string name="price_label">Price (optional)</string>
     <string name="size_500g">500g</string>
     <string name="size_1kg">1kg</string>
@@ -74,4 +73,6 @@
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament Details</string>
+    <string name="section_size">Size</string>
+    <string name="section_purchase_info">Purchase Information</string>
 </resources>

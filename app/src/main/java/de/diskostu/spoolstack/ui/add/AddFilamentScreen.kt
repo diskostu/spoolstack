@@ -31,7 +31,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -173,7 +172,7 @@ fun AddFilamentScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // AREA 1: Filament Details
-                SectionContainer(title = "Filament Details") {
+                SectionContainer(title = stringResource(R.string.section_filament_details)) {
                     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                         VendorField(
                             vendor = vendor,
@@ -196,7 +195,7 @@ fun AddFilamentScreen(
                 }
 
                 // AREA 2: Size
-                SectionContainer(title = stringResource(R.string.size_label)) {
+                SectionContainer(title = stringResource(R.string.section_size)) {
                     SizeSection(
                         sizeInput = sizeInput,
                         onSizeInputChange = { input, value ->
@@ -214,7 +213,7 @@ fun AddFilamentScreen(
                 }
 
                 // AREA 3: Purchase Information
-                SectionContainer(title = stringResource(R.string.purchase_info_title)) {
+                SectionContainer(title = stringResource(R.string.section_purchase_info)) {
                     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                         BoughtAtField(
                             boughtAt = boughtAt,
