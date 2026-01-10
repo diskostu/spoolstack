@@ -23,7 +23,6 @@
     <string name="debug_button" translatable="false">Debug Button</string>
     <string name="debug_clear_filaments">Clear filaments</string>
     <string name="debug_filaments_deleted">Deleted all filaments</string>
-    <string name="filaments_in_stock">Filaments in stock: %1$d</string>
     <string name="menu_more_options">More options</string>
     <string name="archive">Archive</string>
     <string name="unarchive">Unarchive</string>

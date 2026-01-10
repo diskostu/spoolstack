@@ -41,10 +41,14 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     var filamentCount by remember { mutableIntStateOf(0) }
+    var printCount by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         viewModel.getFilamentCount { count ->
             filamentCount = count
+        }
+        viewModel.getPrintCount { count ->
+            printCount = count
         }
     }
 
@@ -52,6 +56,7 @@ fun MainScreen(
         navController = navController,
         modifier = modifier,
         filamentCount = filamentCount,
+        printCount = printCount,
         onClearAll = { onCompletion ->
             viewModel.clearAllFilaments(onCompletion)
         }
@@ -63,6 +68,7 @@ private fun MainScreenContent(
     navController: NavController,
     modifier: Modifier = Modifier,
     filamentCount: Int,
+    printCount: Int,
     onClearAll: (() -> Unit) -> Unit
 ) {
     val context = LocalContext.current
@@ -82,19 +88,15 @@ private fun MainScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // AREA 1: Filaments
-            SectionContainer(title = stringResource(R.string.section_filaments)) {
+            SectionContainer(
+                title = stringResource(R.string.section_filaments),
+                badgeCount = filamentCount
+            ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.filaments_in_stock, filamentCount),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     Button(
                         onClick = { navController.navigate("add_filament") },
                         modifier = Modifier.fillMaxWidth()
@@ -112,7 +114,10 @@ private fun MainScreenContent(
             }
 
             // AREA 2: Prints
-            SectionContainer(title = stringResource(R.string.section_prints)) {
+            SectionContainer(
+                title = stringResource(R.string.section_prints),
+                badgeCount = printCount
+            ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,6 +164,7 @@ fun MainScreenPreview() {
         MainScreenContent(
             navController = rememberNavController(),
             filamentCount = 12,
+            printCount = 42,
             onClearAll = { }
         )
     }

@@ -15,4 +15,7 @@ interface PrintDao {
 
     @Query("SELECT * FROM prints WHERE filamentId = :filamentId ORDER BY printDate DESC")
     fun getPrintsForFilament(filamentId: Int): Flow<List<Print>>
+
+    @Query("SELECT COUNT(*) FROM prints")
+    suspend fun getCount(): Int
 }
