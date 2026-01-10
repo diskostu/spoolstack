@@ -77,4 +77,10 @@
     <string name="section_purchase_info">Kaufinformationen</string>
     <string name="section_filaments">Filamente</string>
     <string name="section_prints">Druckvorgänge</string>
+    <string name="settings_title">App-Einstellungen</string>
+    <string name="settings_app_design">App-Design</string>
+    <string name="settings_theme_follow_system">Systemeinstellung folgen</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_dismiss">Verwerfen</string>
 </resources>

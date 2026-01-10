@@ -86,10 +86,10 @@
     <string name="section_prints">Prints</string>
 
     <!-- Settings -->
-    <string name="settings_title">App-Einstellungen</string>
-    <string name="settings_app_design">App-Design</string>
-    <string name="settings_theme_follow_system">Systemeinstellung folgen</string>
-    <string name="settings_theme_light">Hell</string>
-    <string name="settings_theme_dark">Dunkel</string>
-    <string name="settings_dismiss">Verwerfen</string>
+    <string name="settings_title">App Settings</string>
+    <string name="settings_app_design">App Design</string>
+    <string name="settings_theme_follow_system">Follow the system</string>
+    <string name="settings_theme_light">Day</string>
+    <string name="settings_theme_dark">Night</string>
+    <string name="settings_dismiss">Dismiss</string>
 </resources>
