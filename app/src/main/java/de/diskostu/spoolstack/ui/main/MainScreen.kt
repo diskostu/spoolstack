@@ -1,12 +1,15 @@
 package de.diskostu.spoolstack.ui.main
 
+import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,15 +86,26 @@ internal fun MainScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // App Name / Title with Material 3 Expressive styling
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.primary,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 8.dp)
-            )
+                    .padding(top = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo_1),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(120.dp)
+                        .padding(top = 8.dp)
+                )
+            }
 
             // AREA 1: Filaments
             SectionContainer(
@@ -183,7 +198,18 @@ internal fun MainScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+/**
+ * Multipreview annotation that shows both Light and Dark themes.
+ */
+@Preview(name = "Light Mode", showBackground = true)
+@Preview(
+    name = "Dark Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+annotation class ThemePreviews
+
+@ThemePreviews
 @Composable
 fun MainScreenPreview() {
     SpoolstackTheme {
@@ -197,9 +223,9 @@ fun MainScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@ThemePreviews
 @Composable
-fun MainScreenPreview2() {
+fun MainScreenPreviewEmpty() {
     SpoolstackTheme {
         MainScreenContent(
             navController = rememberNavController(),
