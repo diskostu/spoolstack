@@ -27,7 +27,7 @@ interface FilamentDao {
     @Query("SELECT * FROM filament ORDER BY changeDate DESC")
     fun getAllFilaments(): Flow<List<Filament>>
 
-    @Query("SELECT * FROM filament WHERE archived = 0 ORDER BY changeDate DESC")
+    @Query("SELECT * FROM filament WHERE deleted = 0 ORDER BY changeDate DESC")
     fun getActiveFilaments(): Flow<List<Filament>>
 
     @Query("SELECT * FROM filament WHERE id = :id")

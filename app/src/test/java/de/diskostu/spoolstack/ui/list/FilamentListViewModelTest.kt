@@ -38,7 +38,7 @@ class FilamentListViewModelTest {
         vendor = "Vendor A",
         color = "Red",
         size = 1000,
-        archived = false,
+        deleted = false,
         createdDate = 1000L,
         changeDate = 1000L
     )
@@ -48,7 +48,7 @@ class FilamentListViewModelTest {
         vendor = "Vendor B",
         color = "Blue",
         size = 500,
-        archived = true,
+        deleted = true,
         createdDate = 2000L,
         changeDate = 2000L
     )
@@ -58,7 +58,7 @@ class FilamentListViewModelTest {
         vendor = "Vendor A",
         color = "Green",
         size = 2000,
-        archived = false,
+        deleted = false,
         createdDate = 3000L,
         changeDate = 3000L
     )
@@ -75,7 +75,7 @@ class FilamentListViewModelTest {
     }
 
     @Test
-    fun `filaments are loaded from repository and default filter is ALL`() = runTest {
+    fun `filaments are loaded from repository and default filter is ACTIVE`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -87,15 +87,15 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        // Default sort is NAME, so Vendor A Red, then Vendor B Blue
-        assertEquals(listOf(filament1, filament2), viewModel.filaments.value)
-        assertEquals(FilamentFilter.ALL, viewModel.filter.value)
+        // Default filter is ACTIVE, so only filament1 (non-deleted)
+        assertEquals(listOf(filament1), viewModel.filaments.value)
+        assertEquals(FilamentFilter.ACTIVE, viewModel.filter.value)
         
         job.cancel()
     }
 
     @Test
-    fun `filter ACTIVE only shows non-archived filaments`() = runTest {
+    fun `filter ACTIVE only shows non-deleted filaments`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -116,7 +116,7 @@ class FilamentListViewModelTest {
     }
 
     @Test
-    fun `filter ARCHIVED only shows archived filaments`() = runTest {
+    fun `filter DELETED only shows deleted filaments`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -126,7 +126,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
-        viewModel.setFilter(FilamentFilter.ARCHIVED)
+        viewModel.setFilter(FilamentFilter.DELETED)
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -147,6 +147,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
+        viewModel.setFilter(FilamentFilter.ALL)
         viewModel.setSearchQuery("Vendor B")
         testScheduler.advanceUntilIdle()
 
@@ -168,6 +169,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
+        viewModel.setFilter(FilamentFilter.ALL)
         viewModel.setSearchQuery("Red")
         testScheduler.advanceUntilIdle()
 
@@ -189,6 +191,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
+        viewModel.setFilter(FilamentFilter.ALL)
         viewModel.setSort(FilamentSort.NAME)
         testScheduler.advanceUntilIdle()
 
@@ -214,6 +217,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
+        viewModel.setFilter(FilamentFilter.ALL)
         viewModel.setSort(FilamentSort.LAST_MODIFIED)
         testScheduler.advanceUntilIdle()
 
@@ -238,6 +242,7 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // When
+        viewModel.setFilter(FilamentFilter.ALL)
         viewModel.setSort(FilamentSort.REMAINING_AMOUNT)
         testScheduler.advanceUntilIdle()
 
@@ -304,15 +309,18 @@ class FilamentListViewModelTest {
         dbFlow.value = listOf(filament1, filament2)
         testScheduler.advanceUntilIdle()
 
-        assertEquals(2, viewModel.filaments.value.size)
-        assertFalse("Filters should be hidden for 2 items", viewModel.showFilters.value)
+        // Note: Default filter is ACTIVE, filament2 is deleted. So only 1 item visible in UI, 
+        // but showFilters depends on the RAW source list size.
+        // Wait, showFilters uses _sourceFilaments. In ViewModel it's _sourceFilaments.map { it.size >= 3 }.
+        assertEquals(1, viewModel.filaments.value.size)
+        assertFalse("Filters should be hidden for 2 items in source", viewModel.showFilters.value)
 
         // 3. Add 3rd filament
         dbFlow.value = listOf(filament1, filament2, filament3)
         testScheduler.advanceUntilIdle()
 
-        assertEquals(3, viewModel.filaments.value.size)
-        assertTrue("Filters should be visible for 3 items", viewModel.showFilters.value)
+        assertEquals(2, viewModel.filaments.value.size) // filament1 and filament3 are active
+        assertTrue("Filters should be visible for 3 items in source", viewModel.showFilters.value)
 
         // Cleanup
         filamentsJob.cancel()

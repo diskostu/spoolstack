@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class FilamentFilter {
-    ALL, ACTIVE, ARCHIVED
+    ALL, ACTIVE, DELETED
 }
 
 enum class FilamentSort {
@@ -33,7 +33,7 @@ class FilamentListViewModel @Inject constructor(
     // Internal source list (raw data from DB, potentially animated)
     private val _sourceFilaments = MutableStateFlow<List<Filament>>(emptyList())
 
-    private val _filter = MutableStateFlow(FilamentFilter.ALL)
+    private val _filter = MutableStateFlow(FilamentFilter.ACTIVE)
     val filter = _filter.asStateFlow()
 
     private val _sort = MutableStateFlow(FilamentSort.NAME)
@@ -53,8 +53,8 @@ class FilamentListViewModel @Inject constructor(
         // Apply Filter
         result = when (filter) {
             FilamentFilter.ALL -> result
-            FilamentFilter.ACTIVE -> result.filter { !it.archived }
-            FilamentFilter.ARCHIVED -> result.filter { it.archived }
+            FilamentFilter.ACTIVE -> result.filter { !it.deleted }
+            FilamentFilter.DELETED -> result.filter { it.deleted }
         }
         // Apply Search
         if (query.isNotEmpty()) {
@@ -147,9 +147,9 @@ class FilamentListViewModel @Inject constructor(
         }
     }
 
-    fun toggleArchived(filament: Filament) {
+    fun toggleDeleted(filament: Filament) {
         viewModelScope.launch {
-            filamentRepository.update(filament.copy(archived = !filament.archived))
+            filamentRepository.update(filament.copy(deleted = !filament.deleted))
         }
     }
 

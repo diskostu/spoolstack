@@ -61,7 +61,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
-import de.diskostu.spoolstack.ui.components.ArchiveConfirmationDialog
+import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -174,32 +174,32 @@ fun AddFilamentContent(
             ) { DatePicker(state = datePickerState) }
         }
 
-        // Archive Dialog State
-        var showArchiveDialog by remember { mutableStateOf(false) }
+        // Delete Dialog State
+        var showDeleteDialog by remember { mutableStateOf(false) }
 
-        if (showArchiveDialog) {
-            ArchiveConfirmationDialog(
+        if (showDeleteDialog) {
+            DeleteConfirmationDialog(
                 onConfirm = {
-                    showArchiveDialog = false
+                    showDeleteDialog = false
                     val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
                         vendor, color, sizeToSave,
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                        true // archived = true
+                        true // deleted = true
                     )
                 },
                 onDismiss = {
-                    showArchiveDialog = false
+                    showDeleteDialog = false
                     val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
                         vendor, color, sizeToSave,
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                        false // archived = false
+                        false // deleted = false
                     )
                 },
-                message = stringResource(R.string.archive_empty_confirmation_message),
-                confirmButtonText = stringResource(R.string.archive_and_save),
-                dismissButtonText = stringResource(R.string.save_without_archiving)
+                message = stringResource(R.string.delete_empty_confirmation_message),
+                confirmButtonText = stringResource(R.string.delete_and_save),
+                dismissButtonText = stringResource(R.string.save_without_deleting)
             )
         }
 
@@ -355,12 +355,12 @@ fun AddFilamentContent(
                     if (!hasError) {
                         val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
                         if (sizeToSave == 0 && filamentState != null) {
-                            showArchiveDialog = true
+                            showDeleteDialog = true
                         } else {
                             onSave(
                                 vendor, color, sizeToSave,
                                 boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                                false // archived = false
+                                false // deleted = false
                             )
                         }
                     }

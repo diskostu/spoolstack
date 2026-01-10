@@ -32,8 +32,8 @@
     <string name="list_purchase_info_full">Gekauft bei %1$s (%2$.2f)</string>
     <string name="list_purchase_info_vendor">Gekauft bei %1$s</string>
     <string name="menu_more_options">Weitere Optionen</string>
-    <string name="archive">Archivieren</string>
-    <string name="unarchive">De-Archivieren</string>
+    <string name="delete">Löschen</string>
+    <string name="undelete">Wiederherstellen</string>
 
     <!-- Print related strings -->
     <string name="record_print">Druckvorgang erfassen</string>
@@ -51,7 +51,7 @@
     <string name="select_filament_hint">Filament auswählen</string>
 
     <!-- Filter chips and search -->
-    <string name="filter_archived">Archiviert</string>
+    <string name="filter_deleted">Gelöscht</string>
     <string name="filter_active">Aktiv</string>
     <string name="filter_all">Alle</string>
     <string name="search_hint">Suchen…</string>
@@ -65,11 +65,11 @@
     <string name="sort_by_remaining_amount">Verbleibende Menge</string>
 
     <!-- Confirmation Dialog -->
-    <string name="archive_confirmation_title">Filament archivieren?</string>
-    <string name="archive_confirmation_message">Soll dieses Filament wirklich archiviert werden? Es sind noch %1$d g vorhanden.</string>
-    <string name="archive_empty_confirmation_message">Dieses Filament ist nun leer - soll es archiviert werden?</string>
-    <string name="archive_and_save">Archivieren und Speichern</string>
-    <string name="save_without_archiving">Speichern ohne Archivieren</string>
+    <string name="delete_confirmation_title">Filament löschen?</string>
+    <string name="delete_confirmation_message">Soll dieses Filament wirklich gelöscht werden? Es sind noch %1$d g vorhanden.</string>
+    <string name="delete_empty_confirmation_message">Dieses Filament ist nun leer - soll es gelöscht werden?</string>
+    <string name="delete_and_save">Löschen und Speichern</string>
+    <string name="save_without_deleting">Speichern ohne Löschen</string>
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament-Details</string>

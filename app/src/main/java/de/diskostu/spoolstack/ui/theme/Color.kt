@@ -11,6 +11,6 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val ActiveGreen = Color(0xFFE8F5E9)
-val ArchivedGray = Color(0xFFEEEEEE)
-val ActiveGreenDark = Color(0xFF1B5E20) // For dark mode content if needed, or background
-val ArchivedGrayDark = Color(0xFF424242)
+val DeletedGray = Color(0xFFEEEEEE)
+val ActiveGreenDark = Color(0xFF1B5E20)
+val DeletedGrayDark = Color(0xFF424242)

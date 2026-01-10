@@ -65,11 +65,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
-import de.diskostu.spoolstack.ui.components.ArchiveConfirmationDialog
+import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.theme.ActiveGreen
 import de.diskostu.spoolstack.ui.theme.ActiveGreenDark
-import de.diskostu.spoolstack.ui.theme.ArchivedGray
-import de.diskostu.spoolstack.ui.theme.ArchivedGrayDark
+import de.diskostu.spoolstack.ui.theme.DeletedGray
+import de.diskostu.spoolstack.ui.theme.DeletedGrayDark
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import java.text.DateFormat
 import java.util.Date
@@ -112,8 +112,8 @@ fun FilamentListScreen(
         showFilters = showFilters,
         onNavigateBack = onNavigateBack,
         onFilamentClick = onFilamentClick,
-        onToggleArchive = { filament ->
-            viewModel.toggleArchived(filament)
+        onToggleDelete = { filament ->
+            viewModel.toggleDeleted(filament)
         },
         onFilterChange = viewModel::setFilter,
         onSortChange = viewModel::setSort,
@@ -131,7 +131,7 @@ fun FilamentListContent(
     showFilters: Boolean,
     onNavigateBack: () -> Unit,
     onFilamentClick: (Int) -> Unit,
-    onToggleArchive: (Filament) -> Unit,
+    onToggleDelete: (Filament) -> Unit,
     onFilterChange: (FilamentFilter) -> Unit,
     onSortChange: (FilamentSort) -> Unit,
     onSearchQueryChange: (String) -> Unit
@@ -140,7 +140,7 @@ fun FilamentListContent(
     var showSortMenu by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
-    var filamentToArchive by remember { mutableStateOf<Filament?>(null) }
+    var filamentToDelete by remember { mutableStateOf<Filament?>(null) }
 
     // When search becomes active, request focus
     LaunchedEffect(isSearchActive) {
@@ -241,9 +241,9 @@ fun FilamentListContent(
                                         label = { Text(stringResource(R.string.filter_active)) }
                                     )
                                     FilterChip(
-                                        selected = filter == FilamentFilter.ARCHIVED,
-                                        onClick = { onFilterChange(FilamentFilter.ARCHIVED) },
-                                        label = { Text(stringResource(R.string.filter_archived)) }
+                                        selected = filter == FilamentFilter.DELETED,
+                                        onClick = { onFilterChange(FilamentFilter.DELETED) },
+                                        label = { Text(stringResource(R.string.filter_deleted)) }
                                     )
                                 }
 
@@ -310,11 +310,11 @@ fun FilamentListContent(
                     FilamentCard(
                         filament = filament,
                         onClick = { onFilamentClick(filament.id) },
-                        onToggleArchive = {
-                            if (!filament.archived && filament.size > 0) {
-                                filamentToArchive = filament
+                        onToggleDelete = {
+                            if (!filament.deleted && filament.size > 0) {
+                                filamentToDelete = filament
                             } else {
-                                onToggleArchive(filament)
+                                onToggleDelete(filament)
                             }
                         },
                         modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
@@ -324,14 +324,14 @@ fun FilamentListContent(
         }
     }
 
-    filamentToArchive?.let { filament ->
-        ArchiveConfirmationDialog(
+    filamentToDelete?.let { filament ->
+        DeleteConfirmationDialog(
             onConfirm = {
-                onToggleArchive(filament)
-                filamentToArchive = null
+                onToggleDelete(filament)
+                filamentToDelete = null
             },
-            onDismiss = { filamentToArchive = null },
-            message = stringResource(R.string.archive_confirmation_message, filament.size)
+            onDismiss = { filamentToDelete = null },
+            message = stringResource(R.string.delete_confirmation_message, filament.size)
         )
     }
 }
@@ -340,15 +340,15 @@ fun FilamentListContent(
 fun FilamentCard(
     filament: Filament,
     onClick: () -> Unit,
-    onToggleArchive: () -> Unit,
+    onToggleDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
     var showMenu by remember { mutableStateOf(false) }
     val isDark = isSystemInDarkTheme()
 
-    val backgroundColor = if (filament.archived) {
-        if (isDark) ArchivedGrayDark else ArchivedGray
+    val backgroundColor = if (filament.deleted) {
+        if (isDark) DeletedGrayDark else DeletedGray
     } else {
         if (isDark) ActiveGreenDark else ActiveGreen
     }
@@ -433,13 +433,13 @@ fun FilamentCard(
                         text = {
                             Text(
                                 stringResource(
-                                    if (filament.archived) R.string.unarchive else R.string.archive
+                                    if (filament.deleted) R.string.undelete else R.string.delete
                                 )
                             )
                         },
                         onClick = {
                             showMenu = false
-                            onToggleArchive()
+                            onToggleDelete()
                         }
                     )
                 }
@@ -482,7 +482,7 @@ fun FilamentListScreenPreview() {
             showFilters = true,
             onNavigateBack = {},
             onFilamentClick = {},
-            onToggleArchive = {},
+            onToggleDelete = {},
             onFilterChange = {},
             onSortChange = {},
             onSearchQueryChange = {}
@@ -505,7 +505,7 @@ fun FilamentCardPreview() {
                 changeDate = System.currentTimeMillis()
             ),
             onClick = {},
-            onToggleArchive = {}
+            onToggleDelete = {}
         )
     }
 }

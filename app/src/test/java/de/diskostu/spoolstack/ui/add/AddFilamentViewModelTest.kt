@@ -92,7 +92,7 @@ class AddFilamentViewModelTest {
     }
 
     @Test
-    fun `save calls repository update when editing and archived is true`() = runTest {
+    fun `save calls repository update when editing and deleted is true`() = runTest {
         // Given
         val existingFilament = Filament(
             id = 1,
@@ -113,14 +113,14 @@ class AddFilamentViewModelTest {
         }
 
         // When
-        viewModel.save("Vendor", "Red", 0, null, null, null, archived = true)
+        viewModel.save("Vendor", "Red", 0, null, null, null, deleted = true)
         advanceUntilIdle()
 
         // Then
         val captor = argumentCaptor<Filament>()
         verify(filamentRepository).update(captor.capture())
         val updatedFilament = captor.firstValue
-        assertTrue(updatedFilament.archived)
+        assertTrue(updatedFilament.deleted)
         assertEquals(0, updatedFilament.size)
         assertEquals(1L, emittedIds.first())
 

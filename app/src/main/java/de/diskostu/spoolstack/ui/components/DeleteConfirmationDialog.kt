@@ -4,7 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -22,26 +22,32 @@ import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 
 /**
- * A reusable confirmation dialog for archiving filaments.
+ * A reusable confirmation dialog for deleting filaments.
  *
- * @param onConfirm Callback when the archive button is pressed.
+ * @param onConfirm Callback when the delete button is pressed.
  * @param onDismiss Callback when the dialog is dismissed or cancel is pressed.
  * @param message The message to show in the dialog.
- * @param title The title of the dialog. Defaults to archive_confirmation_title.
- * @param confirmButtonText The text for the confirm button. Defaults to archive.
- * @param dismissButtonText The text for the dismiss button. Defaults to cancel.
- * @param icon The icon to show. Defaults to Icons.Default.Archive.
+ * @param title The title of the dialog. Defaults to R.string.delete_confirmation_title.
+ * @param confirmButtonText The text for the confirm button. Defaults to R.string.delete.
+ * @param dismissButtonText The text for the dismiss button. Defaults to R.string.cancel.
+ * @param icon The icon to show. Defaults to Icons.Default.Delete.
  */
 @Composable
-fun ArchiveConfirmationDialog(
+fun DeleteConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     message: String,
-    title: String = stringResource(R.string.archive_confirmation_title),
-    confirmButtonText: String = stringResource(R.string.archive),
-    dismissButtonText: String = stringResource(R.string.cancel),
-    icon: ImageVector = Icons.Default.Archive
+    title: String? = null,
+    confirmButtonText: String? = null,
+    dismissButtonText: String? = null,
+    icon: ImageVector = Icons.Default.Delete
 ) {
+    // Resolve default strings inside the body to avoid potential preview issues with stale R classes
+    // when using stringResource in default parameters.
+    val actualTitle = title ?: stringResource(R.string.delete_confirmation_title)
+    val actualConfirmButtonText = confirmButtonText ?: stringResource(R.string.delete)
+    val actualDismissButtonText = dismissButtonText ?: stringResource(R.string.cancel)
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -66,7 +72,7 @@ fun ArchiveConfirmationDialog(
         title = {
             // Center title text
             Text(
-                text = title,
+                text = actualTitle,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -81,12 +87,12 @@ fun ArchiveConfirmationDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = confirmButtonText)
+                Text(text = actualConfirmButtonText)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = dismissButtonText)
+                Text(text = actualDismissButtonText)
             }
         }
     )
@@ -94,24 +100,24 @@ fun ArchiveConfirmationDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun ArchiveConfirmationDialogPreview() {
+private fun DeleteConfirmationDialogPreview() {
     SpoolstackTheme {
-        ArchiveConfirmationDialog(
+        DeleteConfirmationDialog(
             onConfirm = {},
             onDismiss = {},
-            message = "Are you sure you want to archive this filament?"
+            message = "Are you sure you want to delete this filament?"
         )
     }
 }
 
-@Preview(showBackground = true, device = "spec:width=800dp,height=480dp,orientation=landscape")
+@Preview(showBackground = true, device = "spec:width=600dp,height=480dp,orientation=landscape")
 @Composable
-private fun ArchiveConfirmationDialogLandscapePreview() {
+private fun DeleteConfirmationDialogLandscapePreview() {
     SpoolstackTheme {
-        ArchiveConfirmationDialog(
+        DeleteConfirmationDialog(
             onConfirm = {},
             onDismiss = {},
-            message = "Are you sure you want to archive this filament? This message is a bit longer to see the effect of the wider dialog in landscape mode."
+            message = "Are you sure you want to delete this filament? This message is a bit longer to see the effect of the wider dialog in landscape mode."
         )
     }
 }

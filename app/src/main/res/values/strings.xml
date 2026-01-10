@@ -29,8 +29,8 @@
     <string name="debug_clear_prints">Clear prints</string>
     <string name="debug_prints_deleted">Deleted all prints</string>
     <string name="menu_more_options">More options</string>
-    <string name="archive">Archive</string>
-    <string name="unarchive">Unarchive</string>
+    <string name="delete">Delete</string>
+    <string name="undelete">Undelete</string>
 
     <string name="filament_list_title">My Filaments</string>
     <string name="view_filaments">View Filaments</string>
@@ -58,7 +58,7 @@
     <string name="select_filament_hint">Select a filament</string>
 
     <!-- Filter chips and search -->
-    <string name="filter_archived">Archived</string>
+    <string name="filter_deleted">Deleted</string>
     <string name="filter_active">Active</string>
     <string name="filter_all">All</string>
     <string name="search_hint">Search…</string>
@@ -72,11 +72,11 @@
     <string name="sort_by_remaining_amount">Remaining amount</string>
 
     <!-- Confirmation Dialog -->
-    <string name="archive_confirmation_title">Archive Filament?</string>
-    <string name="archive_confirmation_message">Do you really want to archive this filament? There are still %1$d g remaining.</string>
-    <string name="archive_empty_confirmation_message">This filament is now empty - should it be archived?</string>
-    <string name="archive_and_save">Archive and Save</string>
-    <string name="save_without_archiving">Save without archiving</string>
+    <string name="delete_confirmation_title">Delete Filament?</string>
+    <string name="delete_confirmation_message">Do you really want to delete this filament? There are still %1$d g remaining.</string>
+    <string name="delete_empty_confirmation_message">This filament is now empty - should it be deleted?</string>
+    <string name="delete_and_save">Delete and Save</string>
+    <string name="save_without_deleting">Save without deleting</string>
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament Details</string>
