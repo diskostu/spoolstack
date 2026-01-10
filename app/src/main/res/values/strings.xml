@@ -2,7 +2,7 @@
     <string name="app_name" translatable="false">spoolstack</string>
 
     <string name="add">add</string>
-    <string name="view">view</string>
+    <string name="list">list</string>
 
     <string name="add_filament">add filament</string>
     <string name="add_filament_title">add filament</string>

@@ -124,7 +124,7 @@ internal fun MainScreenContent(
                             modifier = Modifier.weight(1f),
                             enabled = filamentCount > 0
                         ) {
-                            Text(stringResource(R.string.view))
+                            Text(stringResource(R.string.list))
                         }
                     }
                 }
@@ -151,7 +151,7 @@ internal fun MainScreenContent(
                             modifier = Modifier.weight(1f),
                             enabled = printCount > 0
                         ) {
-                            Text(stringResource(R.string.view))
+                            Text(stringResource(R.string.list))
                         }
                     }
                 }
