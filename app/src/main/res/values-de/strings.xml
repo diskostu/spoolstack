@@ -1,4 +1,7 @@
 <resources>
+    <string name="add">Hinzufügen</string>
+    <string name="view">Ansehen</string>
+
     <string name="add_filament">Filament hinzufügen</string>
     <string name="add_filament_title">Filament hinzufügen</string>
     <string name="edit_filament_title">Filament bearbeiten</string>
@@ -19,6 +22,8 @@
     <string name="back_button_content_description">Zurück</string>
     <string name="debug_clear_filaments">Filamente löschen</string>
     <string name="debug_filaments_deleted">Alle Filamente gelöscht</string>
+    <string name="debug_clear_prints">Drucke löschen</string>
+    <string name="debug_prints_deleted">Alle Druckvorgänge gelöscht</string>
     <string name="filament_list_title">Meine Filamente</string>
     <string name="view_filaments">Filamente ansehen</string>
     <string name="remaining_weight">Verbleibend: %1$s</string>

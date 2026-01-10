@@ -21,4 +21,7 @@ interface PrintDao {
 
     @Query("SELECT COUNT(*) FROM prints")
     fun getCountFlow(): Flow<Int>
+
+    @Query("DELETE FROM prints")
+    suspend fun deleteAll()
 }

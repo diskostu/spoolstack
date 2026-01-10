@@ -3,6 +3,7 @@ package de.diskostu.spoolstack.ui.main
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,22 +45,27 @@ fun MainScreen(
         modifier = modifier,
         filamentCount = filamentCount,
         printCount = printCount,
-        onClearAll = { onCompletion ->
+        onClearFilaments = { onCompletion ->
             viewModel.clearAllFilaments(onCompletion)
+        },
+        onClearPrints = { onCompletion ->
+            viewModel.clearAllPrints(onCompletion)
         }
     )
 }
 
 @Composable
-private fun MainScreenContent(
+internal fun MainScreenContent(
     navController: NavController,
     modifier: Modifier = Modifier,
     filamentCount: Int,
     printCount: Int,
-    onClearAll: (() -> Unit) -> Unit
+    onClearFilaments: (() -> Unit) -> Unit,
+    onClearPrints: (() -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     val textFilamentsDeleted = stringResource(R.string.debug_filaments_deleted)
+    val textPrintsDeleted = stringResource(R.string.debug_prints_deleted)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -79,24 +85,23 @@ private fun MainScreenContent(
                 title = stringResource(R.string.section_filaments),
                 badgeCount = filamentCount
             ) {
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = { navController.navigate("add_filament") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text(stringResource(R.string.add_filament))
+                        Text(stringResource(R.string.add))
                     }
 
                     Button(
                         onClick = { navController.navigate("filament_list") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
                         enabled = filamentCount > 0
                     ) {
-                        Text(stringResource(R.string.view_filaments))
+                        Text(stringResource(R.string.view))
                     }
                 }
             }
@@ -106,43 +111,62 @@ private fun MainScreenContent(
                 title = stringResource(R.string.section_prints),
                 badgeCount = printCount
             ) {
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = { navController.navigate("record_print") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
                         enabled = filamentCount > 0
                     ) {
-                        Text(stringResource(R.string.record_print))
+                        Text(stringResource(R.string.add))
                     }
 
                     Button(
                         onClick = { navController.navigate("print_list") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
                         enabled = printCount > 0
                     ) {
-                        Text(stringResource(R.string.view_prints))
+                        Text(stringResource(R.string.view))
                     }
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            DebugButton(
-                onClick = {
-                    onClearAll {
-                        Toast.makeText(
-                            context,
-                            textFilamentsDeleted,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                text = stringResource(R.string.debug_clear_filaments)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DebugButton(
+                    onClick = {
+                        onClearFilaments {
+                            Toast.makeText(
+                                context,
+                                textFilamentsDeleted,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    text = stringResource(R.string.debug_clear_filaments),
+                    modifier = Modifier.weight(1f)
+                )
+
+                DebugButton(
+                    onClick = {
+                        onClearPrints {
+                            Toast.makeText(
+                                context,
+                                textPrintsDeleted,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    text = stringResource(R.string.debug_clear_prints),
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -155,11 +179,11 @@ fun MainScreenPreview() {
             navController = rememberNavController(),
             filamentCount = 12,
             printCount = 42,
-            onClearAll = { }
+            onClearFilaments = { },
+            onClearPrints = { }
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -169,7 +193,8 @@ fun MainScreenPreview2() {
             navController = rememberNavController(),
             filamentCount = 0,
             printCount = 0,
-            onClearAll = { }
+            onClearFilaments = { },
+            onClearPrints = { }
         )
     }
 }

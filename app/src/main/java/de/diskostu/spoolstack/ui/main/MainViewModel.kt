@@ -29,4 +29,11 @@ class MainViewModel @Inject constructor(
             onCompletion()
         }
     }
+
+    fun clearAllPrints(onCompletion: () -> Unit) {
+        viewModelScope.launch {
+            printDao.deleteAll()
+            onCompletion()
+        }
+    }
 }

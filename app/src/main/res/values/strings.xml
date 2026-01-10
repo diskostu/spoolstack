@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">spoolstack</string>
 
+    <string name="add">add</string>
+    <string name="view">view</string>
+
     <string name="add_filament">add filament</string>
     <string name="add_filament_title">add filament</string>
     <string name="edit_filament_title">Edit filament</string>
@@ -23,6 +26,8 @@
     <string name="debug_button" translatable="false">Debug Button</string>
     <string name="debug_clear_filaments">Clear filaments</string>
     <string name="debug_filaments_deleted">Deleted all filaments</string>
+    <string name="debug_clear_prints">Clear prints</string>
+    <string name="debug_prints_deleted">Deleted all prints</string>
     <string name="menu_more_options">More options</string>
     <string name="archive">Archive</string>
     <string name="unarchive">Unarchive</string>
