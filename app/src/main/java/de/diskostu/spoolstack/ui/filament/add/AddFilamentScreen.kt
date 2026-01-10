@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -106,6 +107,8 @@ fun AddFilamentContent(
     onNavigateBack: () -> Unit,
     onSave: (String, String, Int, String?, Long?, Double?) -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
     val size1kg = stringResource(R.string.size_1kg)
     val unitGrams = stringResource(R.string.unit_grams)
@@ -185,24 +188,50 @@ fun AddFilamentContent(
             ) {
                 // AREA 1: Filament Details
                 SectionContainer(title = stringResource(R.string.section_filament_details)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        VendorField(
-                            vendor = vendor,
-                            onVendorChange = {
-                                vendor = it
-                                vendorError = null
-                            },
-                            vendorError = vendorError,
-                            existingVendors = existingVendors
-                        )
-                        ColorField(
-                            color = color,
-                            onColorChange = {
-                                color = it
-                                colorError = null
-                            },
-                            colorError = colorError
-                        )
+                    if (isLandscape) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                VendorField(
+                                    vendor = vendor,
+                                    onVendorChange = {
+                                        vendor = it
+                                        vendorError = null
+                                    },
+                                    vendorError = vendorError,
+                                    existingVendors = existingVendors
+                                )
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                ColorField(
+                                    color = color,
+                                    onColorChange = {
+                                        color = it
+                                        colorError = null
+                                    },
+                                    colorError = colorError
+                                )
+                            }
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                            VendorField(
+                                vendor = vendor,
+                                onVendorChange = {
+                                    vendor = it
+                                    vendorError = null
+                                },
+                                vendorError = vendorError,
+                                existingVendors = existingVendors
+                            )
+                            ColorField(
+                                color = color,
+                                onColorChange = {
+                                    color = it
+                                    colorError = null
+                                },
+                                colorError = colorError
+                            )
+                        }
                     }
                 }
 
@@ -220,30 +249,55 @@ fun AddFilamentContent(
                             sliderValue = value
                         },
                         unitGrams = unitGrams,
-                        size1kg = size1kg
+                        size1kg = size1kg,
+                        isLandscape = isLandscape
                     )
                 }
 
                 // AREA 3: Purchase Information
                 SectionContainer(title = stringResource(R.string.section_purchase_info)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        BoughtAtField(
-                            boughtAt = boughtAt,
-                            onBoughtAtChange = {
-                                boughtAt = it
-                                boughtAtError = null
-                            },
-                            boughtAtError = boughtAtError
-                        )
+                    if (isLandscape) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Box(modifier = Modifier.weight(2f)) {
+                                BoughtAtField(
+                                    boughtAt = boughtAt,
+                                    onBoughtAtChange = {
+                                        boughtAt = it
+                                        boughtAtError = null
+                                    },
+                                    boughtAtError = boughtAtError
+                                )
+                            }
                             Box(modifier = Modifier.weight(1f)) {
                                 PriceField(price = price, onPriceChange = { price = it })
                             }
-                            Box(modifier = Modifier.weight(1.2f)) {
+                            Box(modifier = Modifier.weight(1f)) {
                                 BoughtDateField(
                                     boughtDateLong = boughtDateLong,
                                     onShowDatePicker = { showDatePicker = true }
                                 )
+                            }
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                            BoughtAtField(
+                                boughtAt = boughtAt,
+                                onBoughtAtChange = {
+                                    boughtAt = it
+                                    boughtAtError = null
+                                },
+                                boughtAtError = boughtAtError
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Box(modifier = Modifier.weight(1f)) {
+                                    PriceField(price = price, onPriceChange = { price = it })
+                                }
+                                Box(modifier = Modifier.weight(1.2f)) {
+                                    BoughtDateField(
+                                        boughtDateLong = boughtDateLong,
+                                        onShowDatePicker = { showDatePicker = true }
+                                    )
+                                }
                             }
                         }
                     }
@@ -363,12 +417,14 @@ private fun SizeSection(
     sliderValue: Float,
     onSliderChange: (String, Float) -> Unit,
     unitGrams: String,
-    size1kg: String
+    size1kg: String,
+    isLandscape: Boolean = false
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    if (isLandscape) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             OutlinedTextField(
                 value = sizeInput,
@@ -379,12 +435,22 @@ private fun SizeSection(
                     }
                 },
                 modifier = Modifier
-                    .weight(1f)
+                    .width(110.dp) // Enough for "1000" and suffix "g"
                     .testTag("size_input"),
                 label = { Text(stringResource(R.string.size_label)) },
                 suffix = { Text(unitGrams) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            Slider(
+                value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
+                onValueChange = {
+                    val rounded = (it / 10).roundToInt() * 10
+                    onSliderChange(rounded.toString(), rounded.toFloat())
+                },
+                valueRange = 0f..maxOf(1000f, sliderValue),
+                modifier = Modifier.weight(1f)
             )
 
             FilterChip(
@@ -402,16 +468,55 @@ private fun SizeSection(
                 } else null
             )
         }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = sizeInput,
+                    onValueChange = {
+                        if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                            val valInt = it.toIntOrNull() ?: 0
+                            onSizeInputChange(it, valInt.toFloat())
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("size_input"),
+                    label = { Text(stringResource(R.string.size_label)) },
+                    suffix = { Text(unitGrams) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
 
-        Slider(
-            value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
-            onValueChange = {
-                val rounded = (it / 10).roundToInt() * 10
-                onSliderChange(rounded.toString(), rounded.toFloat())
-            },
-            valueRange = 0f..maxOf(1000f, sliderValue),
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
+                FilterChip(
+                    selected = sliderValue == 1000f,
+                    onClick = { onSliderChange("1000", 1000f) },
+                    label = { Text(size1kg) },
+                    leadingIcon = if (sliderValue == 1000f) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
+                        }
+                    } else null
+                )
+            }
+
+            Slider(
+                value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
+                onValueChange = {
+                    val rounded = (it / 10).roundToInt() * 10
+                    onSliderChange(rounded.toString(), rounded.toFloat())
+                },
+                valueRange = 0f..maxOf(1000f, sliderValue),
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
     }
 }
 
@@ -501,25 +606,32 @@ private fun SaveButtonRow(
     }
 }
 
-@Preview(name = "Light Mode", showBackground = true)
-@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-annotation class ThemePreviews
+@Preview(name = "bright", group = "portrait", showBackground = true)
+@Preview(
+    name = "dark",
+    group = "portrait",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+annotation class PortraitPreviews
 
 @Preview(
-    name = "Landscape Light",
+    name = "bright",
+    group = "landscape",
     showBackground = true,
     device = "spec:width=800dp,height=480dp,orientation=landscape"
 )
 @Preview(
-    name = "Landscape Dark",
+    name = "dark",
+    group = "landscape",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     device = "spec:width=800dp,height=480dp,orientation=landscape"
 )
-annotation class OrientationPreviews
+annotation class LandscapePreviews
 
-@ThemePreviews
-@OrientationPreviews
+@PortraitPreviews
+@LandscapePreviews
 @Composable
 fun AddFilamentScreenPreview() {
     SpoolstackTheme {
