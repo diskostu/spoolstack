@@ -25,11 +25,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -41,7 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -68,6 +65,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
+import de.diskostu.spoolstack.ui.components.ArchiveConfirmationDialog
 import de.diskostu.spoolstack.ui.theme.ActiveGreen
 import de.diskostu.spoolstack.ui.theme.ActiveGreenDark
 import de.diskostu.spoolstack.ui.theme.ArchivedGray
@@ -327,42 +325,13 @@ fun FilamentListContent(
     }
 
     filamentToArchive?.let { filament ->
-        AlertDialog(
-            onDismissRequest = { filamentToArchive = null },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Archive,
-                    contentDescription = null
-                )
+        ArchiveConfirmationDialog(
+            onConfirm = {
+                onToggleArchive(filament)
+                filamentToArchive = null
             },
-            title = {
-                Text(text = stringResource(R.string.archive_confirmation_title))
-            },
-            text = {
-                Text(
-                    text = stringResource(
-                        R.string.archive_confirmation_message,
-                        filament.size
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onToggleArchive(filament)
-                        filamentToArchive = null
-                    }
-                ) {
-                    Text(text = stringResource(R.string.archive))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { filamentToArchive = null }
-                ) {
-                    Text(text = stringResource(R.string.cancel))
-                }
-            }
+            onDismiss = { filamentToArchive = null },
+            message = stringResource(R.string.archive_confirmation_message, filament.size)
         )
     }
 }

@@ -56,7 +56,8 @@ class AddFilamentViewModel @Inject constructor(
         size: Int,
         boughtAt: String?,
         boughtDate: Long?,
-        price: Double?
+        price: Double?,
+        archived: Boolean = false
     ) {
         viewModelScope.launch {
             if (filamentId != -1) {
@@ -70,6 +71,7 @@ class AddFilamentViewModel @Inject constructor(
                         boughtAt = boughtAt,
                         boughtDate = boughtDate,
                         price = price,
+                        archived = archived,
                         changeDate = System.currentTimeMillis()
                     )
                     filamentRepository.update(updatedFilament)
@@ -85,6 +87,7 @@ class AddFilamentViewModel @Inject constructor(
                         boughtAt = boughtAt,
                         boughtDate = boughtDate,
                         price = price,
+                        archived = archived,
                         createdDate = System.currentTimeMillis(),
                         changeDate = System.currentTimeMillis()
                     )

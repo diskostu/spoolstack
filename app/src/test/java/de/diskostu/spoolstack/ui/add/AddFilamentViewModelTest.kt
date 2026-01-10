@@ -15,12 +15,15 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddFilamentViewModelTest {
@@ -89,6 +92,42 @@ class AddFilamentViewModelTest {
     }
 
     @Test
+    fun `save calls repository update when editing and archived is true`() = runTest {
+        // Given
+        val existingFilament = Filament(
+            id = 1,
+            vendor = "Vendor",
+            color = "Red",
+            size = 1000
+        )
+        val savedStateHandle = SavedStateHandle(mapOf("filamentId" to 1))
+        `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
+        `when`(filamentRepository.getFilamentById(1)).thenReturn(existingFilament)
+
+        viewModel = AddFilamentViewModel(filamentRepository, savedStateHandle)
+        advanceUntilIdle()
+
+        val emittedIds = mutableListOf<Long>()
+        val collectionJob = launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.savedFilamentId.collect { emittedIds.add(it) }
+        }
+
+        // When
+        viewModel.save("Vendor", "Red", 0, null, null, null, archived = true)
+        advanceUntilIdle()
+
+        // Then
+        val captor = argumentCaptor<Filament>()
+        verify(filamentRepository).update(captor.capture())
+        val updatedFilament = captor.firstValue
+        assertTrue(updatedFilament.archived)
+        assertEquals(0, updatedFilament.size)
+        assertEquals(1L, emittedIds.first())
+
+        collectionJob.cancel()
+    }
+
+    @Test
     fun `save calls repository insert with all optional fields`() = runTest {
         // Given
         val vendor = "Vendor"
@@ -114,9 +153,6 @@ class AddFilamentViewModelTest {
 
         // Then
         assertEquals(expectedId, emittedIds.first())
-
-        // Verify that the repository was called with the correct filament object
-        // Note: verify(filamentRepository).insert(argThat { ... }) would be better here to check fields
         
         collectionJob.cancel()
     }

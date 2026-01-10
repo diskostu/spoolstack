@@ -74,6 +74,9 @@
     <!-- Confirmation Dialog -->
     <string name="archive_confirmation_title">Archive Filament?</string>
     <string name="archive_confirmation_message">Do you really want to archive this filament? There are still %1$d g remaining.</string>
+    <string name="archive_empty_confirmation_message">This filament is now empty - should it be archived?</string>
+    <string name="archive_and_save">Archive and Save</string>
+    <string name="save_without_archiving">Save without archiving</string>
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament Details</string>

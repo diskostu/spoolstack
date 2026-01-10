@@ -67,6 +67,9 @@
     <!-- Confirmation Dialog -->
     <string name="archive_confirmation_title">Filament archivieren?</string>
     <string name="archive_confirmation_message">Soll dieses Filament wirklich archiviert werden? Es sind noch %1$d g vorhanden.</string>
+    <string name="archive_empty_confirmation_message">Dieses Filament ist nun leer - soll es archiviert werden?</string>
+    <string name="archive_and_save">Archivieren und Speichern</string>
+    <string name="save_without_archiving">Speichern ohne Archivieren</string>
 
     <!-- Section Titles -->
     <string name="section_filament_details">Filament-Details</string>

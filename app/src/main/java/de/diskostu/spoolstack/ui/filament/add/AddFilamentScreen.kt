@@ -61,6 +61,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
+import de.diskostu.spoolstack.ui.components.ArchiveConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -105,7 +106,7 @@ fun AddFilamentContent(
     existingVendors: List<String>,
     filamentState: Filament?,
     onNavigateBack: () -> Unit,
-    onSave: (String, String, Int, String?, Long?, Double?) -> Unit
+    onSave: (String, String, Int, String?, Long?, Double?, Boolean) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -171,6 +172,35 @@ fun AddFilamentContent(
                     TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
                 }
             ) { DatePicker(state = datePickerState) }
+        }
+
+        // Archive Dialog State
+        var showArchiveDialog by remember { mutableStateOf(false) }
+
+        if (showArchiveDialog) {
+            ArchiveConfirmationDialog(
+                onConfirm = {
+                    showArchiveDialog = false
+                    val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
+                    onSave(
+                        vendor, color, sizeToSave,
+                        boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                        true // archived = true
+                    )
+                },
+                onDismiss = {
+                    showArchiveDialog = false
+                    val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
+                    onSave(
+                        vendor, color, sizeToSave,
+                        boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                        false // archived = false
+                    )
+                },
+                message = stringResource(R.string.archive_empty_confirmation_message),
+                confirmButtonText = stringResource(R.string.archive_and_save),
+                dismissButtonText = stringResource(R.string.save_without_archiving)
+            )
         }
 
         Column(
@@ -324,10 +354,15 @@ fun AddFilamentContent(
 
                     if (!hasError) {
                         val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
-                        onSave(
-                            vendor, color, sizeToSave,
-                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull()
-                        )
+                        if (sizeToSave == 0 && filamentState != null) {
+                            showArchiveDialog = true
+                        } else {
+                            onSave(
+                                vendor, color, sizeToSave,
+                                boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                                false // archived = false
+                            )
+                        }
                     }
                 }
             )
@@ -639,7 +674,7 @@ fun AddFilamentScreenPreview() {
             existingVendors = listOf("Prusa", "Creality", "Extrudr"),
             filamentState = null,
             onNavigateBack = {},
-            onSave = { _, _, _, _, _, _ -> }
+            onSave = { _, _, _, _, _, _, _ -> }
         )
     }
 }
