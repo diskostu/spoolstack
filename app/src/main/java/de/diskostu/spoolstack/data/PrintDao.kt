@@ -18,4 +18,7 @@ interface PrintDao {
 
     @Query("SELECT COUNT(*) FROM prints")
     suspend fun getCount(): Int
+
+    @Query("SELECT COUNT(*) FROM prints")
+    fun getCountFlow(): Flow<Int>
 }

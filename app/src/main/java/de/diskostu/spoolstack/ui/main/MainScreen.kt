@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,11 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.diskostu.spoolstack.R
@@ -40,17 +36,8 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    var filamentCount by remember { mutableIntStateOf(0) }
-    var printCount by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        viewModel.getFilamentCount { count ->
-            filamentCount = count
-        }
-        viewModel.getPrintCount { count ->
-            printCount = count
-        }
-    }
+    val filamentCount by viewModel.filamentCount.collectAsStateWithLifecycle()
+    val printCount by viewModel.printCount.collectAsStateWithLifecycle()
 
     MainScreenContent(
         navController = navController,
@@ -106,7 +93,8 @@ private fun MainScreenContent(
 
                     Button(
                         onClick = { navController.navigate("filament_list") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = filamentCount > 0
                     ) {
                         Text(stringResource(R.string.view_filaments))
                     }
@@ -125,14 +113,16 @@ private fun MainScreenContent(
                 ) {
                     Button(
                         onClick = { navController.navigate("record_print") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = filamentCount > 0
                     ) {
                         Text(stringResource(R.string.record_print))
                     }
 
                     Button(
                         onClick = { navController.navigate("print_list") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = printCount > 0
                     ) {
                         Text(stringResource(R.string.view_prints))
                     }
@@ -165,6 +155,20 @@ fun MainScreenPreview() {
             navController = rememberNavController(),
             filamentCount = 12,
             printCount = 42,
+            onClearAll = { }
+        )
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview2() {
+    SpoolstackTheme {
+        MainScreenContent(
+            navController = rememberNavController(),
+            filamentCount = 0,
+            printCount = 0,
             onClearAll = { }
         )
     }

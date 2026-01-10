@@ -18,6 +18,9 @@ interface FilamentDao {
     @Query("SELECT COUNT(*) FROM filament")
     suspend fun getCount(): Int
 
+    @Query("SELECT COUNT(*) FROM filament")
+    fun getCountFlow(): Flow<Int>
+
     @Query("SELECT DISTINCT vendor FROM filament ORDER BY vendor COLLATE NOCASE ASC")
     suspend fun getDistinctVendors(): List<String>
 

@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.diskostu.spoolstack.data.FilamentDao
 import de.diskostu.spoolstack.data.PrintDao
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,19 +17,11 @@ class MainViewModel @Inject constructor(
     private val printDao: PrintDao
 ) : ViewModel() {
 
-    fun getFilamentCount(callback: (Int) -> Unit) {
-        viewModelScope.launch {
-            val count = filamentDao.getCount()
-            callback(count)
-        }
-    }
+    val filamentCount: StateFlow<Int> = filamentDao.getCountFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    fun getPrintCount(callback: (Int) -> Unit) {
-        viewModelScope.launch {
-            val count = printDao.getCount()
-            callback(count)
-        }
-    }
+    val printCount: StateFlow<Int> = printDao.getCountFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     fun clearAllFilaments(onCompletion: () -> Unit) {
         viewModelScope.launch {
