@@ -84,13 +84,6 @@ class FilamentListViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    val showFilters: StateFlow<Boolean> = _sourceFilaments
-        .map { it.size >= 3 }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
 
     private var pendingList: List<Filament>? = null
     private var isUiVisible = false

@@ -86,7 +86,6 @@ fun FilamentListScreen(
     val filter by viewModel.filter.collectAsState()
     val sort by viewModel.sort.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val showFilters by viewModel.showFilters.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -109,7 +108,6 @@ fun FilamentListScreen(
         filter = filter,
         sort = sort,
         searchQuery = searchQuery,
-        showFilters = showFilters,
         onNavigateBack = onNavigateBack,
         onFilamentClick = onFilamentClick,
         onToggleDelete = { filament ->
@@ -128,7 +126,6 @@ fun FilamentListContent(
     filter: FilamentFilter,
     sort: FilamentSort,
     searchQuery: String,
-    showFilters: Boolean,
     onNavigateBack: () -> Unit,
     onFilamentClick: (Int) -> Unit,
     onToggleDelete: (Filament) -> Unit,
@@ -169,125 +166,123 @@ fun FilamentListContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (showFilters) {
-                Box(
-                    modifier = Modifier.height(72.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AnimatedContent(
-                        targetState = isSearchActive,
-                        transitionSpec = {
-                            if (targetState) {
-                                // Search appears: Slide in from right, chips slide out to left
-                                (slideInHorizontally { it } + fadeIn()).togetherWith(
-                                    slideOutHorizontally { -it } + fadeOut())
-                            } else {
-                                // Search disappears: Slide out to right, chips slide in from left
-                                (slideInHorizontally { -it } + fadeIn()).togetherWith(
-                                    slideOutHorizontally { it } + fadeOut())
-                            }
-                        },
-                        label = "search_animation"
-                    ) { active ->
-                        if (active) {
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = onSearchQueryChange,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                    .focusRequester(focusRequester),
-                                placeholder = { Text(stringResource(R.string.search_hint)) },
-                                singleLine = true,
-                                trailingIcon = {
-                                    IconButton(onClick = {
-                                        onSearchQueryChange("")
-                                        isSearchActive = false
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = stringResource(R.string.search_clear)
-                                        )
-                                    }
-                                },
-                                colors = TextFieldDefaults.colors(
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
-                                ),
-                                shape = MaterialTheme.shapes.medium
-                            )
+            Box(
+                modifier = Modifier.height(72.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                AnimatedContent(
+                    targetState = isSearchActive,
+                    transitionSpec = {
+                        if (targetState) {
+                            // Search appears: Slide in from right, chips slide out to left
+                            (slideInHorizontally { it } + fadeIn()).togetherWith(
+                                slideOutHorizontally { -it } + fadeOut())
                         } else {
+                            // Search disappears: Slide out to right, chips slide in from left
+                            (slideInHorizontally { -it } + fadeIn()).togetherWith(
+                                slideOutHorizontally { it } + fadeOut())
+                        }
+                    },
+                    label = "search_animation"
+                ) { active ->
+                    if (active) {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = onSearchQueryChange,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .focusRequester(focusRequester),
+                            placeholder = { Text(stringResource(R.string.search_hint)) },
+                            singleLine = true,
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    onSearchQueryChange("")
+                                    isSearchActive = false
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.search_clear)
+                                    )
+                                }
+                            },
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
+                                    .weight(1f)
+                                    .horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .horizontalScroll(rememberScrollState()),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    FilterChip(
-                                        selected = filter == FilamentFilter.ALL,
-                                        onClick = { onFilterChange(FilamentFilter.ALL) },
-                                        label = { Text(stringResource(R.string.filter_all)) }
-                                    )
-                                    FilterChip(
-                                        selected = filter == FilamentFilter.ACTIVE,
-                                        onClick = { onFilterChange(FilamentFilter.ACTIVE) },
-                                        label = { Text(stringResource(R.string.filter_active)) }
-                                    )
-                                    FilterChip(
-                                        selected = filter == FilamentFilter.DELETED,
-                                        onClick = { onFilterChange(FilamentFilter.DELETED) },
-                                        label = { Text(stringResource(R.string.filter_deleted)) }
-                                    )
-                                }
+                                FilterChip(
+                                    selected = filter == FilamentFilter.ALL,
+                                    onClick = { onFilterChange(FilamentFilter.ALL) },
+                                    label = { Text(stringResource(R.string.filter_all)) }
+                                )
+                                FilterChip(
+                                    selected = filter == FilamentFilter.ACTIVE,
+                                    onClick = { onFilterChange(FilamentFilter.ACTIVE) },
+                                    label = { Text(stringResource(R.string.filter_active)) }
+                                )
+                                FilterChip(
+                                    selected = filter == FilamentFilter.DELETED,
+                                    onClick = { onFilterChange(FilamentFilter.DELETED) },
+                                    label = { Text(stringResource(R.string.filter_deleted)) }
+                                )
+                            }
 
-                                Box {
-                                    IconButton(onClick = { showSortMenu = true }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Sort,
-                                            contentDescription = stringResource(R.string.sort_button_description)
-                                        )
-                                    }
-                                    DropdownMenu(
-                                        expanded = showSortMenu,
-                                        onDismissRequest = { showSortMenu = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.sort_by_name)) },
-                                            onClick = {
-                                                onSortChange(FilamentSort.NAME)
-                                                showSortMenu = false
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.sort_by_last_modified)) },
-                                            onClick = {
-                                                onSortChange(FilamentSort.LAST_MODIFIED)
-                                                showSortMenu = false
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.sort_by_remaining_amount)) },
-                                            onClick = {
-                                                onSortChange(FilamentSort.REMAINING_AMOUNT)
-                                                showSortMenu = false
-                                            }
-                                        )
-                                    }
-                                }
-
-                                IconButton(onClick = { isSearchActive = true }) {
+                            Box {
+                                IconButton(onClick = { showSortMenu = true }) {
                                     Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = stringResource(R.string.search_icon_description)
+                                        imageVector = Icons.AutoMirrored.Filled.Sort,
+                                        contentDescription = stringResource(R.string.sort_button_description)
                                     )
                                 }
+                                DropdownMenu(
+                                    expanded = showSortMenu,
+                                    onDismissRequest = { showSortMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_by_name)) },
+                                        onClick = {
+                                            onSortChange(FilamentSort.NAME)
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_by_last_modified)) },
+                                        onClick = {
+                                            onSortChange(FilamentSort.LAST_MODIFIED)
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_by_remaining_amount)) },
+                                        onClick = {
+                                            onSortChange(FilamentSort.REMAINING_AMOUNT)
+                                            showSortMenu = false
+                                        }
+                                    )
+                                }
+                            }
+
+                            IconButton(onClick = { isSearchActive = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = stringResource(R.string.search_icon_description)
+                                )
                             }
                         }
                     }
@@ -453,7 +448,12 @@ private fun formatDate(timestamp: Long, df: DateFormat): String {
 }
 
 @Preview(showBackground = true, heightDp = 500, name = "Light Mode")
-@Preview(showBackground = true, heightDp = 500, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
+@Preview(
+    showBackground = true,
+    heightDp = 500,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark Mode"
+)
 @Composable
 fun FilamentListScreenPreview() {
     SpoolstackTheme {
@@ -479,7 +479,6 @@ fun FilamentListScreenPreview() {
             filter = FilamentFilter.ALL,
             sort = FilamentSort.NAME,
             searchQuery = "",
-            showFilters = true,
             onNavigateBack = {},
             onFilamentClick = {},
             onToggleDelete = {},
