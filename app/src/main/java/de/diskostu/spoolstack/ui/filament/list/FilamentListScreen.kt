@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -37,6 +39,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -254,29 +257,33 @@ fun FilamentListContent(
                                     expanded = showSortMenu,
                                     onDismissRequest = { showSortMenu = false }
                                 ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_by_vendor)) },
+                                    SortMenuItem(
+                                        text = stringResource(R.string.sort_by_vendor),
+                                        isSelected = sort == FilamentSort.VENDOR,
                                         onClick = {
                                             onSortChange(FilamentSort.VENDOR)
                                             showSortMenu = false
                                         }
                                     )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_by_color)) },
+                                    SortMenuItem(
+                                        text = stringResource(R.string.sort_by_color),
+                                        isSelected = sort == FilamentSort.COLOR,
                                         onClick = {
                                             onSortChange(FilamentSort.COLOR)
                                             showSortMenu = false
                                         }
                                     )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_by_last_modified)) },
+                                    SortMenuItem(
+                                        text = stringResource(R.string.sort_by_last_modified),
+                                        isSelected = sort == FilamentSort.LAST_MODIFIED,
                                         onClick = {
                                             onSortChange(FilamentSort.LAST_MODIFIED)
                                             showSortMenu = false
                                         }
                                     )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_by_remaining_amount)) },
+                                    SortMenuItem(
+                                        text = stringResource(R.string.sort_by_remaining_amount),
+                                        isSelected = sort == FilamentSort.REMAINING_AMOUNT,
                                         onClick = {
                                             onSortChange(FilamentSort.REMAINING_AMOUNT)
                                             showSortMenu = false
@@ -336,6 +343,30 @@ fun FilamentListContent(
             message = stringResource(R.string.delete_confirmation_message, filament.currentWeight)
         )
     }
+}
+
+@Composable
+fun SortMenuItem(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        text = { Text(text) },
+        onClick = onClick,
+        trailingIcon = if (isSelected) {
+            { Icon(Icons.Default.Check, contentDescription = null) }
+        } else null,
+        modifier = if (isSelected) {
+            Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
+        } else Modifier,
+        colors = if (isSelected) {
+            MenuDefaults.itemColors(
+                textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                trailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+        } else MenuDefaults.itemColors()
+    )
 }
 
 @Composable
