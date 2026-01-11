@@ -24,6 +24,10 @@ enum class FilamentSort {
     VENDOR, COLOR, LAST_MODIFIED, REMAINING_AMOUNT
 }
 
+enum class SortOrder {
+    ASCENDING, DESCENDING
+}
+
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository
@@ -38,6 +42,9 @@ class FilamentListViewModel @Inject constructor(
     private val _sort = MutableStateFlow(FilamentSort.VENDOR)
     val sort = _sort.asStateFlow()
 
+    private val _sortOrder = MutableStateFlow(SortOrder.ASCENDING)
+    val sortOrder = _sortOrder.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
@@ -46,8 +53,9 @@ class FilamentListViewModel @Inject constructor(
         _sourceFilaments,
         _filter,
         _sort,
+        _sortOrder,
         _searchQuery
-    ) { list, filter, sort, query ->
+    ) { list, filter, sort, sortOrder, query ->
         var result = list
         // Apply Filter
         result = when (filter) {
@@ -66,18 +74,29 @@ class FilamentListViewModel @Inject constructor(
         }
         // Apply Sort
         result = when (sort) {
-            FilamentSort.VENDOR -> result.sortedWith(
-                compareBy<Filament> { it.vendor.lowercase() }
+            FilamentSort.VENDOR -> {
+                val comparator = compareBy<Filament> { it.vendor.lowercase() }
                     .thenBy { it.color.lowercase() }
-            )
+                if (sortOrder == SortOrder.ASCENDING) result.sortedWith(comparator)
+                else result.sortedWith(comparator.reversed())
+            }
 
-            FilamentSort.COLOR -> result.sortedWith(
-                compareBy<Filament> { it.color.lowercase() }
+            FilamentSort.COLOR -> {
+                val comparator = compareBy<Filament> { it.color.lowercase() }
                     .thenBy { it.vendor.lowercase() }
-            )
+                if (sortOrder == SortOrder.ASCENDING) result.sortedWith(comparator)
+                else result.sortedWith(comparator.reversed())
+            }
 
-            FilamentSort.LAST_MODIFIED -> result.sortedByDescending { it.changeDate }
-            FilamentSort.REMAINING_AMOUNT -> result.sortedByDescending { it.currentWeight }
+            FilamentSort.LAST_MODIFIED -> {
+                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.changeDate }
+                else result.sortedByDescending { it.changeDate }
+            }
+
+            FilamentSort.REMAINING_AMOUNT -> {
+                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.currentWeight }
+                else result.sortedByDescending { it.currentWeight }
+            }
         }
 
         result
@@ -153,8 +172,17 @@ class FilamentListViewModel @Inject constructor(
         _filter.value = filter
     }
 
-    fun setSort(sort: FilamentSort) {
-        _sort.value = sort
+    fun setSort(newSort: FilamentSort) {
+        if (_sort.value == newSort) {
+            _sortOrder.value = if (_sortOrder.value == SortOrder.ASCENDING) {
+                SortOrder.DESCENDING
+            } else {
+                SortOrder.ASCENDING
+            }
+        } else {
+            _sort.value = newSort
+            _sortOrder.value = SortOrder.ASCENDING
+        }
     }
 
     fun setSearchQuery(query: String) {

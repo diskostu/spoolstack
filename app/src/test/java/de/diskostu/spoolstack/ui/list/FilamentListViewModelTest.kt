@@ -5,6 +5,7 @@ import de.diskostu.spoolstack.data.FilamentRepository
 import de.diskostu.spoolstack.ui.filament.list.FilamentFilter
 import de.diskostu.spoolstack.ui.filament.list.FilamentListViewModel
 import de.diskostu.spoolstack.ui.filament.list.FilamentSort
+import de.diskostu.spoolstack.ui.filament.list.SortOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -178,7 +179,7 @@ class FilamentListViewModelTest {
     }
 
     @Test
-    fun `sort by NAME sorts by vendor then color`() = runTest {
+    fun `sort by VENDOR sorts by vendor then color ascending by default`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -189,6 +190,7 @@ class FilamentListViewModelTest {
 
         // When
         viewModel.setFilter(FilamentFilter.ALL)
+        // Default is VENDOR, but let's be explicit
         viewModel.setSort(FilamentSort.VENDOR)
         testScheduler.advanceUntilIdle()
 
@@ -196,15 +198,44 @@ class FilamentListViewModelTest {
         // filament1: Vendor A, Red
         // filament3: Vendor A, Green
         // filament2: Vendor B, Blue
-        // Expected order: Green then Red (G < R)
+        // Expected order: Vendor A then Vendor B. For Vendor A: Green then Red (G < R)
         val expected = listOf(filament3, filament1, filament2)
         assertEquals(expected, viewModel.filaments.value)
+        assertEquals(SortOrder.ASCENDING, viewModel.sortOrder.value)
 
         job.cancel()
     }
 
     @Test
-    fun `sort by LAST_MODIFIED sorts by changeDate descending`() = runTest {
+    fun `toggling sort by VENDOR changes order to descending`() = runTest {
+        // Given
+        val filamentList = listOf(filament1, filament2, filament3)
+        `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        viewModel = FilamentListViewModel(filamentRepository)
+
+        val job = launch { viewModel.filaments.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        // When
+        viewModel.setFilter(FilamentFilter.ALL)
+        // First setSort(VENDOR) ensures we are on VENDOR/ASC (it's already the default)
+        viewModel.setSort(FilamentSort.VENDOR)
+        // Second setSort(VENDOR) toggles to DESC
+        viewModel.setSort(FilamentSort.VENDOR)
+        testScheduler.advanceUntilIdle()
+
+        // Then
+        // Ascending was: [filament3, filament1, filament2]
+        // Descending is the reverse: [filament2, filament1, filament3]
+        val expected = listOf(filament2, filament1, filament3)
+        assertEquals(expected, viewModel.filaments.value)
+        assertEquals(SortOrder.DESCENDING, viewModel.sortOrder.value)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `sort by LAST_MODIFIED sorts by changeDate ascending by default`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -219,17 +250,18 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        // filament3: 3000
-        // filament2: 2000
         // filament1: 1000
-        val expected = listOf(filament3, filament2, filament1)
+        // filament2: 2000
+        // filament3: 3000
+        val expected = listOf(filament1, filament2, filament3)
         assertEquals(expected, viewModel.filaments.value)
+        assertEquals(SortOrder.ASCENDING, viewModel.sortOrder.value)
 
         job.cancel()
     }
 
     @Test
-    fun `sort by REMAINING_AMOUNT sorts by currentWeight descending`() = runTest {
+    fun `sort by REMAINING_AMOUNT sorts by currentWeight ascending by default`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -244,11 +276,12 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        // filament3: 2000
-        // filament1: 1000
         // filament2: 500
-        val expected = listOf(filament3, filament1, filament2)
+        // filament1: 1000
+        // filament3: 2000
+        val expected = listOf(filament2, filament1, filament3)
         assertEquals(expected, viewModel.filaments.value)
+        assertEquals(SortOrder.ASCENDING, viewModel.sortOrder.value)
 
         job.cancel()
     }

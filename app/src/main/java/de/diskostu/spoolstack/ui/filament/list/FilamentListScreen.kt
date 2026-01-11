@@ -26,7 +26,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -88,6 +89,7 @@ fun FilamentListScreen(
     val filaments by viewModel.filaments.collectAsState()
     val filter by viewModel.filter.collectAsState()
     val sort by viewModel.sort.collectAsState()
+    val sortOrder by viewModel.sortOrder.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -110,6 +112,7 @@ fun FilamentListScreen(
         filaments = filaments,
         filter = filter,
         sort = sort,
+        sortOrder = sortOrder,
         searchQuery = searchQuery,
         onNavigateBack = onNavigateBack,
         onFilamentClick = onFilamentClick,
@@ -128,6 +131,7 @@ fun FilamentListContent(
     filaments: List<Filament>,
     filter: FilamentFilter,
     sort: FilamentSort,
+    sortOrder: SortOrder,
     searchQuery: String,
     onNavigateBack: () -> Unit,
     onFilamentClick: (Int) -> Unit,
@@ -260,6 +264,7 @@ fun FilamentListContent(
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_vendor),
                                         isSelected = sort == FilamentSort.VENDOR,
+                                        sortOrder = sortOrder,
                                         onClick = {
                                             onSortChange(FilamentSort.VENDOR)
                                             showSortMenu = false
@@ -268,6 +273,7 @@ fun FilamentListContent(
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_color),
                                         isSelected = sort == FilamentSort.COLOR,
+                                        sortOrder = sortOrder,
                                         onClick = {
                                             onSortChange(FilamentSort.COLOR)
                                             showSortMenu = false
@@ -276,6 +282,7 @@ fun FilamentListContent(
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_last_modified),
                                         isSelected = sort == FilamentSort.LAST_MODIFIED,
+                                        sortOrder = sortOrder,
                                         onClick = {
                                             onSortChange(FilamentSort.LAST_MODIFIED)
                                             showSortMenu = false
@@ -284,6 +291,7 @@ fun FilamentListContent(
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_remaining_amount),
                                         isSelected = sort == FilamentSort.REMAINING_AMOUNT,
+                                        sortOrder = sortOrder,
                                         onClick = {
                                             onSortChange(FilamentSort.REMAINING_AMOUNT)
                                             showSortMenu = false
@@ -349,13 +357,19 @@ fun FilamentListContent(
 fun SortMenuItem(
     text: String,
     isSelected: Boolean,
+    sortOrder: SortOrder,
     onClick: () -> Unit
 ) {
     DropdownMenuItem(
         text = { Text(text) },
         onClick = onClick,
         trailingIcon = if (isSelected) {
-            { Icon(Icons.Default.Check, contentDescription = null) }
+            {
+                Icon(
+                    imageVector = if (sortOrder == SortOrder.ASCENDING) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    contentDescription = null
+                )
+            }
         } else null,
         modifier = if (isSelected) {
             Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
@@ -516,6 +530,7 @@ fun FilamentListScreenPreview() {
             ),
             filter = FilamentFilter.ALL,
             sort = FilamentSort.VENDOR,
+            sortOrder = SortOrder.ASCENDING,
             searchQuery = "",
             onNavigateBack = {},
             onFilamentClick = {},
