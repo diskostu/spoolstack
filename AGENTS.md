@@ -8,6 +8,10 @@ recommendations.
 
 ## Technical Standards
 
+Always refer to https://developer.android.com/topic/architecture/recommendations and use the
+recommendations from there.
+Also look into the samples here: https://developer.android.com/samples
+
 ### 1. UI & Design System
 
 * **Material 3 Expressive:** Always implement **Material 3 (M3)** guidelines. Use "Expressive" UI
