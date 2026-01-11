@@ -34,9 +34,9 @@ class FilamentDaoTest {
     fun getDistinctVendors_shouldSortCaseInsensitive() = runBlocking {
         // Arrange
         val filaments = listOf(
-            Filament(vendor = "b_vendor", color = "Red", size = 1000),
-            Filament(vendor = "A_vendor", color = "Blue", size = 1000),
-            Filament(vendor = "c_vendor", color = "Green", size = 1000)
+            Filament(vendor = "b_vendor", color = "Red", currentWeight = 1000),
+            Filament(vendor = "A_vendor", color = "Blue", currentWeight = 1000),
+            Filament(vendor = "c_vendor", color = "Green", currentWeight = 1000)
         )
         filaments.forEach { filamentDao.insert(it) }
 
@@ -51,9 +51,9 @@ class FilamentDaoTest {
     fun getDistinctVendors_shouldReturnDistinctValues() = runBlocking {
         // Arrange
         val filaments = listOf(
-            Filament(vendor = "VendorA", color = "Red", size = 1000),
-            Filament(vendor = "VendorA", color = "Blue", size = 1000),
-            Filament(vendor = "VendorB", color = "Green", size = 1000)
+            Filament(vendor = "VendorA", color = "Red", currentWeight = 1000),
+            Filament(vendor = "VendorA", color = "Blue", currentWeight = 1000),
+            Filament(vendor = "VendorB", color = "Green", currentWeight = 1000)
         )
         filaments.forEach { filamentDao.insert(it) }
 

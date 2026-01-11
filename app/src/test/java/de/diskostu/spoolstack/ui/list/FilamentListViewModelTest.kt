@@ -37,7 +37,7 @@ class FilamentListViewModelTest {
         id = 1,
         vendor = "Vendor A",
         color = "Red",
-        size = 1000,
+        currentWeight = 1000,
         deleted = false,
         createdDate = 1000L,
         changeDate = 1000L
@@ -47,7 +47,7 @@ class FilamentListViewModelTest {
         id = 2,
         vendor = "Vendor B",
         color = "Blue",
-        size = 500,
+        currentWeight = 500,
         deleted = true,
         createdDate = 2000L,
         changeDate = 2000L
@@ -57,7 +57,7 @@ class FilamentListViewModelTest {
         id = 3,
         vendor = "Vendor A",
         color = "Green",
-        size = 2000,
+        currentWeight = 2000,
         deleted = false,
         createdDate = 3000L,
         changeDate = 3000L
@@ -232,7 +232,7 @@ class FilamentListViewModelTest {
     }
 
     @Test
-    fun `sort by REMAINING_AMOUNT sorts by size descending`() = runTest {
+    fun `sort by REMAINING_AMOUNT sorts by currentWeight descending`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
@@ -311,7 +311,6 @@ class FilamentListViewModelTest {
 
         // Note: Default filter is ACTIVE, filament2 is deleted. So only 1 item visible in UI, 
         // but showFilters depends on the RAW source list size.
-        // Wait, showFilters uses _sourceFilaments. In ViewModel it's _sourceFilaments.map { it.size >= 3 }.
         assertEquals(1, viewModel.filaments.value.size)
         assertFalse("Filters should be hidden for 2 items in source", viewModel.showFilters.value)
 

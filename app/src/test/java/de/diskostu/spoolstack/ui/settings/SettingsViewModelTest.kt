@@ -47,6 +47,7 @@ class SettingsViewModelTest {
         // Given
         val expectedTheme = AppTheme.DARK
         `when`(settingsRepository.appTheme).thenReturn(MutableStateFlow(expectedTheme))
+        `when`(settingsRepository.defaultFilamentSize).thenReturn(MutableStateFlow(1000))
 
         // When
         viewModel = SettingsViewModel(settingsRepository)
@@ -68,6 +69,7 @@ class SettingsViewModelTest {
         // Given
         val newTheme = AppTheme.LIGHT
         `when`(settingsRepository.appTheme).thenReturn(MutableStateFlow(AppTheme.SYSTEM))
+        `when`(settingsRepository.defaultFilamentSize).thenReturn(MutableStateFlow(1000))
         viewModel = SettingsViewModel(settingsRepository)
 
         // When
@@ -76,5 +78,43 @@ class SettingsViewModelTest {
 
         // Then
         verify(settingsRepository).setAppTheme(newTheme)
+    }
+
+    @Test
+    fun `initial default filament size is loaded from repository`() = runTest {
+        // Given
+        val expectedSize = 750
+        `when`(settingsRepository.appTheme).thenReturn(MutableStateFlow(AppTheme.SYSTEM))
+        `when`(settingsRepository.defaultFilamentSize).thenReturn(MutableStateFlow(expectedSize))
+
+        // When
+        viewModel = SettingsViewModel(settingsRepository)
+
+        // Trigger subscription so stateIn starts collecting
+        val collectJob = launch(UnconfinedTestDispatcher()) {
+            viewModel.defaultFilamentSize.collect()
+        }
+
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(expectedSize, viewModel.defaultFilamentSize.value)
+        collectJob.cancel()
+    }
+
+    @Test
+    fun `setDefaultFilamentSize calls repository`() = runTest {
+        // Given
+        val newSize = 2000
+        `when`(settingsRepository.appTheme).thenReturn(MutableStateFlow(AppTheme.SYSTEM))
+        `when`(settingsRepository.defaultFilamentSize).thenReturn(MutableStateFlow(1000))
+        viewModel = SettingsViewModel(settingsRepository)
+
+        // When
+        viewModel.setDefaultFilamentSize(newSize)
+        advanceUntilIdle()
+
+        // Then
+        verify(settingsRepository).setDefaultFilamentSize(newSize)
     }
 }

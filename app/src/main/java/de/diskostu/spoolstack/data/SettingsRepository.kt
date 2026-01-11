@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -23,6 +24,7 @@ class SettingsRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val themeKey = stringPreferencesKey("app_theme")
+    private val defaultFilamentSizeKey = intPreferencesKey("default_filament_size")
 
     val appTheme: Flow<AppTheme> = context.dataStore.data
         .map { preferences ->
@@ -30,9 +32,20 @@ class SettingsRepository @Inject constructor(
             AppTheme.valueOf(themeName)
         }
 
+    val defaultFilamentSize: Flow<Int> = context.dataStore.data
+        .map { preferences ->
+            preferences[defaultFilamentSizeKey] ?: 1000
+        }
+
     suspend fun setAppTheme(theme: AppTheme) {
         context.dataStore.edit { preferences ->
             preferences[themeKey] = theme.name
+        }
+    }
+
+    suspend fun setDefaultFilamentSize(size: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[defaultFilamentSizeKey] = size
         }
     }
 }

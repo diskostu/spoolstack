@@ -57,12 +57,12 @@ class AddPrintViewModel @Inject constructor(
                 )
             )
 
-            // Update filament size
-            val currentSize = filament.size
-            val newSize = (currentSize - amountUsed).roundToInt()
+            // Update filament weight
+            val currentWeight = filament.currentWeight
+            val newWeight = (currentWeight - amountUsed).roundToInt()
 
             val updatedFilament = filament.copy(
-                size = newSize,
+                currentWeight = newWeight,
                 changeDate = System.currentTimeMillis()
             )
             filamentRepository.update(updatedFilament)

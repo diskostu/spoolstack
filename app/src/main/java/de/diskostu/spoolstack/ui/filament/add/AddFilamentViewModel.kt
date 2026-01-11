@@ -6,17 +6,21 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
+import de.diskostu.spoolstack.data.SettingsRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddFilamentViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository,
+    private val settingsRepository: SettingsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -30,6 +34,9 @@ class AddFilamentViewModel @Inject constructor(
 
     private val _filamentState = MutableStateFlow<Filament?>(null)
     val filamentState: StateFlow<Filament?> = _filamentState.asStateFlow()
+
+    val defaultFilamentSize: StateFlow<Int> = settingsRepository.defaultFilamentSize
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1000)
 
     init {
         loadVendors()
@@ -53,7 +60,9 @@ class AddFilamentViewModel @Inject constructor(
     fun save(
         vendor: String,
         color: String,
-        size: Int,
+        currentWeight: Int,
+        totalWeight: Int,
+        spoolWeight: Int?,
         boughtAt: String?,
         boughtDate: Long?,
         price: Double?,
@@ -67,7 +76,9 @@ class AddFilamentViewModel @Inject constructor(
                     val updatedFilament = currentFilament.copy(
                         vendor = vendor,
                         color = color,
-                        size = size,
+                        currentWeight = currentWeight,
+                        totalWeight = totalWeight,
+                        spoolWeight = spoolWeight,
                         boughtAt = boughtAt,
                         boughtDate = boughtDate,
                         price = price,
@@ -83,7 +94,9 @@ class AddFilamentViewModel @Inject constructor(
                     Filament(
                         vendor = vendor,
                         color = color,
-                        size = size,
+                        currentWeight = currentWeight,
+                        totalWeight = totalWeight,
+                        spoolWeight = spoolWeight,
                         boughtAt = boughtAt,
                         boughtDate = boughtDate,
                         price = price,

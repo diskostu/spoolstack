@@ -187,7 +187,7 @@ fun PrintListScreenPreview() {
         id = 1,
         vendor = "Prusa",
         color = "Orange",
-        size = 1000
+        currentWeight = 1000
     )
     val samplePrint1 = Print(
         id = 1,

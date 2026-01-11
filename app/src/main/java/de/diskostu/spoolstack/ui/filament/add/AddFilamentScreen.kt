@@ -11,14 +11,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -28,8 +26,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -44,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -78,6 +75,7 @@ fun AddFilamentScreen(
     val context = LocalContext.current
     val existingVendors by viewModel.vendors.collectAsStateWithLifecycle()
     val filamentState by viewModel.filamentState.collectAsStateWithLifecycle()
+    val defaultFilamentSize by viewModel.defaultFilamentSize.collectAsStateWithLifecycle()
 
     val filamentSavedMessage = stringResource(R.string.filament_saved_message)
 
@@ -95,6 +93,7 @@ fun AddFilamentScreen(
     AddFilamentContent(
         existingVendors = existingVendors,
         filamentState = filamentState,
+        defaultFilamentSize = defaultFilamentSize,
         onNavigateBack = onNavigateBack,
         onSave = viewModel::save
     )
@@ -105,13 +104,13 @@ fun AddFilamentScreen(
 fun AddFilamentContent(
     existingVendors: List<String>,
     filamentState: Filament?,
+    defaultFilamentSize: Int,
     onNavigateBack: () -> Unit,
-    onSave: (String, String, Int, String?, Long?, Double?, Boolean) -> Unit
+    onSave: (String, String, Int, Int, Int?, String?, Long?, Double?, Boolean) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
-    val size1kg = stringResource(R.string.size_1kg)
     val unitGrams = stringResource(R.string.unit_grams)
 
     Scaffold(
@@ -135,23 +134,39 @@ fun AddFilamentContent(
         var vendorError by rememberSaveable { mutableStateOf<String?>(null) }
         var color by rememberSaveable { mutableStateOf("") }
         var colorError by rememberSaveable { mutableStateOf<String?>(null) }
-        var sliderValue by rememberSaveable { mutableFloatStateOf(1000f) }
-        var sizeInput by rememberSaveable { mutableStateOf("1000") }
+
+        var totalWeight by rememberSaveable { mutableIntStateOf(defaultFilamentSize) }
+        var spoolWeightInput by rememberSaveable { mutableStateOf("") }
+
+        var sliderValue by rememberSaveable { mutableFloatStateOf(defaultFilamentSize.toFloat()) }
+        var currentWeightInput by rememberSaveable { mutableStateOf(defaultFilamentSize.toString()) }
+        
         var boughtAt by rememberSaveable { mutableStateOf("") }
         var boughtAtError by rememberSaveable { mutableStateOf<String?>(null) }
         var price by rememberSaveable { mutableStateOf("") }
         var boughtDateLong by rememberSaveable { mutableStateOf<Long?>(null) }
+
+        // Initial setup for default size if not editing
+        LaunchedEffect(defaultFilamentSize) {
+            if (filamentState == null) {
+                totalWeight = defaultFilamentSize
+                sliderValue = defaultFilamentSize.toFloat()
+                currentWeightInput = defaultFilamentSize.toString()
+            }
+        }
 
         // Load data if editing
         LaunchedEffect(filamentState) {
             filamentState?.let { filament ->
                 vendor = filament.vendor
                 color = filament.color
+                totalWeight = filament.totalWeight
+                spoolWeightInput = filament.spoolWeight?.toString() ?: ""
                 boughtAt = filament.boughtAt ?: ""
                 price = filament.price?.toString() ?: ""
                 boughtDateLong = filament.boughtDate
-                sliderValue = filament.size.toFloat()
-                sizeInput = filament.size.toString()
+                sliderValue = filament.currentWeight.toFloat()
+                currentWeightInput = filament.currentWeight.toString()
             }
         }
 
@@ -181,18 +196,18 @@ fun AddFilamentContent(
             DeleteConfirmationDialog(
                 onConfirm = {
                     showDeleteDialog = false
-                    val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
+                    val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
-                        vendor, color, sizeToSave,
+                        vendor, color, weightToSave, totalWeight, spoolWeightInput.toIntOrNull(),
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
                         true // deleted = true
                     )
                 },
                 onDismiss = {
                     showDeleteDialog = false
-                    val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
+                    val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
-                        vendor, color, sizeToSave,
+                        vendor, color, weightToSave, totalWeight, spoolWeightInput.toIntOrNull(),
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
                         false // deleted = false
                     )
@@ -265,23 +280,64 @@ fun AddFilamentContent(
                     }
                 }
 
-                // AREA 2: Size
+                // AREA 2: Size & Weight
                 SectionContainer(title = stringResource(R.string.section_size)) {
-                    SizeSection(
-                        sizeInput = sizeInput,
-                        onSizeInputChange = { input, value ->
-                            sizeInput = input
-                            sliderValue = value
-                        },
-                        sliderValue = sliderValue,
-                        onSliderChange = { input, value ->
-                            sizeInput = input
-                            sliderValue = value
-                        },
-                        unitGrams = unitGrams,
-                        size1kg = size1kg,
-                        isLandscape = isLandscape
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (isLandscape) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Box(modifier = Modifier.weight(1f)) {
+                                    TotalWeightField(
+                                        totalWeight = totalWeight,
+                                        onTotalWeightChange = {
+                                            totalWeight = it
+                                            // Synchronize current weight with total weight when purchase size changes
+                                            currentWeightInput = it.toString()
+                                            sliderValue = it.toFloat()
+                                        },
+                                        enabled = filamentState == null
+                                    )
+                                }
+                                Box(modifier = Modifier.weight(1f)) {
+                                    SpoolWeightField(
+                                        spoolWeight = spoolWeightInput,
+                                        onSpoolWeightChange = { spoolWeightInput = it },
+                                        unitGrams = unitGrams
+                                    )
+                                }
+                            }
+                        } else {
+                            TotalWeightField(
+                                totalWeight = totalWeight,
+                                onTotalWeightChange = {
+                                    totalWeight = it
+                                    // Synchronize current weight with total weight when purchase size changes
+                                    currentWeightInput = it.toString()
+                                    sliderValue = it.toFloat()
+                                },
+                                enabled = filamentState == null
+                            )
+                            SpoolWeightField(
+                                spoolWeight = spoolWeightInput,
+                                onSpoolWeightChange = { spoolWeightInput = it },
+                                unitGrams = unitGrams
+                            )
+                        }
+
+                        SizeSection(
+                            sizeInput = currentWeightInput,
+                            onSizeInputChange = { input, value ->
+                                currentWeightInput = input
+                                sliderValue = value
+                            },
+                            sliderValue = sliderValue,
+                            onSliderChange = { input, value ->
+                                currentWeightInput = input
+                                sliderValue = value
+                            },
+                            totalWeight = totalWeight,
+                            unitGrams = unitGrams
+                        )
+                    }
                 }
 
                 // AREA 3: Purchase Information
@@ -353,12 +409,17 @@ fun AddFilamentContent(
                     }
 
                     if (!hasError) {
-                        val sizeToSave = sizeInput.toIntOrNull() ?: sliderValue.roundToInt()
-                        if (sizeToSave == 0 && filamentState != null) {
+                        val weightToSave =
+                            currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
+                        if (weightToSave == 0 && filamentState != null) {
                             showDeleteDialog = true
                         } else {
                             onSave(
-                                vendor, color, sizeToSave,
+                                vendor,
+                                color,
+                                weightToSave,
+                                totalWeight,
+                                spoolWeightInput.toIntOrNull(),
                                 boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
                                 false // deleted = false
                             )
@@ -445,113 +506,110 @@ private fun ColorField(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TotalWeightField(
+    totalWeight: Int,
+    onTotalWeightChange: (Int) -> Unit,
+    enabled: Boolean
+) {
+    val weightOptions = listOf(500, 750, 1000, 2000)
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = if (totalWeight >= 1000) "${totalWeight / 1000}kg" else "${totalWeight}g",
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled,
+            label = { Text(stringResource(R.string.total_weight_label)) },
+            trailingIcon = if (enabled) {
+                { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            } else null,
+            modifier = Modifier
+                .testTag("total_weight_input")
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+        )
+        if (enabled) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                weightOptions.forEach { weight ->
+                    DropdownMenuItem(
+                        text = { Text(if (weight >= 1000) "${weight / 1000}kg" else "${weight}g") },
+                        onClick = {
+                            onTotalWeightChange(weight)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpoolWeightField(
+    spoolWeight: String,
+    onSpoolWeightChange: (String) -> Unit,
+    unitGrams: String
+) {
+    OutlinedTextField(
+        value = spoolWeight,
+        onValueChange = {
+            if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                onSpoolWeightChange(it)
+            }
+        },
+        label = { Text(stringResource(R.string.spool_weight_label)) },
+        suffix = { Text(unitGrams) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true
+    )
+}
+
 @Composable
 private fun SizeSection(
     sizeInput: String,
     onSizeInputChange: (String, Float) -> Unit,
     sliderValue: Float,
     onSliderChange: (String, Float) -> Unit,
-    unitGrams: String,
-    size1kg: String,
-    isLandscape: Boolean = false
+    totalWeight: Int,
+    unitGrams: String
 ) {
-    if (isLandscape) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = sizeInput,
-                onValueChange = {
-                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
-                        val valInt = it.toIntOrNull() ?: 0
-                        onSizeInputChange(it, valInt.toFloat())
-                    }
-                },
-                modifier = Modifier
-                    .width(110.dp) // Enough for "1000" and suffix "g"
-                    .testTag("size_input"),
-                label = { Text(stringResource(R.string.size_label)) },
-                suffix = { Text(unitGrams) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        OutlinedTextField(
+            value = sizeInput,
+            onValueChange = {
+                if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                    val valInt = it.toIntOrNull() ?: 0
+                    onSizeInputChange(it, valInt.toFloat())
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("size_input"),
+            label = { Text(stringResource(R.string.size_label)) },
+            suffix = { Text(unitGrams) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
 
-            Slider(
-                value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
-                onValueChange = {
-                    val rounded = (it / 10).roundToInt() * 10
-                    onSliderChange(rounded.toString(), rounded.toFloat())
-                },
-                valueRange = 0f..maxOf(1000f, sliderValue),
-                modifier = Modifier.weight(1f)
-            )
-
-            FilterChip(
-                selected = sliderValue == 1000f,
-                onClick = { onSliderChange("1000", 1000f) },
-                label = { Text(size1kg) },
-                leadingIcon = if (sliderValue == 1000f) {
-                    {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null
-            )
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = sizeInput,
-                    onValueChange = {
-                        if (it.isEmpty() || it.all { char -> char.isDigit() }) {
-                            val valInt = it.toIntOrNull() ?: 0
-                            onSizeInputChange(it, valInt.toFloat())
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag("size_input"),
-                    label = { Text(stringResource(R.string.size_label)) },
-                    suffix = { Text(unitGrams) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                FilterChip(
-                    selected = sliderValue == 1000f,
-                    onClick = { onSliderChange("1000", 1000f) },
-                    label = { Text(size1kg) },
-                    leadingIcon = if (sliderValue == 1000f) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(FilterChipDefaults.IconSize)
-                            )
-                        }
-                    } else null
-                )
-            }
-
-            Slider(
-                value = sliderValue.coerceIn(0f, maxOf(1000f, sliderValue)),
-                onValueChange = {
-                    val rounded = (it / 10).roundToInt() * 10
-                    onSliderChange(rounded.toString(), rounded.toFloat())
-                },
-                valueRange = 0f..maxOf(1000f, sliderValue),
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-        }
+        Slider(
+            value = sliderValue.coerceIn(0f, maxOf(totalWeight.toFloat(), sliderValue)),
+            onValueChange = {
+                val rounded = (it / 10).roundToInt() * 10
+                onSliderChange(rounded.toString(), rounded.toFloat())
+            },
+            valueRange = 0f..maxOf(totalWeight.toFloat(), sliderValue),
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
     }
 }
 
@@ -673,8 +731,9 @@ fun AddFilamentScreenPreview() {
         AddFilamentContent(
             existingVendors = listOf("Prusa", "Creality", "Extrudr"),
             filamentState = null,
+            defaultFilamentSize = 1000,
             onNavigateBack = {},
-            onSave = { _, _, _, _, _, _, _ -> }
+            onSave = { _, _, _, _, _, _, _, _, _ -> }
         )
     }
 }

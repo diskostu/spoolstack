@@ -19,9 +19,18 @@ class SettingsViewModel @Inject constructor(
     val appTheme: StateFlow<AppTheme> = settingsRepository.appTheme
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppTheme.SYSTEM)
 
+    val defaultFilamentSize: StateFlow<Int> = settingsRepository.defaultFilamentSize
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1000)
+
     fun setAppTheme(theme: AppTheme) {
         viewModelScope.launch {
             settingsRepository.setAppTheme(theme)
+        }
+    }
+
+    fun setDefaultFilamentSize(size: Int) {
+        viewModelScope.launch {
+            settingsRepository.setDefaultFilamentSize(size)
         }
     }
 }

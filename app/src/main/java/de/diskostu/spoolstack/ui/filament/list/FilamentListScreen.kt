@@ -311,7 +311,7 @@ fun FilamentListContent(
                         filament = filament,
                         onClick = { onFilamentClick(filament.id) },
                         onToggleDelete = {
-                            if (!filament.deleted && filament.size > 0) {
+                            if (!filament.deleted && filament.currentWeight > 0) {
                                 filamentToDelete = filament
                             } else {
                                 onToggleDelete(filament)
@@ -331,7 +331,7 @@ fun FilamentListContent(
                 filamentToDelete = null
             },
             onDismiss = { filamentToDelete = null },
-            message = stringResource(R.string.delete_confirmation_message, filament.size)
+            message = stringResource(R.string.delete_confirmation_message, filament.currentWeight)
         )
     }
 }
@@ -376,7 +376,7 @@ fun FilamentCard(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = stringResource(R.string.remaining_weight, "${filament.size}g"),
+                    text = stringResource(R.string.remaining_weight, "${filament.currentWeight}g"),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 4.dp)
                 )
@@ -463,7 +463,7 @@ fun FilamentListScreenPreview() {
                     id = 1,
                     vendor = "Prusament",
                     color = "Galaxy Black",
-                    size = 1000,
+                    currentWeight = 1000,
                     createdDate = System.currentTimeMillis(),
                     changeDate = System.currentTimeMillis()
                 ),
@@ -471,7 +471,7 @@ fun FilamentListScreenPreview() {
                     id = 2,
                     vendor = "Sunlu",
                     color = "PLA White",
-                    size = 1000,
+                    currentWeight = 1000,
                     createdDate = System.currentTimeMillis(),
                     changeDate = System.currentTimeMillis()
                 )
@@ -500,7 +500,7 @@ fun FilamentCardPreview() {
                 id = 1,
                 vendor = "Prusament",
                 color = "Galaxy Black",
-                size = 1000,
+                currentWeight = 1000,
                 createdDate = System.currentTimeMillis(),
                 changeDate = System.currentTimeMillis()
             ),

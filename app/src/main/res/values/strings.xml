@@ -10,13 +10,16 @@
     <string name="edit">Edit</string>
     <string name="vendor_label">Vendor *</string>
     <string name="color_label">Color *</string>
-    <string name="size_label">Size *</string>
+    <string name="size_label">Current weight *</string>
+    <string name="total_weight_label">Total weight (at purchase) *</string>
+    <string name="spool_weight_label">Spool weight (empty, optional)</string>
     <string name="bought_at_label">Bought at</string>
     <string name="bought_date_label">Bought date</string>
     <string name="price_label">Price (optional)</string>
-    <string name="size_500g">500g</string>
-    <string name="size_1kg">1kg</string>
-    <string name="size_2kg">2kg</string>
+    <string name="size_500g" translatable="false">500g</string>
+    <string name="size_750g" translatable="false">750g</string>
+    <string name="size_1kg" translatable="false">1kg</string>
+    <string name="size_2kg" translatable="false">2kg</string>
     <string name="unit_grams" translatable="false">g</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
@@ -92,4 +95,6 @@
     <string name="settings_theme_light">Day</string>
     <string name="settings_theme_dark">Night</string>
     <string name="settings_dismiss">Dismiss</string>
+    <string name="settings_section_filament">Filament Settings</string>
+    <string name="settings_default_filament_size">Default Filament Size</string>
 </resources>

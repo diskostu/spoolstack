@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,7 +53,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val appTheme by viewModel.appTheme.collectAsStateWithLifecycle()
+    val defaultSize by viewModel.defaultFilamentSize.collectAsStateWithLifecycle()
+    
     var showThemePopup by remember { mutableStateOf(false) }
+    var showSizePopup by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -84,65 +88,34 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // App-Einstellungen Section
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(R.string.settings_title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                SettingsSection(
+                    title = stringResource(R.string.settings_title),
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.settings_app_design),
+                            subtitle = when (appTheme) {
+                                AppTheme.LIGHT -> stringResource(R.string.settings_theme_light)
+                                AppTheme.DARK -> stringResource(R.string.settings_theme_dark)
+                                AppTheme.SYSTEM -> stringResource(R.string.settings_theme_follow_system)
+                            },
+                            icon = Icons.Default.Contrast,
+                            onClick = { showThemePopup = true }
+                        )
                     )
+                )
 
-                    Surface(
-                        onClick = { showThemePopup = true },
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                modifier = Modifier.size(48.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Contrast,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.settings_app_design),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = when (appTheme) {
-                                        AppTheme.LIGHT -> stringResource(R.string.settings_theme_light)
-                                        AppTheme.DARK -> stringResource(R.string.settings_theme_dark)
-                                        AppTheme.SYSTEM -> stringResource(R.string.settings_theme_follow_system)
-                                    },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
+                // Filament-Einstellungen Section
+                SettingsSection(
+                    title = stringResource(R.string.settings_section_filament),
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.settings_default_filament_size),
+                            subtitle = if (defaultSize >= 1000) "${defaultSize / 1000}kg" else "${defaultSize}g",
+                            icon = Icons.Default.Scale,
+                            onClick = { showSizePopup = true }
+                        )
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(100.dp))
             }
@@ -157,8 +130,89 @@ fun SettingsScreen(
                 }
             )
         }
+
+        if (showSizePopup) {
+            SizeSelectionPopup(
+                onDismissRequest = { showSizePopup = false },
+                onSizeSelected = { size ->
+                    viewModel.setDefaultFilamentSize(size)
+                    showSizePopup = false
+                }
+            )
+        }
     }
 }
+
+@Composable
+private fun SettingsSection(
+    title: String,
+    items: List<SettingsItem>
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+
+        items.forEach { item ->
+            Surface(
+                onClick = item.onClick,
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = item.subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+private data class SettingsItem(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,19 +241,19 @@ private fun ThemeSelectionPopup(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                ThemeOption(
+                SelectionOption(
                     icon = Icons.Default.BrightnessHigh,
                     label = stringResource(R.string.settings_theme_light),
                     onClick = { onThemeSelected(AppTheme.LIGHT) }
                 )
 
-                ThemeOption(
+                SelectionOption(
                     icon = Icons.Default.Brightness4,
                     label = stringResource(R.string.settings_theme_dark),
                     onClick = { onThemeSelected(AppTheme.DARK) }
                 )
 
-                ThemeOption(
+                SelectionOption(
                     icon = Icons.Default.Contrast,
                     label = stringResource(R.string.settings_theme_follow_system),
                     onClick = { onThemeSelected(AppTheme.SYSTEM) }
@@ -218,8 +272,56 @@ private fun ThemeSelectionPopup(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ThemeOption(
+private fun SizeSelectionPopup(
+    onDismissRequest: () -> Unit,
+    onSizeSelected: (Int) -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_default_filament_size),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                listOf(500, 750, 1000, 2000).forEach { size ->
+                    SelectionOption(
+                        icon = Icons.Default.Scale,
+                        label = if (size >= 1000) "${size / 1000}kg" else "${size}g",
+                        onClick = { onSizeSelected(size) }
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text(stringResource(R.string.settings_dismiss))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionOption(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit

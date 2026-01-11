@@ -8,13 +8,12 @@
     <string name="edit">Bearbeiten</string>
     <string name="vendor_label">Hersteller *</string>
     <string name="color_label">Farbe *</string>
-    <string name="size_label">Größe *</string>
+    <string name="size_label">Aktuelles Gewicht *</string>
+    <string name="total_weight_label">Gesamtgewicht (bei Kauf) *</string>
+    <string name="spool_weight_label">Leergewicht Spule (optional)</string>
     <string name="bought_at_label">Gekauft bei</string>
     <string name="bought_date_label">Kaufdatum (optional)</string>
     <string name="price_label">Preis (optional)</string>
-    <string name="size_500g">500g</string>
-    <string name="size_1kg">1kg</string>
-    <string name="size_2kg">2kg</string>
     <string name="save">Speichern</string>
     <string name="cancel">Abbrechen</string>
     <string name="filament_saved_message">Filament mit ID: %1$d gespeichert</string>
@@ -83,4 +82,6 @@
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_dismiss">Verwerfen</string>
+    <string name="settings_section_filament">Filament-Einstellungen</string>
+    <string name="settings_default_filament_size">Default Filament-Größe</string>
 </resources>

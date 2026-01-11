@@ -74,7 +74,7 @@ class FilamentListViewModel @Inject constructor(
             )
 
             FilamentSort.LAST_MODIFIED -> result.sortedByDescending { it.changeDate }
-            FilamentSort.REMAINING_AMOUNT -> result.sortedByDescending { it.size }
+            FilamentSort.REMAINING_AMOUNT -> result.sortedByDescending { it.currentWeight }
         }
 
         result

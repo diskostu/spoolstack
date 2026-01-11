@@ -118,7 +118,7 @@ fun RecordPrintScreenContent(
         // Update max amount when filament changes
         LaunchedEffect(selectedFilament) {
             selectedFilament?.let {
-                maxAmount = it.size.toFloat()
+                maxAmount = it.currentWeight.toFloat()
 
                 // Reset slider if it exceeds new max
                 if (sliderValue > maxAmount) {
@@ -169,7 +169,7 @@ fun RecordPrintScreenContent(
                                 R.string.filament_dropdown_format,
                                 it.vendor,
                                 it.color,
-                                "${it.size}g"
+                                "${it.currentWeight}g"
                             )
                         } ?: "",
                         onValueChange = {},
@@ -196,7 +196,7 @@ fun RecordPrintScreenContent(
                                             R.string.filament_dropdown_format,
                                             filament.vendor,
                                             filament.color,
-                                            "${filament.size}g"
+                                            "${filament.currentWeight}g"
                                         )
                                     )
                                 },
