@@ -59,7 +59,8 @@
 
     <!-- Sort -->
     <string name="sort_button_description">Sortieren</string>
-    <string name="sort_by_name">Name</string>
+    <string name="sort_by_vendor">Hersteller</string>
+    <string name="sort_by_color">Farbe</string>
     <string name="sort_by_last_modified">Zuletzt geändert</string>
     <string name="sort_by_remaining_amount">Verbleibende Menge</string>
 

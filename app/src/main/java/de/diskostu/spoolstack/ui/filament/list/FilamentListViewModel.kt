@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +21,7 @@ enum class FilamentFilter {
 }
 
 enum class FilamentSort {
-    NAME, LAST_MODIFIED, REMAINING_AMOUNT
+    VENDOR, COLOR, LAST_MODIFIED, REMAINING_AMOUNT
 }
 
 @HiltViewModel
@@ -36,7 +35,7 @@ class FilamentListViewModel @Inject constructor(
     private val _filter = MutableStateFlow(FilamentFilter.ACTIVE)
     val filter = _filter.asStateFlow()
 
-    private val _sort = MutableStateFlow(FilamentSort.NAME)
+    private val _sort = MutableStateFlow(FilamentSort.VENDOR)
     val sort = _sort.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
@@ -67,10 +66,12 @@ class FilamentListViewModel @Inject constructor(
         }
         // Apply Sort
         result = when (sort) {
-            FilamentSort.NAME -> result.sortedWith(
-                compareBy(
-                    { it.vendor.lowercase() },
-                    { it.color.lowercase() })
+            FilamentSort.VENDOR -> result.sortedWith(
+                compareBy { it.vendor.lowercase() }
+            )
+
+            FilamentSort.COLOR -> result.sortedWith(
+                compareBy { it.color.lowercase() }
             )
 
             FilamentSort.LAST_MODIFIED -> result.sortedByDescending { it.changeDate }

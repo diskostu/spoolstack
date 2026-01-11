@@ -70,7 +70,8 @@
 
     <!-- Sort -->
     <string name="sort_button_description">Sort</string>
-    <string name="sort_by_name">Name</string>
+    <string name="sort_by_vendor">Vendor</string>
+    <string name="sort_by_color">Color</string>
     <string name="sort_by_last_modified">Last modified</string>
     <string name="sort_by_remaining_amount">Remaining amount</string>
 

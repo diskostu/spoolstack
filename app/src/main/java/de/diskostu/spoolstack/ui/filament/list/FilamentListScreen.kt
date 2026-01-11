@@ -255,9 +255,16 @@ fun FilamentListContent(
                                     onDismissRequest = { showSortMenu = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_by_name)) },
+                                        text = { Text(stringResource(R.string.sort_by_vendor)) },
                                         onClick = {
-                                            onSortChange(FilamentSort.NAME)
+                                            onSortChange(FilamentSort.VENDOR)
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_by_color)) },
+                                        onClick = {
+                                            onSortChange(FilamentSort.COLOR)
                                             showSortMenu = false
                                         }
                                     )
@@ -477,7 +484,7 @@ fun FilamentListScreenPreview() {
                 )
             ),
             filter = FilamentFilter.ALL,
-            sort = FilamentSort.NAME,
+            sort = FilamentSort.VENDOR,
             searchQuery = "",
             onNavigateBack = {},
             onFilamentClick = {},

@@ -7,7 +7,6 @@ import de.diskostu.spoolstack.ui.filament.list.FilamentListViewModel
 import de.diskostu.spoolstack.ui.filament.list.FilamentSort
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -16,8 +15,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -192,7 +189,7 @@ class FilamentListViewModelTest {
 
         // When
         viewModel.setFilter(FilamentFilter.ALL)
-        viewModel.setSort(FilamentSort.NAME)
+        viewModel.setSort(FilamentSort.VENDOR)
         testScheduler.advanceUntilIdle()
 
         // Then
