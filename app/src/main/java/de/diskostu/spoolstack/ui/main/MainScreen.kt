@@ -54,6 +54,9 @@ fun MainScreen(
         },
         onClearPrints = { onCompletion ->
             viewModel.clearAllPrints(onCompletion)
+        },
+        onAddSampleFilaments = { onCompletion ->
+            viewModel.addSampleFilaments(onCompletion)
         }
     )
 }
@@ -65,11 +68,13 @@ internal fun MainScreenContent(
     filamentCount: Int,
     printCount: Int,
     onClearFilaments: (() -> Unit) -> Unit,
-    onClearPrints: (() -> Unit) -> Unit
+    onClearPrints: (() -> Unit) -> Unit,
+    onAddSampleFilaments: (() -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     val textFilamentsDeleted = stringResource(R.string.debug_filaments_deleted)
     val textPrintsDeleted = stringResource(R.string.debug_prints_deleted)
+    val textSampleFilamentsAdded = stringResource(R.string.debug_sample_filaments_added)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -156,37 +161,56 @@ internal fun MainScreenContent(
                     }
                 }
 
-                // Debug buttons moved up
-                Row(
+                // Debug buttons
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DebugButton(
-                        onClick = {
-                            onClearFilaments {
-                                Toast.makeText(
-                                    context,
-                                    textFilamentsDeleted,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        text = stringResource(R.string.debug_clear_filaments),
-                        modifier = Modifier.weight(1f)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DebugButton(
+                            onClick = {
+                                onClearFilaments {
+                                    Toast.makeText(
+                                        context,
+                                        textFilamentsDeleted,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            text = stringResource(R.string.debug_clear_filaments),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        DebugButton(
+                            onClick = {
+                                onClearPrints {
+                                    Toast.makeText(
+                                        context,
+                                        textPrintsDeleted,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            text = stringResource(R.string.debug_clear_prints),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
                     DebugButton(
                         onClick = {
-                            onClearPrints {
+                            onAddSampleFilaments {
                                 Toast.makeText(
                                     context,
-                                    textPrintsDeleted,
+                                    textSampleFilamentsAdded,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
                         },
-                        text = stringResource(R.string.debug_clear_prints),
-                        modifier = Modifier.weight(1f)
+                        text = stringResource(R.string.debug_add_sample_filaments),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
@@ -214,7 +238,8 @@ fun MainScreenPreview() {
             filamentCount = 12,
             printCount = 42,
             onClearFilaments = { },
-            onClearPrints = { }
+            onClearPrints = { },
+            onAddSampleFilaments = { }
         )
     }
 }

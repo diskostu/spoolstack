@@ -3,6 +3,7 @@ package de.diskostu.spoolstack.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentDao
 import de.diskostu.spoolstack.data.PrintDao
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,6 +34,35 @@ class MainViewModel @Inject constructor(
     fun clearAllPrints(onCompletion: () -> Unit) {
         viewModelScope.launch {
             printDao.deleteAll()
+            onCompletion()
+        }
+    }
+
+    fun addSampleFilaments(onCompletion: () -> Unit) {
+        viewModelScope.launch {
+            val colors = listOf(
+                "Red",
+                "Blue",
+                "Green",
+                "Yellow",
+                "Black",
+                "White",
+                "Orange",
+                "Purple",
+                "Grey",
+                "Cyan"
+            )
+            val vendors = listOf("Prusa", "Bambu Lab", "Extrudr", "Sunlu", "Esun")
+            val sizes = listOf(1000, 750, 500, 250)
+            repeat(20) {
+                val filament = Filament(
+                    vendor = vendors.random(),
+                    color = colors.random(),
+                    currentWeight = sizes.random(),
+                    totalWeight = 1000
+                )
+                filamentDao.insert(filament)
+            }
             onCompletion()
         }
     }

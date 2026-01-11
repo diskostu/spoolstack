@@ -67,11 +67,13 @@ class FilamentListViewModel @Inject constructor(
         // Apply Sort
         result = when (sort) {
             FilamentSort.VENDOR -> result.sortedWith(
-                compareBy { it.vendor.lowercase() }
+                compareBy<Filament> { it.vendor.lowercase() }
+                    .thenBy { it.color.lowercase() }
             )
 
             FilamentSort.COLOR -> result.sortedWith(
-                compareBy { it.color.lowercase() }
+                compareBy<Filament> { it.color.lowercase() }
+                    .thenBy { it.vendor.lowercase() }
             )
 
             FilamentSort.LAST_MODIFIED -> result.sortedByDescending { it.changeDate }
