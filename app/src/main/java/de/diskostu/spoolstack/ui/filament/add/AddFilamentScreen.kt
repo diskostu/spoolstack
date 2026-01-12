@@ -65,6 +65,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
+import de.diskostu.spoolstack.data.FrequentColor
 import de.diskostu.spoolstack.ui.components.ColorPickerDialog
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
@@ -84,6 +85,8 @@ fun AddFilamentScreen(
 ) {
     val context = LocalContext.current
     val existingVendors by viewModel.vendors.collectAsStateWithLifecycle()
+    val frequentColors by viewModel.frequentColors.collectAsStateWithLifecycle()
+    val recentColors by viewModel.recentColors.collectAsStateWithLifecycle()
     val filamentState by viewModel.filamentState.collectAsStateWithLifecycle()
     val defaultFilamentSize by viewModel.defaultFilamentSize.collectAsStateWithLifecycle()
 
@@ -102,6 +105,8 @@ fun AddFilamentScreen(
 
     AddFilamentContent(
         existingVendors = existingVendors,
+        frequentColors = frequentColors,
+        recentColors = recentColors,
         filamentState = filamentState,
         defaultFilamentSize = defaultFilamentSize,
         onNavigateBack = onNavigateBack,
@@ -113,6 +118,8 @@ fun AddFilamentScreen(
 @Composable
 fun AddFilamentContent(
     existingVendors: List<String>,
+    frequentColors: List<FrequentColor>,
+    recentColors: List<FrequentColor>,
     filamentState: Filament?,
     defaultFilamentSize: Int,
     onNavigateBack: () -> Unit,
@@ -232,8 +239,14 @@ fun AddFilamentContent(
         if (showColorPicker) {
             ColorPickerDialog(
                 initialColor = ColorUtils.hexToColor(colorHex) ?: Color.White,
+                frequentColors = frequentColors,
+                recentColors = recentColors,
                 onColorSelected = { selectedColor ->
                     colorHex = ColorUtils.colorToHex(selectedColor)
+                },
+                onFrequentColorSelected = { selectedFrequentColor ->
+                    color = selectedFrequentColor.color
+                    colorHex = selectedFrequentColor.colorHex
                 },
                 onDismissRequest = { showColorPicker = false }
             )
@@ -821,6 +834,8 @@ fun AddFilamentScreenPreview() {
     SpoolstackTheme {
         AddFilamentContent(
             existingVendors = listOf("Prusa", "Creality", "Extrudr"),
+            frequentColors = emptyList(),
+            recentColors = emptyList(),
             filamentState = null,
             defaultFilamentSize = 1000,
             onNavigateBack = {},

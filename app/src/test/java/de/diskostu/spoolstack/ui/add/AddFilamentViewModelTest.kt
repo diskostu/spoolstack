@@ -3,6 +3,7 @@ package de.diskostu.spoolstack.ui.add
 import androidx.lifecycle.SavedStateHandle
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
+import de.diskostu.spoolstack.data.FrequentColor
 import de.diskostu.spoolstack.data.SettingsRepository
 import de.diskostu.spoolstack.ui.filament.add.AddFilamentViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddFilamentViewModelTest {
@@ -52,10 +54,14 @@ class AddFilamentViewModelTest {
     }
 
     @Test
-    fun `vendors are loaded initially`() = runTest {
+    fun `vendors, frequent and recent colors are loaded initially`() = runTest {
         // Given
         val vendors = listOf("Vendor A", "Vendor B")
+        val frequentColors = listOf(FrequentColor("Red", "#FF0000"))
+        val recentColors = listOf(FrequentColor("Blue", "#0000FF"))
         `when`(filamentRepository.getDistinctVendors()).thenReturn(vendors)
+        `when`(filamentRepository.getFrequentColors(3)).thenReturn(frequentColors)
+        `when`(filamentRepository.getRecentColors(3)).thenReturn(recentColors)
 
         // When
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, SavedStateHandle())
@@ -63,6 +69,8 @@ class AddFilamentViewModelTest {
 
         // Then
         assertEquals(vendors, viewModel.vendors.value)
+        assertEquals(frequentColors, viewModel.frequentColors.value)
+        assertEquals(recentColors, viewModel.recentColors.value)
     }
 
     @Test
@@ -78,6 +86,8 @@ class AddFilamentViewModelTest {
         )
         val expectedId = 123L
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
+        `when`(filamentRepository.getFrequentColors(any())).thenReturn(emptyList())
+        `when`(filamentRepository.getRecentColors(any())).thenReturn(emptyList())
         `when`(filamentRepository.insert(any())).thenReturn(expectedId)
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, SavedStateHandle())
         
@@ -119,6 +129,8 @@ class AddFilamentViewModelTest {
         )
         val savedStateHandle = SavedStateHandle(mapOf("filamentId" to 1))
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
+        `when`(filamentRepository.getFrequentColors(any())).thenReturn(emptyList())
+        `when`(filamentRepository.getRecentColors(any())).thenReturn(emptyList())
         `when`(filamentRepository.getFilamentById(1)).thenReturn(existingFilament)
 
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, savedStateHandle)
@@ -158,6 +170,8 @@ class AddFilamentViewModelTest {
 
         val expectedId = 123L
         `when`(filamentRepository.getDistinctVendors()).thenReturn(emptyList())
+        `when`(filamentRepository.getFrequentColors(any())).thenReturn(emptyList())
+        `when`(filamentRepository.getRecentColors(any())).thenReturn(emptyList())
         `when`(filamentRepository.insert(any())).thenReturn(expectedId)
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, SavedStateHandle())
 

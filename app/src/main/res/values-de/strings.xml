@@ -89,4 +89,7 @@
     <string name="settings_default_filament_size">Default Filament-Größe</string>
 
     <string name="select_color">Farbe wählen</string>
+    <string name="selected_color_label">Ausgewählte Farbe</string>
+    <string name="frequent_colors_label">Häufige Farben</string>
+    <string name="recent_colors_label">Letzte Farben</string>
 </resources>

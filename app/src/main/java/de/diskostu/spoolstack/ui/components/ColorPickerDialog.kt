@@ -2,6 +2,7 @@ package de.diskostu.spoolstack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -27,17 +29,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import de.diskostu.spoolstack.R
+import de.diskostu.spoolstack.data.FrequentColor
+import de.diskostu.spoolstack.ui.util.ColorUtils
 
 @Composable
 fun ColorPickerDialog(
     onColorSelected: (Color) -> Unit,
+    onFrequentColorSelected: (FrequentColor) -> Unit,
     onDismissRequest: () -> Unit,
+    frequentColors: List<FrequentColor> = emptyList(),
+    recentColors: List<FrequentColor> = emptyList(),
     initialColor: Color = Color.White
 ) {
     val controller = rememberColorPickerController()
@@ -52,7 +59,13 @@ fun ColorPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.select_color)) },
+        title = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.select_color),
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -112,6 +125,36 @@ fun ColorPickerDialog(
                         .height(35.dp),
                     controller = controller
                 )
+
+                if (frequentColors.isNotEmpty() || recentColors.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        if (frequentColors.isNotEmpty()) {
+                            ColorHistorySection(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.frequent_colors_label),
+                                colors = frequentColors,
+                                onColorSelected = {
+                                    onFrequentColorSelected(it)
+                                    onDismissRequest()
+                                }
+                            )
+                        }
+                        if (recentColors.isNotEmpty()) {
+                            ColorHistorySection(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.recent_colors_label),
+                                colors = recentColors,
+                                onColorSelected = {
+                                    onFrequentColorSelected(it)
+                                    onDismissRequest()
+                                }
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -130,4 +173,39 @@ fun ColorPickerDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ColorHistorySection(
+    title: String,
+    colors: List<FrequentColor>,
+    onColorSelected: (FrequentColor) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            colors.forEach { frequentColor ->
+                val color = ColorUtils.hexToColor(frequentColor.colorHex) ?: Color.Gray
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                        .clickable { onColorSelected(frequentColor) }
+                )
+            }
+        }
+    }
 }

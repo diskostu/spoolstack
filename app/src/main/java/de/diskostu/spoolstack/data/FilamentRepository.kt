@@ -39,4 +39,12 @@ class FilamentRepository @Inject constructor(
     fun getAllPrints(): Flow<List<Print>> {
         return printDao.getAllPrints()
     }
+
+    suspend fun getFrequentColors(limit: Int): List<FrequentColor> {
+        return filamentDao.getFrequentColors(limit)
+    }
+
+    suspend fun getRecentColors(limit: Int): List<FrequentColor> {
+        return filamentDao.getRecentColors(limit)
+    }
 }
