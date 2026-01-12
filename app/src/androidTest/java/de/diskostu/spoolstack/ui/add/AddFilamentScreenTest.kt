@@ -51,7 +51,7 @@ class AddFilamentScreenTest {
         composeTestRule.waitForIdle()
 
         // 8. Verify we are back on the main screen
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
             .assertIsDisplayed()
     }
 
@@ -76,7 +76,34 @@ class AddFilamentScreenTest {
         composeTestRule.waitForIdle()
 
         // 5. Verify success (back to main screen)
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun testColorInference_And_PickerTransfer() {
+        // 1. Navigate to Add Filament Screen
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
+            .performClick()
+
+        // 2. Type a color name (e.g., "red")
+        composeTestRule.onNodeWithTag("color_input").performTextInput("red")
+
+        // 3. Wait for debounce (500ms + buffer)
+        composeTestRule.mainClock.advanceTimeBy(1000)
+
+        // 4. Click on the color picker trigger
+        composeTestRule.onNodeWithTag("color_picker_trigger").performClick()
+
+        // 5. Verify the Color Picker dialog is displayed
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.select_color))
+            .assertIsDisplayed()
+
+        // 6. Verify that "Selected Color" and the correct Hex code are shown
+        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.selected_color_label))
+            .assertIsDisplayed()
+
+        // Red is #FF0000.
+        composeTestRule.onNodeWithText("#FF0000").assertIsDisplayed()
     }
 }

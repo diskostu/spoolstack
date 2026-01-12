@@ -91,4 +91,7 @@
     <string name="settings_dismiss">Dismiss</string>
     <string name="settings_section_filament">Filament Settings</string>
     <string name="settings_default_filament_size">Default filament size</string>
+
+    <string name="select_color">Select Color</string>
+    <string name="selected_color_label">Selected Color</string>
 </resources>

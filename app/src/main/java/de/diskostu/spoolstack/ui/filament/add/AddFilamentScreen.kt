@@ -2,6 +2,8 @@ package de.diskostu.spoolstack.ui.filament.add
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,13 +13,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -28,6 +32,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -47,6 +52,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -58,9 +65,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
+import de.diskostu.spoolstack.ui.components.ColorPickerDialog
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
+import de.diskostu.spoolstack.ui.util.ColorUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -106,7 +116,7 @@ fun AddFilamentContent(
     filamentState: Filament?,
     defaultFilamentSize: Int,
     onNavigateBack: () -> Unit,
-    onSave: (String, String, Int, Int, Int?, String?, Long?, Double?, Boolean) -> Unit
+    onSave: (String, String, String?, Int, Int, Int?, String?, Long?, Double?, Boolean) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -133,6 +143,7 @@ fun AddFilamentContent(
         var vendor by rememberSaveable { mutableStateOf("") }
         var vendorError by rememberSaveable { mutableStateOf<String?>(null) }
         var color by rememberSaveable { mutableStateOf("") }
+        var colorHex by rememberSaveable { mutableStateOf<String?>(null) }
         var colorError by rememberSaveable { mutableStateOf<String?>(null) }
 
         var totalWeight by rememberSaveable { mutableIntStateOf(defaultFilamentSize) }
@@ -160,6 +171,7 @@ fun AddFilamentContent(
             filamentState?.let { filament ->
                 vendor = filament.vendor
                 color = filament.color
+                colorHex = filament.colorHex
                 totalWeight = filament.totalWeight
                 spoolWeightInput = filament.spoolWeight?.toString() ?: ""
                 boughtAt = filament.boughtAt ?: ""
@@ -168,6 +180,32 @@ fun AddFilamentContent(
                 sliderValue = filament.currentWeight.toFloat()
                 currentWeightInput = filament.currentWeight.toString()
             }
+        }
+
+        // Color inference with debounce
+        // We use a separate state to track the color text we've already processed to avoid
+        // re-processing the initial load from the database.
+        var lastProcessedColor by rememberSaveable { mutableStateOf<String?>(null) }
+
+        LaunchedEffect(color) {
+            // If this is the initial load, skip inference to preserve the hex from DB
+            if (lastProcessedColor == null && filamentState != null && color == filamentState.color) {
+                lastProcessedColor = color
+                return@LaunchedEffect
+            }
+
+            // If the text hasn't changed since last inference (e.g. initial load for new filament), skip
+            if (color == lastProcessedColor) return@LaunchedEffect
+
+            delay(500)
+
+            val inferred = ColorUtils.inferColorFromText(color)
+            colorHex = if (inferred != null) {
+                ColorUtils.colorToHex(inferred)
+            } else {
+                null
+            }
+            lastProcessedColor = color
         }
 
         // Date Picker
@@ -189,6 +227,18 @@ fun AddFilamentContent(
             ) { DatePicker(state = datePickerState) }
         }
 
+        // Color Picker
+        var showColorPicker by remember { mutableStateOf(false) }
+        if (showColorPicker) {
+            ColorPickerDialog(
+                initialColor = ColorUtils.hexToColor(colorHex) ?: Color.White,
+                onColorSelected = { selectedColor ->
+                    colorHex = ColorUtils.colorToHex(selectedColor)
+                },
+                onDismissRequest = { showColorPicker = false }
+            )
+        }
+
         // Delete Dialog State
         var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -198,7 +248,12 @@ fun AddFilamentContent(
                     showDeleteDialog = false
                     val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
-                        vendor, color, weightToSave, totalWeight, spoolWeightInput.toIntOrNull(),
+                        vendor,
+                        color,
+                        colorHex,
+                        weightToSave,
+                        totalWeight,
+                        spoolWeightInput.toIntOrNull(),
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
                         true // deleted = true
                     )
@@ -207,7 +262,12 @@ fun AddFilamentContent(
                     showDeleteDialog = false
                     val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
                     onSave(
-                        vendor, color, weightToSave, totalWeight, spoolWeightInput.toIntOrNull(),
+                        vendor,
+                        color,
+                        colorHex,
+                        weightToSave,
+                        totalWeight,
+                        spoolWeightInput.toIntOrNull(),
                         boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
                         false // deleted = false
                     )
@@ -249,10 +309,12 @@ fun AddFilamentContent(
                             Box(modifier = Modifier.weight(1f)) {
                                 ColorField(
                                     color = color,
+                                    colorHex = colorHex,
                                     onColorChange = {
                                         color = it
                                         colorError = null
                                     },
+                                    onOpenColorPicker = { showColorPicker = true },
                                     colorError = colorError
                                 )
                             }
@@ -270,10 +332,12 @@ fun AddFilamentContent(
                             )
                             ColorField(
                                 color = color,
+                                colorHex = colorHex,
                                 onColorChange = {
                                     color = it
                                     colorError = null
                                 },
+                                onOpenColorPicker = { showColorPicker = true },
                                 colorError = colorError
                             )
                         }
@@ -417,6 +481,7 @@ fun AddFilamentContent(
                             onSave(
                                 vendor,
                                 color,
+                                colorHex,
                                 weightToSave,
                                 totalWeight,
                                 spoolWeightInput.toIntOrNull(),
@@ -490,9 +555,13 @@ private fun VendorField(
 @Composable
 private fun ColorField(
     color: String,
+    colorHex: String?,
     onColorChange: (String) -> Unit,
+    onOpenColorPicker: () -> Unit,
     colorError: String?
 ) {
+    val inferredColor = ColorUtils.hexToColor(colorHex)
+
     OutlinedTextField(
         value = color,
         onValueChange = onColorChange,
@@ -502,7 +571,29 @@ private fun ColorField(
             .fillMaxWidth(),
         isError = colorError != null,
         supportingText = { colorError?.let { Text(it) } },
-        singleLine = true
+        singleLine = true,
+        trailingIcon = {
+            Box(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(inferredColor ?: Color.Gray)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                    .testTag("color_picker_trigger")
+                    .clickable { onOpenColorPicker() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (inferredColor == null) {
+                    Icon(
+                        imageVector = Icons.Default.QuestionMark,
+                        contentDescription = "Unknown color",
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -665,7 +756,7 @@ private fun BoughtDateField(
         readOnly = true,
         label = { Text(stringResource(R.string.bought_date_label)) },
         trailingIcon = {
-            IconButton(onClick = onShowDatePicker) {
+            IconButton(onClick = { onShowDatePicker() }) {
                 Icon(Icons.Default.DateRange, contentDescription = "Select Date")
             }
         },
@@ -733,7 +824,7 @@ fun AddFilamentScreenPreview() {
             filamentState = null,
             defaultFilamentSize = 1000,
             onNavigateBack = {},
-            onSave = { _, _, _, _, _, _, _, _, _ -> }
+            onSave = { _, _, _, _, _, _, _, _, _, _ -> }
         )
     }
 }

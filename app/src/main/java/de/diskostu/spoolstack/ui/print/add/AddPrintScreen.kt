@@ -223,7 +223,7 @@ fun RecordPrintScreenContent(
                     Slider(
                         value = sliderValue,
                         onValueChange = { sliderValue = it },
-                        valueRange = 5f..maxAmount,
+                        valueRange = 5f..maxOf(5f, maxAmount),
                         steps = if (maxAmount > 5) ((maxAmount - 5) / 5).toInt() - 1 else 0, // Calculate steps for 5g increments
                         modifier = Modifier.weight(1f),
                         enabled = selectedFilament != null
@@ -310,15 +310,11 @@ fun RecordPrintScreenContent(
 annotation class PortraitPreviews
 
 @Preview(
-    name = "bright",
-    group = "landscape",
-    showBackground = true,
+    name = "bright", group = "landscape", showBackground = true,
     device = "spec:width=800dp,height=480dp,orientation=landscape"
 )
 @Preview(
-    name = "dark",
-    group = "landscape",
-    showBackground = true,
+    name = "dark", group = "landscape", showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     device = "spec:width=800dp,height=480dp,orientation=landscape"
 )
@@ -331,8 +327,8 @@ fun RecordPrintScreenPreview() {
     SpoolstackTheme {
         RecordPrintScreenContent(
             filaments = listOf(
-                Filament(1, "Prusa", "Galaxy Black", 1000),
-                Filament(2, "Overture", "White", 1000)
+                Filament(id = 1, vendor = "Prusa", color = "Galaxy Black", currentWeight = 1000),
+                Filament(id = 2, vendor = "Overture", color = "White", currentWeight = 1000)
             ),
             onNavigateBack = {},
             onSavePrint = { _, _, _, _, _ -> }

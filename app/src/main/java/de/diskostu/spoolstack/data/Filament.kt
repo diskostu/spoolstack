@@ -10,6 +10,7 @@ data class Filament(
     val vendor: String,
     val color: String,
     val currentWeight: Int,
+    val colorHex: String? = null,
     val totalWeight: Int = 1000,
     val spoolWeight: Int? = null,
     val boughtAt: String? = null,

@@ -75,6 +75,7 @@ import de.diskostu.spoolstack.ui.theme.ActiveGreenDark
 import de.diskostu.spoolstack.ui.theme.DeletedGray
 import de.diskostu.spoolstack.ui.theme.DeletedGrayDark
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
+import de.diskostu.spoolstack.ui.util.ColorUtils
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
@@ -397,7 +398,13 @@ fun FilamentCard(
     val backgroundColor = if (filament.deleted) {
         if (isDark) DeletedGrayDark else DeletedGray
     } else {
-        if (isDark) ActiveGreenDark else ActiveGreen
+        ColorUtils.hexToColor(filament.colorHex) ?: if (isDark) ActiveGreenDark else ActiveGreen
+    }
+
+    val contentColor = if (filament.deleted) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        if (ColorUtils.isColorLight(backgroundColor)) Color.Black else Color.White
     }
 
     Card(
@@ -405,7 +412,8 @@ fun FilamentCard(
             .testTag("filament_card")
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
+            containerColor = backgroundColor,
+            contentColor = contentColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -425,7 +433,8 @@ fun FilamentCard(
                 Text(
                     text = stringResource(R.string.remaining_weight, "${filament.currentWeight}g"),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp),
+                    color = contentColor.copy(alpha = 0.8f)
                 )
 
                 if (!filament.boughtAt.isNullOrEmpty()) {
@@ -441,7 +450,8 @@ fun FilamentCard(
                     Text(
                         text = purchaseInfo,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = contentColor.copy(alpha = 0.8f)
                     )
                 }
 
@@ -455,14 +465,16 @@ fun FilamentCard(
                 Text(
                     text = "$created | $modified",
                     style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp),
+                    color = contentColor.copy(alpha = 0.6f)
                 )
             }
             Box {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.menu_more_options)
+                        contentDescription = stringResource(R.string.menu_more_options),
+                        tint = contentColor
                     )
                 }
                 DropdownMenu(

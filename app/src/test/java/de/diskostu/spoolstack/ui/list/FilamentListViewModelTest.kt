@@ -190,8 +190,7 @@ class FilamentListViewModelTest {
 
         // When
         viewModel.setFilter(FilamentFilter.ALL)
-        // Default is VENDOR, but let's be explicit
-        viewModel.setSort(FilamentSort.VENDOR)
+        // Default is VENDOR/ASC, so we don't call setSort(VENDOR) here to avoid toggling to DESC
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -218,9 +217,7 @@ class FilamentListViewModelTest {
 
         // When
         viewModel.setFilter(FilamentFilter.ALL)
-        // First setSort(VENDOR) ensures we are on VENDOR/ASC (it's already the default)
-        viewModel.setSort(FilamentSort.VENDOR)
-        // Second setSort(VENDOR) toggles to DESC
+        // Default is VENDOR/ASC. Calling it once toggles it to DESC.
         viewModel.setSort(FilamentSort.VENDOR)
         testScheduler.advanceUntilIdle()
 

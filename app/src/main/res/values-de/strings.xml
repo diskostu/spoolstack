@@ -87,4 +87,6 @@
     <string name="settings_dismiss">Verwerfen</string>
     <string name="settings_section_filament">Filament-Einstellungen</string>
     <string name="settings_default_filament_size">Default Filament-Größe</string>
+
+    <string name="select_color">Farbe wählen</string>
 </resources>

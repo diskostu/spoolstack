@@ -71,6 +71,7 @@ class AddFilamentViewModelTest {
         val filament = Filament(
             vendor = "Vendor",
             color = "Red",
+            colorHex = "#FF0000",
             currentWeight = 1000,
             createdDate = System.currentTimeMillis(),
             changeDate = System.currentTimeMillis()
@@ -91,6 +92,7 @@ class AddFilamentViewModelTest {
         viewModel.save(
             filament.vendor,
             filament.color,
+            filament.colorHex,
             filament.currentWeight,
             1000,
             null,
@@ -128,7 +130,7 @@ class AddFilamentViewModelTest {
         }
 
         // When
-        viewModel.save("Vendor", "Red", 0, 1000, null, null, null, null, deleted = true)
+        viewModel.save("Vendor", "Red", "#FF0000", 0, 1000, null, null, null, null, deleted = true)
         advanceUntilIdle()
 
         // Then
@@ -147,6 +149,7 @@ class AddFilamentViewModelTest {
         // Given
         val vendor = "Vendor"
         val color = "Red"
+        val colorHex = "#FF0000"
         val currentWeight = 1000
         val totalWeight = 1000
         val boughtAt = "Shop"
@@ -164,7 +167,17 @@ class AddFilamentViewModelTest {
         }
 
         // When
-        viewModel.save(vendor, color, currentWeight, totalWeight, null, boughtAt, boughtDate, price)
+        viewModel.save(
+            vendor,
+            color,
+            colorHex,
+            currentWeight,
+            totalWeight,
+            null,
+            boughtAt,
+            boughtDate,
+            price
+        )
         advanceUntilIdle()
 
         // Then

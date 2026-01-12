@@ -40,24 +40,26 @@ class MainViewModel @Inject constructor(
 
     fun addSampleFilaments(onCompletion: () -> Unit) {
         viewModelScope.launch {
-            val colors = listOf(
-                "Red",
-                "Blue",
-                "Green",
-                "Yellow",
-                "Black",
-                "White",
-                "Orange",
-                "Purple",
-                "Grey",
-                "Cyan"
+            val colorData = listOf(
+                "Red" to "#FF0000",
+                "Blue" to "#0000FF",
+                "Green" to "#00FF00",
+                "Yellow" to "#FFFF00",
+                "Black" to "#000000",
+                "White" to "#FFFFFF",
+                "Orange" to "#FFA500",
+                "Purple" to "#800080",
+                "Grey" to "#808080",
+                "Cyan" to "#00FFFF"
             )
             val vendors = listOf("Prusa", "Bambu Lab", "Extrudr", "Sunlu", "Esun")
             val sizes = listOf(1000, 750, 500, 250)
             repeat(20) {
+                val data = colorData.random()
                 val filament = Filament(
                     vendor = vendors.random(),
-                    color = colors.random(),
+                    color = data.first,
+                    colorHex = data.second,
                     currentWeight = sizes.random(),
                     totalWeight = 1000
                 )

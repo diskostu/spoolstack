@@ -60,6 +60,7 @@ class AddFilamentViewModel @Inject constructor(
     fun save(
         vendor: String,
         color: String,
+        colorHex: String?,
         currentWeight: Int,
         totalWeight: Int,
         spoolWeight: Int?,
@@ -76,6 +77,7 @@ class AddFilamentViewModel @Inject constructor(
                     val updatedFilament = currentFilament.copy(
                         vendor = vendor,
                         color = color,
+                        colorHex = colorHex,
                         currentWeight = currentWeight,
                         totalWeight = totalWeight,
                         spoolWeight = spoolWeight,
@@ -94,6 +96,7 @@ class AddFilamentViewModel @Inject constructor(
                     Filament(
                         vendor = vendor,
                         color = color,
+                        colorHex = colorHex,
                         currentWeight = currentWeight,
                         totalWeight = totalWeight,
                         spoolWeight = spoolWeight,

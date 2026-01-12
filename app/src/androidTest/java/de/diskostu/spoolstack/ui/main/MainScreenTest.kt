@@ -23,22 +23,23 @@ class MainScreenTest {
                     filamentCount = 0,
                     printCount = 0,
                     onClearFilaments = {},
-                    onClearPrints = {}
+                    onClearPrints = {},
+                    onAddSampleFilaments = {}
                 )
             }
         }
 
-        // Add filament (first "add" button) should always be enabled
-        composeTestRule.onAllNodesWithText("add")[0].assertIsEnabled()
+        // Add filament (first "Add" button) should always be enabled
+        composeTestRule.onAllNodesWithText("Add")[0].assertIsEnabled()
 
-        // View filaments (first "view" button) should be disabled if filamentCount is 0
-        composeTestRule.onAllNodesWithText("view")[0].assertIsNotEnabled()
+        // List filaments (first "List" button) should be disabled if filamentCount is 0
+        composeTestRule.onAllNodesWithText("List")[0].assertIsNotEnabled()
 
-        // Record print (second "add" button) depends on filaments
-        composeTestRule.onAllNodesWithText("add")[1].assertIsNotEnabled()
+        // Record print (second "Add" button) depends on filaments
+        composeTestRule.onAllNodesWithText("Add")[1].assertIsNotEnabled()
 
-        // View prints (second "view" button) should be disabled if printCount is 0
-        composeTestRule.onAllNodesWithText("view")[1].assertIsNotEnabled()
+        // List prints (second "List" button) should be disabled if printCount is 0
+        composeTestRule.onAllNodesWithText("List")[1].assertIsNotEnabled()
     }
 
     @Test
@@ -50,15 +51,16 @@ class MainScreenTest {
                     filamentCount = 5,
                     printCount = 10,
                     onClearFilaments = {},
-                    onClearPrints = {}
+                    onClearPrints = {},
+                    onAddSampleFilaments = {}
                 )
             }
         }
 
         // All buttons should be enabled
-        composeTestRule.onAllNodesWithText("add")[0].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("view")[0].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("add")[1].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("view")[1].assertIsEnabled()
+        composeTestRule.onAllNodesWithText("Add")[0].assertIsEnabled()
+        composeTestRule.onAllNodesWithText("List")[0].assertIsEnabled()
+        composeTestRule.onAllNodesWithText("Add")[1].assertIsEnabled()
+        composeTestRule.onAllNodesWithText("List")[1].assertIsEnabled()
     }
 }
