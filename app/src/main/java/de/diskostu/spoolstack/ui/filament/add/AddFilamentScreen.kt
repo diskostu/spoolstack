@@ -581,39 +581,44 @@ private fun ColorField(
 ) {
     val inferredColor = ColorUtils.hexToColor(colorHex)
 
-    OutlinedTextField(
-        value = color,
-        onValueChange = onColorChange,
-        label = { Text(stringResource(R.string.color_label)) },
-        modifier = Modifier
-            .testTag("color_input")
-            .fillMaxWidth(),
-        isError = colorError != null,
-        supportingText = { colorError?.let { Text(it) } },
-        singleLine = true,
-        trailingIcon = {
-            Box(
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(inferredColor ?: Color.Gray)
-                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                    .testTag("color_picker_trigger")
-                    .clickable { onOpenColorPicker() },
-                contentAlignment = Alignment.Center
-            ) {
-                if (inferredColor == null) {
-                    Icon(
-                        imageVector = Icons.Default.QuestionMark,
-                        contentDescription = "Unknown color",
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.White
-                    )
-                }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedTextField(
+            value = color,
+            onValueChange = onColorChange,
+            label = { Text(stringResource(R.string.color_label)) },
+            modifier = Modifier
+                .testTag("color_input")
+                .weight(1f),
+            isError = colorError != null,
+            supportingText = { colorError?.let { Text(it) } },
+            singleLine = true
+        )
+
+        Box(
+            modifier = Modifier
+                .padding(bottom = if (colorError != null) 16.dp else 0.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(inferredColor ?: Color.Gray)
+                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                .testTag("color_picker_trigger")
+                .clickable { onOpenColorPicker() },
+            contentAlignment = Alignment.Center
+        ) {
+            if (inferredColor == null) {
+                Icon(
+                    imageVector = Icons.Default.QuestionMark,
+                    contentDescription = "Unknown color",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
+                )
             }
         }
-    )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
