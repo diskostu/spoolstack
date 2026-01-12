@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +32,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -571,6 +575,7 @@ private fun VendorField(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColorField(
     color: String,
@@ -580,42 +585,94 @@ private fun ColorField(
     colorError: String?
 ) {
     val inferredColor = ColorUtils.hexToColor(colorHex)
+    val closestColors = remember(colorHex) {
+        if (color.isBlank() && colorHex != null) {
+            ColorUtils.getClosestColors(colorHex)
+        } else {
+            emptyList()
+        }
+    }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        OutlinedTextField(
-            value = color,
-            onValueChange = onColorChange,
-            label = { Text(stringResource(R.string.color_label)) },
-            modifier = Modifier
-                .testTag("color_input")
-                .weight(1f),
-            isError = colorError != null,
-            supportingText = { colorError?.let { Text(it) } },
-            singleLine = true
-        )
-
-        Box(
-            modifier = Modifier
-                .padding(bottom = if (colorError != null) 16.dp else 0.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(inferredColor ?: Color.Gray)
-                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                .testTag("color_picker_trigger")
-                .clickable { onOpenColorPicker() },
-            contentAlignment = Alignment.Center
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (inferredColor == null) {
-                Icon(
-                    imageVector = Icons.Default.QuestionMark,
-                    contentDescription = "Unknown color",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.White
+            OutlinedTextField(
+                value = color,
+                onValueChange = onColorChange,
+                label = { Text(stringResource(R.string.color_label)) },
+                modifier = Modifier
+                    .testTag("color_input")
+                    .weight(1f),
+                isError = colorError != null,
+                supportingText = { colorError?.let { Text(it) } },
+                singleLine = true
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(bottom = if (colorError != null) 16.dp else 0.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(inferredColor ?: Color.Gray)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                    .testTag("color_picker_trigger")
+                    .clickable { onOpenColorPicker() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (inferredColor == null) {
+                    Icon(
+                        imageVector = Icons.Default.QuestionMark,
+                        contentDescription = "Unknown color",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+
+        if (closestColors.isNotEmpty()) {
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Vorschläge:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    closestColors.forEach { (name, hex) ->
+                        val chipColor = ColorUtils.hexToColor(hex) ?: Color.Transparent
+                        val isLight = ColorUtils.isColorLight(chipColor)
+
+                        FilterChip(
+                            selected = false,
+                            onClick = { onColorChange(name) },
+                            label = {
+                                Text(
+                                    text = name,
+                                    color = if (isLight) Color.Black else Color.White
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = chipColor,
+                                labelColor = if (isLight) Color.Black else Color.White
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = false,
+                                borderColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+                    }
+                }
             }
         }
     }

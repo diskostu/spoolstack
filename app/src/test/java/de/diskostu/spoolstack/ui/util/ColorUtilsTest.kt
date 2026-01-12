@@ -134,4 +134,18 @@ class ColorUtilsTest {
         assertFalse(ColorUtils.isColorLight(Color.Black))
         assertFalse(ColorUtils.isColorLight(Color.Blue))
     }
+
+    @Test
+    fun `getClosestColorNames returns closest matches`() {
+        // Pure red
+        val redMatches = ColorUtils.getClosestColorNames("#FF0000", "en")
+        assertEquals("red", redMatches[0])
+
+        // Something near blue
+        val blueishMatches = ColorUtils.getClosestColorNames("#0000FE", "de")
+        assertEquals("blau", blueishMatches[0])
+
+        // Verify we get 3 matches
+        assertEquals(3, redMatches.size)
+    }
 }

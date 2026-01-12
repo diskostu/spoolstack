@@ -244,6 +244,53 @@ object ColorUtils {
         return currentMap.entries.firstOrNull { it.value.uppercase() == normalizedHex }?.key
     }
 
+    /**
+     * Finds up to 3 closest color names and their hex codes for a given hex color.
+     */
+    fun getClosestColors(
+        hex: String,
+        language: String = Locale.getDefault().language
+    ): List<Pair<String, String>> {
+        val color = try {
+            android.graphics.Color.parseColor(hex)
+        } catch (e: Exception) {
+            return emptyList()
+        }
+
+        val currentMap = getColorMap(language)
+
+        return currentMap.entries
+            .asSequence()
+            .map { entry ->
+                val entryColor = android.graphics.Color.parseColor(entry.value)
+                val distance = calculateColorDistance(color, entryColor)
+                Triple(entry.key, entry.value, distance)
+            }
+            .sortedBy { it.third }
+            .take(3)
+            .map { it.first to it.second }
+            .toList()
+    }
+
+    /**
+     * Calculates the Euclidean distance between two colors in RGB space.
+     */
+    private fun calculateColorDistance(c1: Int, c2: Int): Double {
+        val r1 = android.graphics.Color.red(c1)
+        val g1 = android.graphics.Color.green(c1)
+        val b1 = android.graphics.Color.blue(c1)
+
+        val r2 = android.graphics.Color.red(c2)
+        val g2 = android.graphics.Color.green(c2)
+        val b2 = android.graphics.Color.blue(c2)
+
+        val dr = (r1 - r2).toDouble()
+        val dg = (g1 - g2).toDouble()
+        val db = (b1 - b2).toDouble()
+
+        return Math.sqrt(dr * dr + dg * dg + db * db)
+    }
+
     fun inferColorFromText(text: String, language: String = Locale.getDefault().language): Color? {
         val normalizedText = text.trim().lowercase()
 
