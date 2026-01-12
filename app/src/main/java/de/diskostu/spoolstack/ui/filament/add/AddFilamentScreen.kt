@@ -242,10 +242,16 @@ fun AddFilamentContent(
                 frequentColors = frequentColors,
                 recentColors = recentColors,
                 onColorSelected = { selectedColor ->
-                    colorHex = ColorUtils.colorToHex(selectedColor)
+                    val hex = ColorUtils.colorToHex(selectedColor)
+                    colorHex = hex
+                    // Also try to update the color name if it's a known color
+                    ColorUtils.getColorNameForHex(hex)?.let { colorName ->
+                        color = colorName
+                    }
                 },
                 onFrequentColorSelected = { selectedFrequentColor ->
-                    color = selectedFrequentColor.color
+                    color = ColorUtils.getColorNameForHex(selectedFrequentColor.colorHex)
+                        ?: selectedFrequentColor.color
                     colorHex = selectedFrequentColor.colorHex
                 },
                 onDismissRequest = { showColorPicker = false }

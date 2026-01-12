@@ -17,14 +17,14 @@ class ColorUtilsTest {
 
     @Test
     fun `inferColorFromText matches exact English color`() {
-        val color = ColorUtils.inferColorFromText("red")
+        val color = ColorUtils.inferColorFromText("red", "en")
         assertNotNull(color)
         assertEquals(Color.Red, color)
     }
 
     @Test
     fun `inferColorFromText matches exact German color`() {
-        val color = ColorUtils.inferColorFromText("rot")
+        val color = ColorUtils.inferColorFromText("rot", "de")
         assertNotNull(color)
         assertEquals(Color.Red, color)
     }
@@ -32,7 +32,7 @@ class ColorUtilsTest {
     @Test
     fun `inferColorFromText matches fuzzy English color`() {
         // "reeed" should match "red"
-        val color = ColorUtils.inferColorFromText("reeed")
+        val color = ColorUtils.inferColorFromText("reeed", "en")
         assertNotNull(color)
         assertEquals(Color.Red, color)
     }
@@ -40,7 +40,7 @@ class ColorUtilsTest {
     @Test
     fun `inferColorFromText matches fuzzy German color`() {
         // "rooot" should match "rot"
-        val color = ColorUtils.inferColorFromText("rooot")
+        val color = ColorUtils.inferColorFromText("rooot", "de")
         assertNotNull(color)
         assertEquals(Color.Red, color)
     }
@@ -60,14 +60,14 @@ class ColorUtilsTest {
 
     @Test
     fun `inferColorFromText handles mixed case and whitespace`() {
-        val color = ColorUtils.inferColorFromText("  Blau  ")
+        val color = ColorUtils.inferColorFromText("  Blau  ", "de")
         assertNotNull(color)
         assertEquals(Color.Blue, color)
     }
 
     @Test
     fun `inferColorFromText returns result if only one match exists`() {
-        val color = ColorUtils.inferColorFromText("crims")
+        val color = ColorUtils.inferColorFromText("crims", "en")
         assertNotNull(color)
         assertEquals(Color(0xFFDC143C), color)
     }
@@ -75,26 +75,38 @@ class ColorUtilsTest {
     @Test
     fun `inferColorFromText returns null if too many matches exist`() {
         // typing "bl" might match black, blue, blau, etc.
-        val color = ColorUtils.inferColorFromText("bl")
+        val color = ColorUtils.inferColorFromText("bl", "en")
         assertNull(color)
     }
 
     @Test
     fun `inferColorFromText returns 100 percent match even if many other matches exist`() {
-        val color = ColorUtils.inferColorFromText("blue")
+        val color = ColorUtils.inferColorFromText("blue", "en")
         assertNotNull(color)
         assertEquals(Color.Blue, color)
     }
 
     @Test
     fun `inferColorFromText handles light and dark variations`() {
-        val lightBlue = ColorUtils.inferColorFromText("light blue")
+        val lightBlue = ColorUtils.inferColorFromText("light blue", "en")
         assertNotNull(lightBlue)
         assertEquals(Color(0xFFADD8E6), lightBlue)
 
-        val hellBlau = ColorUtils.inferColorFromText("hellblau")
+        val hellBlau = ColorUtils.inferColorFromText("hellblau", "de")
         assertNotNull(hellBlau)
         assertEquals(Color(0xFFADD8E6), hellBlau)
+    }
+
+    @Test
+    fun `getColorNameForHex returns correct name for English`() {
+        assertEquals("red", ColorUtils.getColorNameForHex("#FF0000", "en"))
+        assertEquals("blue", ColorUtils.getColorNameForHex("#0000FF", "en"))
+    }
+
+    @Test
+    fun `getColorNameForHex returns correct name for German`() {
+        assertEquals("rot", ColorUtils.getColorNameForHex("#FF0000", "de"))
+        assertEquals("blau", ColorUtils.getColorNameForHex("#0000FF", "de"))
     }
 
     @Test
