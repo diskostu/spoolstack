@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.diskostu.spoolstack.data.AppDatabase
+import de.diskostu.spoolstack.data.ColorDao
 import de.diskostu.spoolstack.data.FilamentDao
 import de.diskostu.spoolstack.data.PrintDao
 import javax.inject.Singleton
@@ -36,5 +37,10 @@ class AppModule {
     @Provides
     fun providePrintDao(appDatabase: AppDatabase): PrintDao {
         return appDatabase.printDao()
+    }
+
+    @Provides
+    fun provideColorDao(appDatabase: AppDatabase): ColorDao {
+        return appDatabase.colorDao()
     }
 }

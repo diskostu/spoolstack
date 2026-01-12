@@ -2,7 +2,6 @@ package de.diskostu.spoolstack.ui.util
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.ColorUtils
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import java.util.Locale
 
@@ -253,7 +252,7 @@ object ColorUtils {
         language: String = Locale.getDefault().language
     ): List<Pair<String, String>> {
         val targetColor = try {
-            android.graphics.Color.parseColor(hex)
+            parseColor(hex)
         } catch (e: Exception) {
             return emptyList()
         }
@@ -263,7 +262,7 @@ object ColorUtils {
         return currentMap.entries
             .asSequence()
             .map { entry ->
-                val entryColor = android.graphics.Color.parseColor(entry.value)
+                val entryColor = parseColor(entry.value)
                 val distance = calculateColorDistance(targetColor, entryColor)
                 // Score combines distance and name simplicity (length)
                 // A lower score is better. penalty factor for length helps prefer simple names.
@@ -280,13 +279,13 @@ object ColorUtils {
      * Calculates the Euclidean distance between two colors in RGB space.
      */
     private fun calculateColorDistance(c1: Int, c2: Int): Double {
-        val r1 = android.graphics.Color.red(c1)
-        val g1 = android.graphics.Color.green(c1)
-        val b1 = android.graphics.Color.blue(c1)
+        val r1 = (c1 shr 16) and 0xFF
+        val g1 = (c1 shr 8) and 0xFF
+        val b1 = c1 and 0xFF
 
-        val r2 = android.graphics.Color.red(c2)
-        val g2 = android.graphics.Color.green(c2)
-        val b2 = android.graphics.Color.blue(c2)
+        val r2 = (c2 shr 16) and 0xFF
+        val g2 = (c2 shr 8) and 0xFF
+        val b2 = c2 and 0xFF
 
         val dr = (r1 - r2).toDouble()
         val dg = (g1 - g2).toDouble()
@@ -301,7 +300,7 @@ object ColorUtils {
         // Check for direct hex match
         if (normalizedText.startsWith("#") && (normalizedText.length == 7 || normalizedText.length == 9)) {
             return try {
-                Color(android.graphics.Color.parseColor(normalizedText))
+                Color(parseColor(normalizedText))
             } catch (e: Exception) {
                 null
             }
@@ -351,20 +350,41 @@ object ColorUtils {
     }
 
     fun colorToHex(color: Color): String {
-        return String.format("#%06X", 0xFFFFFF and color.toArgb())
+        return String.format("#%06X", 0xFFFFFF and (color.toArgb()))
     }
 
     fun hexToColor(hex: String?): Color? {
         if (hex.isNullOrBlank()) return null
         return try {
-            Color(android.graphics.Color.parseColor(hex))
+            Color(parseColor(hex))
         } catch (e: Exception) {
             null
         }
     }
 
     fun isColorLight(color: Color): Boolean {
-        val luminance = ColorUtils.calculateLuminance(color.toArgb())
+        val argb = color.toArgb()
+        val r = (argb shr 16) and 0xFF
+        val g = (argb shr 8) and 0xFF
+        val b = argb and 0xFF
+
+        // Use standard perceived luminance formula
+        val luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
         return luminance > 0.5
+    }
+
+    private fun parseColor(colorString: String): Int {
+        if (colorString[0] == '#') {
+            // Use long to avoid sign issue
+            var color = colorString.substring(1).toLong(16)
+            if (colorString.length == 7) {
+                // Set alpha to opaque
+                color = color or 0x00000000FF000000L
+            } else if (colorString.length != 9) {
+                throw IllegalArgumentException("Unknown color")
+            }
+            return color.toInt()
+        }
+        throw IllegalArgumentException("Unknown color")
     }
 }

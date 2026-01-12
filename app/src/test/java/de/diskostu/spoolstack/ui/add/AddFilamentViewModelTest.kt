@@ -56,9 +56,8 @@ class AddFilamentViewModelTest {
     fun `vendors, frequent and recent colors are loaded initially`() = runTest {
         // Given
         val vendors = listOf("Vendor A", "Vendor B")
-        val frequentColors = listOf(FrequentColor("Red", "#FF0000"))
-        // We now allow duplicates between frequent and recent as per requirements
-        val recentColors = listOf(FrequentColor("Blue", "#0000FF"), FrequentColor("Red", "#FF0000"))
+        val frequentColors = listOf(FrequentColor("#FF0000"))
+        val recentColors = listOf(FrequentColor("#0000FF"), FrequentColor("#FF0000"))
         
         `when`(filamentRepository.getDistinctVendors()).thenReturn(vendors)
         `when`(filamentRepository.getFrequentColors(any())).thenReturn(frequentColors)
@@ -71,7 +70,6 @@ class AddFilamentViewModelTest {
         // Then
         assertEquals(vendors, viewModel.vendors.value)
         assertEquals(frequentColors, viewModel.frequentColors.value)
-        // recentColors should contain both Blue and Red, even if Red is in frequentColors
         assertEquals(recentColors, viewModel.recentColors.value)
     }
 
@@ -80,7 +78,6 @@ class AddFilamentViewModelTest {
         // Given
         val filament = Filament(
             vendor = "Vendor",
-            color = "Red",
             colorHex = "#FF0000",
             currentWeight = 1000,
             createdDate = System.currentTimeMillis(),
@@ -93,8 +90,6 @@ class AddFilamentViewModelTest {
         `when`(filamentRepository.insert(any())).thenReturn(expectedId)
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, SavedStateHandle())
         
-        // We need to collect the flow *before* the emission happens, 
-        // because SharedFlow without replay drops events if there are no subscribers.
         val emittedIds = mutableListOf<Long>()
         val collectionJob = launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.savedFilamentId.collect { emittedIds.add(it) }
@@ -103,7 +98,6 @@ class AddFilamentViewModelTest {
         // When
         viewModel.save(
             filament.vendor,
-            filament.color,
             filament.colorHex,
             filament.currentWeight,
             1000,
@@ -126,7 +120,7 @@ class AddFilamentViewModelTest {
         val existingFilament = Filament(
             id = 1,
             vendor = "Vendor",
-            color = "Red",
+            colorHex = "#FF0000",
             currentWeight = 1000
         )
         val savedStateHandle = SavedStateHandle(mapOf("filamentId" to 1))
@@ -144,7 +138,7 @@ class AddFilamentViewModelTest {
         }
 
         // When
-        viewModel.save("Vendor", "Red", "#FF0000", 0, 1000, null, null, null, null, deleted = true)
+        viewModel.save("Vendor", "#FF0000", 0, 1000, null, null, null, null, deleted = true)
         advanceUntilIdle()
 
         // Then
@@ -162,7 +156,6 @@ class AddFilamentViewModelTest {
     fun `save calls repository insert with all optional fields`() = runTest {
         // Given
         val vendor = "Vendor"
-        val color = "Red"
         val colorHex = "#FF0000"
         val currentWeight = 1000
         val totalWeight = 1000
@@ -185,7 +178,6 @@ class AddFilamentViewModelTest {
         // When
         viewModel.save(
             vendor,
-            color,
             colorHex,
             currentWeight,
             totalWeight,

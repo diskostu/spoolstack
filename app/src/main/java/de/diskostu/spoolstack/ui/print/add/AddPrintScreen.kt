@@ -73,7 +73,8 @@ fun RecordPrintScreen(
         onNavigateBack = onNavigateBack,
         onSavePrint = { name, filament, amountUsed, url, comment ->
             viewModel.savePrint(name, filament, amountUsed, url, comment)
-        }
+        },
+        getColorName = { viewModel.getColorName(it) }
     )
 }
 
@@ -82,7 +83,8 @@ fun RecordPrintScreen(
 fun RecordPrintScreenContent(
     filaments: List<Filament>,
     onNavigateBack: () -> Unit,
-    onSavePrint: (String, Filament, Double, String?, String?) -> Unit
+    onSavePrint: (String, Filament, Double, String?, String?) -> Unit,
+    getColorName: suspend (String) -> String = { it }
 ) {
     val errorFieldCantBeEmpty = stringResource(R.string.error_field_cant_be_empty)
     val unitGrams = stringResource(R.string.unit_grams)
@@ -107,6 +109,7 @@ fun RecordPrintScreenContent(
         var nameError by remember { mutableStateOf<String?>(null) }
 
         var selectedFilament by remember { mutableStateOf<Filament?>(null) }
+        var selectedColorName by remember { mutableStateOf("") }
         var filamentError by remember { mutableStateOf<String?>(null) }
 
         var maxAmount by remember { mutableFloatStateOf(1000f) }
@@ -119,6 +122,7 @@ fun RecordPrintScreenContent(
         LaunchedEffect(selectedFilament) {
             selectedFilament?.let {
                 maxAmount = it.currentWeight.toFloat()
+                selectedColorName = getColorName(it.colorHex)
 
                 // Reset slider if it exceeds new max
                 if (sliderValue > maxAmount) {
@@ -168,7 +172,7 @@ fun RecordPrintScreenContent(
                             stringResource(
                                 R.string.filament_dropdown_format,
                                 it.vendor,
-                                it.color,
+                                selectedColorName,
                                 "${it.currentWeight}g"
                             )
                         } ?: "",
@@ -189,13 +193,17 @@ fun RecordPrintScreenContent(
                         onDismissRequest = { expanded = false }
                     ) {
                         filaments.forEach { filament ->
+                            var colorName by remember { mutableStateOf("") }
+                            LaunchedEffect(filament) {
+                                colorName = getColorName(filament.colorHex)
+                            }
                             DropdownMenuItem(
                                 text = {
                                     Text(
                                         stringResource(
                                             R.string.filament_dropdown_format,
                                             filament.vendor,
-                                            filament.color,
+                                            colorName,
                                             "${filament.currentWeight}g"
                                         )
                                     )
@@ -327,8 +335,8 @@ fun RecordPrintScreenPreview() {
     SpoolstackTheme {
         RecordPrintScreenContent(
             filaments = listOf(
-                Filament(id = 1, vendor = "Prusa", color = "Galaxy Black", currentWeight = 1000),
-                Filament(id = 2, vendor = "Overture", color = "White", currentWeight = 1000)
+                Filament(id = 1, vendor = "Prusa", colorHex = "#000000", currentWeight = 1000),
+                Filament(id = 2, vendor = "Overture", colorHex = "#FFFFFF", currentWeight = 1000)
             ),
             onNavigateBack = {},
             onSavePrint = { _, _, _, _, _ -> }

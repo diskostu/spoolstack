@@ -50,11 +50,9 @@ fun PrintListScreen(
     viewModel: PrintListViewModel = hiltViewModel()
 ) {
     val prints by viewModel.prints.collectAsState()
-    val filaments by viewModel.filaments.collectAsState()
 
     PrintListContent(
         prints = prints,
-        filaments = filaments,
         onNavigateBack = onNavigateBack
     )
 }
@@ -62,8 +60,7 @@ fun PrintListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrintListContent(
-    prints: List<Print>,
-    filaments: Map<Int, Filament>,
+    prints: List<PrintUiModel>,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -88,10 +85,9 @@ fun PrintListContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(prints) { print ->
+            items(prints) { uiModel ->
                 PrintCard(
-                    print = print,
-                    filament = filaments[print.filamentId]
+                    uiModel = uiModel
                 )
             }
         }
@@ -100,9 +96,10 @@ fun PrintListContent(
 
 @Composable
 fun PrintCard(
-    print: Print,
-    filament: Filament?
+    uiModel: PrintUiModel
 ) {
+    val print = uiModel.print
+    val filament = uiModel.filament
     val context = LocalContext.current
     val dateFormat = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM, Locale.getDefault())
     val dateStr = dateFormat.format(Date(print.printDate))
@@ -125,7 +122,7 @@ fun PrintCard(
             // Filament details
             Text(
                 text = filament?.let {
-                    stringResource(R.string.filament_display_format, it.vendor, it.color)
+                    stringResource(R.string.filament_display_format, it.vendor, uiModel.colorName)
                 } ?: "Unknown Filament (ID: ${print.filamentId})",
                 style = MaterialTheme.typography.titleMedium
             )
@@ -186,31 +183,38 @@ fun PrintListScreenPreview() {
     val sampleFilament = Filament(
         id = 1,
         vendor = "Prusa",
-        color = "Orange",
+        colorHex = "#FF0000",
         currentWeight = 1000
     )
-    val samplePrint1 = Print(
-        id = 1,
-        name = "Benchy",
-        filamentId = 1,
-        amountUsed = 12.5,
-        printDate = System.currentTimeMillis(),
-        comment = "Sample comment",
-        url = "https://www.google.com"
+    val samplePrint1 = PrintUiModel(
+        print = Print(
+            id = 1,
+            name = "Benchy",
+            filamentId = 1,
+            amountUsed = 12.5,
+            printDate = System.currentTimeMillis(),
+            comment = "Sample comment",
+            url = "https://www.google.com"
+        ),
+        filament = sampleFilament,
+        colorName = "Orange"
     )
-    val samplePrint2 = Print(
-        id = 2,
-        name = "Boat",
-        filamentId = 1,
-        amountUsed = 60.0,
-        printDate = System.currentTimeMillis(),
-        url = "https://www.google.com"
+    val samplePrint2 = PrintUiModel(
+        print = Print(
+            id = 2,
+            name = "Boat",
+            filamentId = 1,
+            amountUsed = 60.0,
+            printDate = System.currentTimeMillis(),
+            url = "https://www.google.com"
+        ),
+        filament = sampleFilament,
+        colorName = "Orange"
     )
 
     SpoolstackTheme {
         PrintListContent(
             prints = listOf(samplePrint1, samplePrint2),
-            filaments = mapOf(1 to sampleFilament),
             onNavigateBack = {}
         )
     }

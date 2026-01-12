@@ -12,16 +12,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class PrintUiModel(
+    val print: Print,
+    val filament: Filament?,
+    val colorName: String
+)
+
 @HiltViewModel
 class PrintListViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository
 ) : ViewModel() {
 
-    private val _prints = MutableStateFlow<List<Print>>(emptyList())
-    val prints: StateFlow<List<Print>> = _prints.asStateFlow()
-
-    private val _filaments = MutableStateFlow<Map<Int, Filament>>(emptyMap())
-    val filaments: StateFlow<Map<Int, Filament>> = _filaments.asStateFlow()
+    private val _prints = MutableStateFlow<List<PrintUiModel>>(emptyList())
+    val prints: StateFlow<List<PrintUiModel>> = _prints.asStateFlow()
 
     init {
         loadData()
@@ -29,15 +32,14 @@ class PrintListViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            // Load all filaments to map IDs to details
-            filamentRepository.getAllFilaments().collect { filamentsList ->
-                _filaments.value = filamentsList.associateBy { it.id }
-            }
-        }
-
-        viewModelScope.launch {
-            filamentRepository.getAllPrints().collect {
-                _prints.value = it
+            filamentRepository.getAllPrints().collect { printList ->
+                val uiModels = printList.map { print ->
+                    val filament = filamentRepository.getFilamentById(print.filamentId)
+                    val colorName =
+                        filament?.let { filamentRepository.getColorName(it.colorHex) } ?: "Unknown"
+                    PrintUiModel(print, filament, colorName)
+                }
+                _prints.value = uiModels
             }
         }
     }

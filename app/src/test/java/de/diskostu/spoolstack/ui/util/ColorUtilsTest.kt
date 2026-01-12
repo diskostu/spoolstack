@@ -7,12 +7,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
 class ColorUtilsTest {
 
     @Test
@@ -31,7 +26,6 @@ class ColorUtilsTest {
 
     @Test
     fun `inferColorFromText matches fuzzy English color`() {
-        // "reeed" should match "red"
         val color = ColorUtils.inferColorFromText("reeed", "en")
         assertNotNull(color)
         assertEquals(Color.Red, color)
@@ -39,7 +33,6 @@ class ColorUtilsTest {
 
     @Test
     fun `inferColorFromText matches fuzzy German color`() {
-        // "rooot" should match "rot"
         val color = ColorUtils.inferColorFromText("rooot", "de")
         assertNotNull(color)
         assertEquals(Color.Red, color)
@@ -74,7 +67,6 @@ class ColorUtilsTest {
 
     @Test
     fun `inferColorFromText returns null if too many matches exist`() {
-        // typing "bl" might match black, blue, blau, etc.
         val color = ColorUtils.inferColorFromText("bl", "en")
         assertNull(color)
     }
@@ -137,15 +129,12 @@ class ColorUtilsTest {
 
     @Test
     fun `getClosestColors returns closest matches`() {
-        // Pure red
         val redMatches = ColorUtils.getClosestColors("#FF0000", "en")
         assertEquals("red", redMatches[0].first)
         
-        // Something near blue
         val blueishMatches = ColorUtils.getClosestColors("#0000FE", "de")
         assertEquals("blau", blueishMatches[0].first)
 
-        // Verify we get 3 matches
         assertEquals(3, redMatches.size)
     }
 }

@@ -7,6 +7,7 @@ import de.diskostu.spoolstack.ui.filament.list.FilamentFilter
 import de.diskostu.spoolstack.ui.filament.list.FilamentListViewModel
 import de.diskostu.spoolstack.ui.filament.list.FilamentSort
 import de.diskostu.spoolstack.ui.filament.list.SortOrder
+import de.diskostu.spoolstack.ui.filament.list.FilamentUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -39,7 +40,7 @@ class FilamentListViewModelTest {
     private val filament1 = Filament(
         id = 1,
         vendor = "Vendor A",
-        color = "Red",
+        colorHex = "#FF0000",
         currentWeight = 1000,
         deleted = false,
         createdDate = 1000L,
@@ -49,7 +50,7 @@ class FilamentListViewModelTest {
     private val filament2 = Filament(
         id = 2,
         vendor = "Vendor B",
-        color = "Blue",
+        colorHex = "#0000FF",
         currentWeight = 500,
         deleted = true,
         createdDate = 2000L,
@@ -59,7 +60,7 @@ class FilamentListViewModelTest {
     private val filament3 = Filament(
         id = 3,
         vendor = "Vendor A",
-        color = "Green",
+        colorHex = "#00FF00",
         currentWeight = 2000,
         deleted = false,
         createdDate = 3000L,
@@ -81,11 +82,15 @@ class FilamentListViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun wrap(filament: Filament, colorName: String) = FilamentUiModel(filament, colorName)
+
     @Test
     fun `filaments are loaded from repository and default filter is ACTIVE`() = runTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName("#FF0000")).thenReturn("Red")
+        `when`(filamentRepository.getColorName("#0000FF")).thenReturn("Blue")
 
         // When
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
@@ -95,7 +100,7 @@ class FilamentListViewModelTest {
 
         // Then
         // Default filter is ACTIVE, so only filament1 (non-deleted)
-        assertEquals(listOf(filament1), viewModel.filaments.value)
+        assertEquals(listOf(wrap(filament1, "Red")), viewModel.filaments.value)
         assertEquals(FilamentFilter.ACTIVE, viewModel.filter.value)
         
         job.cancel()
@@ -106,6 +111,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("SomeColor")
 
         // When
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
@@ -118,7 +124,10 @@ class FilamentListViewModelTest {
 
         // Expected order DESC: filament3 (3000), filament2 (2000 - but deleted), filament1 (1000)
         // With ACTIVE filter (default): filament3, filament1
-        assertEquals(listOf(filament3, filament1), viewModel.filaments.value)
+        val result = viewModel.filaments.value
+        assertEquals(2, result.size)
+        assertEquals(filament3.id, result[0].filament.id)
+        assertEquals(filament1.id, result[1].filament.id)
 
         job.cancel()
     }
@@ -128,6 +137,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("Color")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -138,8 +148,8 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        val expected = listOf(filament1)
-        assertEquals(expected, viewModel.filaments.value)
+        assertEquals(1, viewModel.filaments.value.size)
+        assertEquals(filament1.id, viewModel.filaments.value[0].filament.id)
 
         job.cancel()
     }
@@ -149,6 +159,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("Color")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -159,8 +170,8 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        val expected = listOf(filament2)
-        assertEquals(expected, viewModel.filaments.value)
+        assertEquals(1, viewModel.filaments.value.size)
+        assertEquals(filament2.id, viewModel.filaments.value[0].filament.id)
 
         job.cancel()
     }
@@ -170,6 +181,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("Color")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -181,8 +193,8 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        val expected = listOf(filament2)
-        assertEquals(expected, viewModel.filaments.value)
+        assertEquals(1, viewModel.filaments.value.size)
+        assertEquals(filament2.id, viewModel.filaments.value[0].filament.id)
 
         job.cancel()
     }
@@ -192,6 +204,8 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName("#FF0000")).thenReturn("Red")
+        `when`(filamentRepository.getColorName("#0000FF")).thenReturn("Blue")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -203,8 +217,8 @@ class FilamentListViewModelTest {
         testScheduler.advanceUntilIdle()
 
         // Then
-        val expected = listOf(filament1)
-        assertEquals(expected, viewModel.filaments.value)
+        assertEquals(1, viewModel.filaments.value.size)
+        assertEquals(filament1.id, viewModel.filaments.value[0].filament.id)
 
         job.cancel()
     }
@@ -214,6 +228,9 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName("#FF0000")).thenReturn("Red")
+        `when`(filamentRepository.getColorName("#0000FF")).thenReturn("Blue")
+        `when`(filamentRepository.getColorName("#00FF00")).thenReturn("Green")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -229,8 +246,11 @@ class FilamentListViewModelTest {
         // filament3: Vendor A, Green
         // filament2: Vendor B, Blue
         // Expected order ASC: filament3, filament1, filament2
-        val expected = listOf(filament3, filament1, filament2)
-        assertEquals(expected, viewModel.filaments.value)
+        val result = viewModel.filaments.value
+        assertEquals(3, result.size)
+        assertEquals(filament3.id, result[0].filament.id)
+        assertEquals(filament1.id, result[1].filament.id)
+        assertEquals(filament2.id, result[2].filament.id)
         assertEquals(SortOrder.ASCENDING, viewModel.sortOrder.value)
 
         job.cancel()
@@ -241,6 +261,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("Color")
         viewModel = FilamentListViewModel(filamentRepository, settingsRepository)
 
         val job = launch { viewModel.filaments.collect {} }
@@ -268,6 +289,7 @@ class FilamentListViewModelTest {
         // Given
         val filamentList = listOf(filament1, filament2, filament3)
         `when`(filamentRepository.getAllFilaments()).thenReturn(flowOf(filamentList))
+        `when`(filamentRepository.getColorName(any())).thenReturn("Color")
         `when`(settingsRepository.filamentSort).thenReturn(flowOf(FilamentSort.COLOR.name))
         `when`(settingsRepository.filamentSortOrder).thenReturn(flowOf(SortOrder.DESCENDING.name))
         

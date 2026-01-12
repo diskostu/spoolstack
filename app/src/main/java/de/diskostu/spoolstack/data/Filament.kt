@@ -8,9 +8,8 @@ data class Filament(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val vendor: String,
-    val color: String,
+    val colorHex: String,
     val currentWeight: Int,
-    val colorHex: String? = null,
     val totalWeight: Int = 1000,
     val spoolWeight: Int? = null,
     val boughtAt: String? = null,
@@ -22,6 +21,6 @@ data class Filament(
 )
 
 data class FrequentColor(
-    val color: String,
-    val colorHex: String?
+    val colorHex: String,
+    val name: String? = null
 )

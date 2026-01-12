@@ -129,7 +129,7 @@ fun FilamentListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilamentListContent(
-    filaments: List<Filament>,
+    filaments: List<FilamentUiModel>,
     filter: FilamentFilter,
     sort: FilamentSort,
     sortOrder: SortOrder,
@@ -323,16 +323,17 @@ fun FilamentListContent(
             ) {
                 items(
                     items = filaments,
-                    key = { it.id }
-                ) { filament ->
+                    key = { it.filament.id }
+                ) { uiModel ->
                     FilamentCard(
-                        filament = filament,
-                        onClick = { onFilamentClick(filament.id) },
+                        filament = uiModel.filament,
+                        colorName = uiModel.colorName,
+                        onClick = { onFilamentClick(uiModel.filament.id) },
                         onToggleDelete = {
-                            if (!filament.deleted && filament.currentWeight > 0) {
-                                filamentToDelete = filament
+                            if (!uiModel.filament.deleted && uiModel.filament.currentWeight > 0) {
+                                filamentToDelete = uiModel.filament
                             } else {
-                                onToggleDelete(filament)
+                                onToggleDelete(uiModel.filament)
                             }
                         },
                         modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
@@ -387,6 +388,7 @@ fun SortMenuItem(
 @Composable
 fun FilamentCard(
     filament: Filament,
+    colorName: String,
     onClick: () -> Unit,
     onToggleDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -427,7 +429,7 @@ fun FilamentCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = filament.vendor + " | " + filament.color,
+                    text = filament.vendor + " | " + colorName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
@@ -523,21 +525,27 @@ fun FilamentListScreenPreview() {
     SpoolstackTheme {
         FilamentListContent(
             filaments = listOf(
-                Filament(
-                    id = 1,
-                    vendor = "Prusament",
-                    color = "Galaxy Black",
-                    currentWeight = 1000,
-                    createdDate = System.currentTimeMillis(),
-                    changeDate = System.currentTimeMillis()
+                FilamentUiModel(
+                    filament = Filament(
+                        id = 1,
+                        vendor = "Prusament",
+                        colorHex = "#000000",
+                        currentWeight = 1000,
+                        createdDate = System.currentTimeMillis(),
+                        changeDate = System.currentTimeMillis()
+                    ),
+                    colorName = "Galaxy Black"
                 ),
-                Filament(
-                    id = 2,
-                    vendor = "Sunlu",
-                    color = "PLA White",
-                    currentWeight = 1000,
-                    createdDate = System.currentTimeMillis(),
-                    changeDate = System.currentTimeMillis()
+                FilamentUiModel(
+                    filament = Filament(
+                        id = 2,
+                        vendor = "Sunlu",
+                        colorHex = "#FFFFFF",
+                        currentWeight = 1000,
+                        createdDate = System.currentTimeMillis(),
+                        changeDate = System.currentTimeMillis()
+                    ),
+                    colorName = "PLA White"
                 )
             ),
             filter = FilamentFilter.ALL,
@@ -550,26 +558,6 @@ fun FilamentListScreenPreview() {
             onFilterChange = {},
             onSortChange = {},
             onSearchQueryChange = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Light Mode")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Composable
-fun FilamentCardPreview() {
-    SpoolstackTheme {
-        FilamentCard(
-            filament = Filament(
-                id = 1,
-                vendor = "Prusament",
-                color = "Galaxy Black",
-                currentWeight = 1000,
-                createdDate = System.currentTimeMillis(),
-                changeDate = System.currentTimeMillis()
-            ),
-            onClick = {},
-            onToggleDelete = {}
         )
     }
 }

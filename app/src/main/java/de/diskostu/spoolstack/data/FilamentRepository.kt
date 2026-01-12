@@ -1,11 +1,13 @@
 package de.diskostu.spoolstack.data
 
 import kotlinx.coroutines.flow.Flow
+import java.util.Locale
 import javax.inject.Inject
 
 class FilamentRepository @Inject constructor(
     private val filamentDao: FilamentDao,
-    private val printDao: PrintDao
+    private val printDao: PrintDao,
+    private val colorDao: ColorDao
 ) {
 
     suspend fun insert(filament: Filament): Long {
@@ -41,10 +43,28 @@ class FilamentRepository @Inject constructor(
     }
 
     suspend fun getFrequentColors(limit: Int): List<FrequentColor> {
-        return filamentDao.getFrequentColors(limit)
+        val colors = filamentDao.getFrequentColors(limit)
+        return colors.map { it.copy(name = getColorName(it.colorHex)) }
     }
 
     suspend fun getRecentColors(limit: Int): List<FrequentColor> {
-        return filamentDao.getRecentColors(limit)
+        val colors = filamentDao.getRecentColors(limit)
+        return colors.map { it.copy(name = getColorName(it.colorHex)) }
+    }
+
+    suspend fun getColorName(hex: String): String {
+        val language = Locale.getDefault().language
+        return colorDao.getColorName(hex, language)
+            ?: colorDao.getColorName(hex, "en")
+            ?: hex
+    }
+
+    suspend fun initializeColors(colors: Map<String, Map<String, String>>) {
+        val definitions = colors.keys.map { ColorDefinition(it) }
+        val names = colors.flatMap { (hex, languageMap) ->
+            languageMap.map { (lang, name) -> ColorName(hex, lang, name) }
+        }
+        colorDao.insertColorDefinitions(definitions)
+        colorDao.insertColorNames(names)
     }
 }

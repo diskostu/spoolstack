@@ -38,6 +38,10 @@ class AddPrintViewModel @Inject constructor(
         }
     }
 
+    suspend fun getColorName(hex: String): String {
+        return filamentRepository.getColorName(hex)
+    }
+
     fun savePrint(
         name: String,
         filament: Filament,

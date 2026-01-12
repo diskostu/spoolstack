@@ -72,10 +72,13 @@ class AddFilamentViewModel @Inject constructor(
         }
     }
 
+    suspend fun getColorName(hex: String): String {
+        return filamentRepository.getColorName(hex)
+    }
+
     fun save(
         vendor: String,
-        color: String,
-        colorHex: String?,
+        colorHex: String,
         currentWeight: Int,
         totalWeight: Int,
         spoolWeight: Int?,
@@ -91,7 +94,6 @@ class AddFilamentViewModel @Inject constructor(
                 if (currentFilament != null) {
                     val updatedFilament = currentFilament.copy(
                         vendor = vendor,
-                        color = color,
                         colorHex = colorHex,
                         currentWeight = currentWeight,
                         totalWeight = totalWeight,
@@ -110,7 +112,6 @@ class AddFilamentViewModel @Inject constructor(
                 val newId = filamentRepository.insert(
                     Filament(
                         vendor = vendor,
-                        color = color,
                         colorHex = colorHex,
                         currentWeight = currentWeight,
                         totalWeight = totalWeight,

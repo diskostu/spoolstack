@@ -30,14 +30,18 @@ enum class SortOrder {
     ASCENDING, DESCENDING
 }
 
+data class FilamentUiModel(
+    val filament: Filament,
+    val colorName: String
+)
+
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
     private val filamentRepository: FilamentRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    // Internal source list (raw data from DB, potentially animated)
-    private val _sourceFilaments = MutableStateFlow<List<Filament>>(emptyList())
+    private val _sourceFilaments = MutableStateFlow<List<FilamentUiModel>>(emptyList())
 
     private val _filter = MutableStateFlow(FilamentFilter.ACTIVE)
     val filter = _filter.asStateFlow()
@@ -51,8 +55,7 @@ class FilamentListViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    // Exposed list for UI, applying filters, search and sort
-    val filaments: StateFlow<List<Filament>> = combine(
+    val filaments: StateFlow<List<FilamentUiModel>> = combine(
         _sourceFilaments,
         _filter,
         _sort,
@@ -63,42 +66,42 @@ class FilamentListViewModel @Inject constructor(
         // Apply Filter
         result = when (filter) {
             FilamentFilter.ALL -> result
-            FilamentFilter.ACTIVE -> result.filter { !it.deleted }
-            FilamentFilter.DELETED -> result.filter { it.deleted }
+            FilamentFilter.ACTIVE -> result.filter { !it.filament.deleted }
+            FilamentFilter.DELETED -> result.filter { it.filament.deleted }
         }
         // Apply Search
         if (query.isNotEmpty()) {
             val q = query.lowercase()
             result = result.filter {
-                it.vendor.lowercase().contains(q) ||
-                        it.color.lowercase().contains(q) ||
-                        (it.boughtAt?.lowercase()?.contains(q) == true)
+                it.filament.vendor.lowercase().contains(q) ||
+                        it.colorName.lowercase().contains(q) ||
+                        (it.filament.boughtAt?.lowercase()?.contains(q) == true)
             }
         }
         // Apply Sort
         result = when (sort) {
             FilamentSort.VENDOR -> {
-                val comparator = compareBy<Filament> { it.vendor.lowercase() }
-                    .thenBy { it.color.lowercase() }
+                val comparator = compareBy<FilamentUiModel> { it.filament.vendor.lowercase() }
+                    .thenBy { it.colorName.lowercase() }
                 if (sortOrder == SortOrder.ASCENDING) result.sortedWith(comparator)
                 else result.sortedWith(comparator.reversed())
             }
 
             FilamentSort.COLOR -> {
-                val comparator = compareBy<Filament> { it.color.lowercase() }
-                    .thenBy { it.vendor.lowercase() }
+                val comparator = compareBy<FilamentUiModel> { it.colorName.lowercase() }
+                    .thenBy { it.filament.vendor.lowercase() }
                 if (sortOrder == SortOrder.ASCENDING) result.sortedWith(comparator)
                 else result.sortedWith(comparator.reversed())
             }
 
             FilamentSort.LAST_MODIFIED -> {
-                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.changeDate }
-                else result.sortedByDescending { it.changeDate }
+                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.filament.changeDate }
+                else result.sortedByDescending { it.filament.changeDate }
             }
 
             FilamentSort.REMAINING_AMOUNT -> {
-                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.currentWeight }
-                else result.sortedByDescending { it.currentWeight }
+                if (sortOrder == SortOrder.ASCENDING) result.sortedBy { it.filament.currentWeight }
+                else result.sortedByDescending { it.filament.currentWeight }
             }
         }
 
@@ -110,7 +113,7 @@ class FilamentListViewModel @Inject constructor(
     )
 
 
-    private var pendingList: List<Filament>? = null
+    private var pendingList: List<FilamentUiModel>? = null
     private var isUiVisible = false
     private var animationJob: Job? = null
 
@@ -118,25 +121,25 @@ class FilamentListViewModel @Inject constructor(
         loadSettings()
         viewModelScope.launch {
             filamentRepository.getAllFilaments().collect { newList ->
+                val uiModels = newList.map {
+                    FilamentUiModel(it, filamentRepository.getColorName(it.colorHex))
+                }
+                
                 val oldList = _sourceFilaments.value
-                val oldIds = oldList.map { it.id }.toSet()
-                val newIds = newList.map { it.id }.toSet()
+                val oldIds = oldList.map { it.filament.id }.toSet()
+                val newIds = uiModels.map { it.filament.id }.toSet()
 
-                // Check if this is an update (reorder) of existing items
-                if (oldList.isNotEmpty() && oldIds == newIds && oldList != newList) {
-                    // Create intermediate list: New Data in Old Order
-                    val newMap = newList.associateBy { it.id }
-                    val intermediateList = oldList.mapNotNull { newMap[it.id] }
+                if (oldList.isNotEmpty() && oldIds == newIds && oldList != uiModels) {
+                    val newMap = uiModels.associateBy { it.filament.id }
+                    val intermediateList = oldList.mapNotNull { newMap[it.filament.id] }
 
                     _sourceFilaments.value = intermediateList
-                    pendingList = newList
+                    pendingList = uiModels
 
-                    // Cancel any previous pending animation
                     animationJob?.cancel()
                     checkPending()
                 } else {
-                    // Initial load, Add, Delete, or no change
-                    _sourceFilaments.value = newList
+                    _sourceFilaments.value = uiModels
                     pendingList = null
                 }
             }
@@ -152,14 +155,12 @@ class FilamentListViewModel @Inject constructor(
                 try {
                     _sort.value = FilamentSort.valueOf(savedSort)
                 } catch (e: Exception) {
-                    // ignore invalid values
                 }
             }
             if (savedOrder != null) {
                 try {
                     _sortOrder.value = SortOrder.valueOf(savedOrder)
                 } catch (e: Exception) {
-                    // ignore invalid values
                 }
             }
         }
@@ -177,11 +178,9 @@ class FilamentListViewModel @Inject constructor(
     private fun checkPending() {
         val pending = pendingList
         if (isUiVisible && pending != null) {
-            // Consume pending list so we don't trigger again
             pendingList = null
 
             animationJob = viewModelScope.launch {
-                // Give time for the user to see the "old" order with updated data
                 delay(500)
                 _sourceFilaments.value = pending
             }

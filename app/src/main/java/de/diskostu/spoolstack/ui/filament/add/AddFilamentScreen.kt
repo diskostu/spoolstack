@@ -75,7 +75,6 @@ import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import de.diskostu.spoolstack.ui.util.ColorUtils
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -114,7 +113,8 @@ fun AddFilamentScreen(
         filamentState = filamentState,
         defaultFilamentSize = defaultFilamentSize,
         onNavigateBack = onNavigateBack,
-        onSave = viewModel::save
+        onSave = viewModel::save,
+        getColorName = { viewModel.getColorName(it) }
     )
 }
 
@@ -127,7 +127,8 @@ fun AddFilamentContent(
     filamentState: Filament?,
     defaultFilamentSize: Int,
     onNavigateBack: () -> Unit,
-    onSave: (String, String, String?, Int, Int, Int?, String?, Long?, Double?, Boolean) -> Unit
+    onSave: (String, String, Int, Int, Int?, String?, Long?, Double?, Boolean) -> Unit,
+    getColorName: suspend (String) -> String
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -153,7 +154,7 @@ fun AddFilamentContent(
         // State hoisting
         var vendor by rememberSaveable { mutableStateOf("") }
         var vendorError by rememberSaveable { mutableStateOf<String?>(null) }
-        var color by rememberSaveable { mutableStateOf("") }
+        var colorName by rememberSaveable { mutableStateOf("") }
         var colorHex by rememberSaveable { mutableStateOf<String?>(null) }
         var colorError by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -181,8 +182,8 @@ fun AddFilamentContent(
         LaunchedEffect(filamentState) {
             filamentState?.let { filament ->
                 vendor = filament.vendor
-                color = filament.color
                 colorHex = filament.colorHex
+                colorName = getColorName(filament.colorHex)
                 totalWeight = filament.totalWeight
                 spoolWeightInput = filament.spoolWeight?.toString() ?: ""
                 boughtAt = filament.boughtAt ?: ""
@@ -191,32 +192,6 @@ fun AddFilamentContent(
                 sliderValue = filament.currentWeight.toFloat()
                 currentWeightInput = filament.currentWeight.toString()
             }
-        }
-
-        // Color inference with debounce
-        // We use a separate state to track the color text we've already processed to avoid
-        // re-processing the initial load from the database.
-        var lastProcessedColor by rememberSaveable { mutableStateOf<String?>(null) }
-
-        LaunchedEffect(color) {
-            // If this is the initial load, skip inference to preserve the hex from DB
-            if (lastProcessedColor == null && filamentState != null && color == filamentState.color) {
-                lastProcessedColor = color
-                return@LaunchedEffect
-            }
-
-            // If the text hasn't changed since last inference (e.g. initial load for new filament), skip
-            if (color == lastProcessedColor) return@LaunchedEffect
-
-            delay(500)
-
-            val inferred = ColorUtils.inferColorFromText(color)
-            colorHex = if (inferred != null) {
-                ColorUtils.colorToHex(inferred)
-            } else {
-                null
-            }
-            lastProcessedColor = color
         }
 
         // Date Picker
@@ -248,18 +223,20 @@ fun AddFilamentContent(
                 onColorSelected = { selectedColor ->
                     val hex = ColorUtils.colorToHex(selectedColor)
                     colorHex = hex
-                    // Also try to update the color name if it's a known color
-                    ColorUtils.getColorNameForHex(hex)?.let { colorName ->
-                        color = colorName
-                    }
                 },
                 onFrequentColorSelected = { selectedFrequentColor ->
-                    color = ColorUtils.getColorNameForHex(selectedFrequentColor.colorHex)
-                        ?: selectedFrequentColor.color
                     colorHex = selectedFrequentColor.colorHex
                 },
                 onDismissRequest = { showColorPicker = false }
             )
+        }
+
+        // Update color name when hex changes
+        LaunchedEffect(colorHex) {
+            colorHex?.let {
+                colorName = getColorName(it)
+                colorError = null
+            }
         }
 
         // Delete Dialog State
@@ -270,30 +247,32 @@ fun AddFilamentContent(
                 onConfirm = {
                     showDeleteDialog = false
                     val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
-                    onSave(
-                        vendor,
-                        color,
-                        colorHex,
-                        weightToSave,
-                        totalWeight,
-                        spoolWeightInput.toIntOrNull(),
-                        boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                        true // deleted = true
-                    )
+                    colorHex?.let { hex ->
+                        onSave(
+                            vendor,
+                            hex,
+                            weightToSave,
+                            totalWeight,
+                            spoolWeightInput.toIntOrNull(),
+                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                            true // deleted = true
+                        )
+                    }
                 },
                 onDismiss = {
                     showDeleteDialog = false
                     val weightToSave = currentWeightInput.toIntOrNull() ?: sliderValue.roundToInt()
-                    onSave(
-                        vendor,
-                        color,
-                        colorHex,
-                        weightToSave,
-                        totalWeight,
-                        spoolWeightInput.toIntOrNull(),
-                        boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                        false // deleted = false
-                    )
+                    colorHex?.let { hex ->
+                        onSave(
+                            vendor,
+                            hex,
+                            weightToSave,
+                            totalWeight,
+                            spoolWeightInput.toIntOrNull(),
+                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                            false // deleted = false
+                        )
+                    }
                 },
                 message = stringResource(R.string.delete_empty_confirmation_message),
                 confirmButtonText = stringResource(R.string.delete_and_save),
@@ -331,15 +310,13 @@ fun AddFilamentContent(
                             }
                             Box(modifier = Modifier.weight(1f)) {
                                 ColorField(
-                                    color = color,
+                                    colorName = colorName,
                                     colorHex = colorHex,
-                                    onColorChange = {
-                                        color = it
-                                        colorError = null
-                                    },
                                     onOpenColorPicker = { showColorPicker = true },
                                     colorError = colorError,
-                                    frequentColors = frequentColors
+                                    frequentColors = frequentColors,
+                                    isEditMode = filamentState != null,
+                                    onColorHexSelected = { colorHex = it }
                                 )
                             }
                         }
@@ -355,15 +332,13 @@ fun AddFilamentContent(
                                 existingVendors = existingVendors
                             )
                             ColorField(
-                                color = color,
+                                colorName = colorName,
                                 colorHex = colorHex,
-                                onColorChange = {
-                                    color = it
-                                    colorError = null
-                                },
                                 onOpenColorPicker = { showColorPicker = true },
                                 colorError = colorError,
-                                frequentColors = frequentColors
+                                frequentColors = frequentColors,
+                                isEditMode = filamentState != null,
+                                onColorHexSelected = { colorHex = it }
                             )
                         }
                     }
@@ -488,7 +463,7 @@ fun AddFilamentContent(
                         vendorError = errorFieldCantBeEmpty
                         hasError = true
                     }
-                    if (color.isBlank()) {
+                    if (colorHex == null) {
                         colorError = errorFieldCantBeEmpty
                         hasError = true
                     }
@@ -503,16 +478,19 @@ fun AddFilamentContent(
                         if (weightToSave == 0 && filamentState != null) {
                             showDeleteDialog = true
                         } else {
-                            onSave(
-                                vendor,
-                                color,
-                                colorHex,
-                                weightToSave,
-                                totalWeight,
-                                spoolWeightInput.toIntOrNull(),
-                                boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
-                                false // deleted = false
-                            )
+                            colorHex?.let { hex ->
+                                onSave(
+                                    vendor,
+                                    hex,
+                                    weightToSave,
+                                    totalWeight,
+                                    spoolWeightInput.toIntOrNull(),
+                                    boughtAt.ifBlank { null },
+                                    boughtDateLong,
+                                    price.toDoubleOrNull(),
+                                    false // deleted = false
+                                )
+                            }
                         }
                     }
                 }
@@ -580,25 +558,19 @@ private fun VendorField(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColorField(
-    color: String,
+    colorName: String,
     colorHex: String?,
-    onColorChange: (String) -> Unit,
     onOpenColorPicker: () -> Unit,
     colorError: String?,
-    frequentColors: List<FrequentColor> = emptyList()
+    frequentColors: List<FrequentColor> = emptyList(),
+    isEditMode: Boolean,
+    onColorHexSelected: (String) -> Unit
 ) {
-    val inferredColor = ColorUtils.hexToColor(colorHex)
-    val closestColors = remember(colorHex) {
-        if (color.isBlank() && colorHex != null) {
-            ColorUtils.getClosestColors(colorHex)
-        } else {
-            emptyList()
-        }
-    }
+    val displayColor = ColorUtils.hexToColor(colorHex)
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        // Show frequent colors chips (max 5)
-        if (frequentColors.isNotEmpty()) {
+        // Show frequent colors chips (max 5) - only if not editing
+        if (!isEditMode && frequentColors.isNotEmpty()) {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -611,10 +583,10 @@ private fun ColorField(
 
                     FilterChip(
                         selected = false,
-                        onClick = { onColorChange(frequentColor.color) },
+                        onClick = { onColorHexSelected(frequentColor.colorHex) },
                         label = {
                             Text(
-                                text = frequentColor.color,
+                                text = frequentColor.name ?: frequentColor.colorHex,
                                 color = if (isLight) Color.Black else Color.White
                             )
                         },
@@ -638,15 +610,18 @@ private fun ColorField(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedTextField(
-                value = color,
-                onValueChange = onColorChange,
+                value = colorName,
+                onValueChange = {},
+                readOnly = true,
                 label = { Text(stringResource(R.string.color_label)) },
                 modifier = Modifier
                     .testTag("color_input")
-                    .weight(1f),
+                    .weight(1f)
+                    .clickable { onOpenColorPicker() },
                 isError = colorError != null,
                 supportingText = { colorError?.let { Text(it) } },
-                singleLine = true
+                singleLine = true,
+                enabled = true // to allow click listener
             )
 
             Box(
@@ -654,62 +629,19 @@ private fun ColorField(
                     .padding(bottom = if (colorError != null) 16.dp else 0.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(inferredColor ?: Color.Gray)
+                    .background(displayColor ?: Color.Gray)
                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                     .testTag("color_picker_trigger")
                     .clickable { onOpenColorPicker() },
                 contentAlignment = Alignment.Center
             ) {
-                if (inferredColor == null) {
+                if (displayColor == null) {
                     Icon(
                         imageVector = Icons.Default.QuestionMark,
                         contentDescription = "Unknown color",
                         modifier = Modifier.size(20.dp),
                         tint = Color.White
                     )
-                }
-            }
-        }
-
-        if (closestColors.isNotEmpty()) {
-            Row(
-                modifier = Modifier.padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Vorschläge:",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    closestColors.forEach { (name, hex) ->
-                        val chipColor = ColorUtils.hexToColor(hex) ?: Color.Transparent
-                        val isLight = ColorUtils.isColorLight(chipColor)
-
-                        FilterChip(
-                            selected = false,
-                            onClick = { onColorChange(name) },
-                            label = {
-                                Text(
-                                    text = name,
-                                    color = if (isLight) Color.Black else Color.White
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = chipColor,
-                                labelColor = if (isLight) Color.Black else Color.White
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = false,
-                                borderColor = MaterialTheme.colorScheme.outline
-                            )
-                        )
-                    }
                 }
             }
         }
@@ -848,7 +780,7 @@ private fun PriceField(
     OutlinedTextField(
         value = price,
         onValueChange = {
-            if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+            if (it.isEmpty() || it.matches(Regex("^\\\\d*\\\\.?\\\\d*$"))) {
                 onPriceChange(it)
             }
         },
@@ -945,7 +877,8 @@ fun AddFilamentScreenPreview() {
             filamentState = null,
             defaultFilamentSize = 1000,
             onNavigateBack = {},
-            onSave = { _, _, _, _, _, _, _, _, _, _ -> }
+            onSave = { _, _, _, _, _, _, _, _, _ -> },
+            getColorName = { "Black" }
         )
     }
 }
