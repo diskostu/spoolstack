@@ -5,11 +5,10 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -555,7 +554,6 @@ private fun VendorField(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColorField(
     colorName: String,
@@ -569,14 +567,16 @@ private fun ColorField(
     val displayColor = ColorUtils.hexToColor(colorHex)
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        // Show frequent colors chips (max 5) - only if not editing
+        // Show frequent colors chips - only if not editing
         if (!isEditMode && frequentColors.isNotEmpty()) {
-            FlowRow(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(vertical = 4.dp)
             ) {
-                frequentColors.take(5).forEach { frequentColor ->
+                frequentColors.forEach { frequentColor ->
                     val chipColor =
                         ColorUtils.hexToColor(frequentColor.colorHex) ?: Color.Transparent
                     val isLight = ColorUtils.isColorLight(chipColor)
