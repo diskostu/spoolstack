@@ -162,7 +162,7 @@ fun AddFilamentContent(
 
         var sliderValue by rememberSaveable { mutableFloatStateOf(defaultFilamentSize.toFloat()) }
         var currentWeightInput by rememberSaveable { mutableStateOf(defaultFilamentSize.toString()) }
-        
+
         var boughtAt by rememberSaveable { mutableStateOf("") }
         var boughtAtError by rememberSaveable { mutableStateOf<String?>(null) }
         var price by rememberSaveable { mutableStateOf("") }
@@ -294,56 +294,31 @@ fun AddFilamentContent(
             ) {
                 // AREA 1: Filament Details
                 SectionContainer(title = stringResource(R.string.section_filament_details)) {
-                    if (isLandscape) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Box(modifier = Modifier.weight(1f)) {
-                                VendorField(
-                                    vendor = vendor,
-                                    onVendorChange = {
-                                        vendor = it
-                                        vendorError = null
-                                    },
-                                    vendorError = vendorError,
-                                    existingVendors = existingVendors
-                                )
-                            }
-                            Box(modifier = Modifier.weight(1f)) {
-                                ColorField(
-                                    colorName = colorName,
-                                    colorHex = colorHex,
-                                    onOpenColorPicker = { showColorPicker = true },
-                                    colorError = colorError,
-                                    frequentColors = frequentColors,
-                                    isEditMode = filamentState != null,
-                                    onColorHexSelected = { colorHex = it }
-                                )
-                            }
-                        }
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                            VendorField(
-                                vendor = vendor,
-                                onVendorChange = {
-                                    vendor = it
-                                    vendorError = null
-                                },
-                                vendorError = vendorError,
-                                existingVendors = existingVendors
-                            )
-                            ColorField(
-                                colorName = colorName,
-                                colorHex = colorHex,
-                                onOpenColorPicker = { showColorPicker = true },
-                                colorError = colorError,
-                                frequentColors = frequentColors,
-                                isEditMode = filamentState != null,
-                                onColorHexSelected = { colorHex = it }
-                            )
-                        }
-                    }
+                    VendorField(
+                        vendor = vendor,
+                        onVendorChange = {
+                            vendor = it
+                            vendorError = null
+                        },
+                        vendorError = vendorError,
+                        existingVendors = existingVendors
+                    )
                 }
 
-                // AREA 2: Size & Weight
+                // AREA 2: Color
+                SectionContainer(title = stringResource(R.string.section_color)) {
+                    ColorField(
+                        colorName = colorName,
+                        colorHex = colorHex,
+                        onOpenColorPicker = { showColorPicker = true },
+                        colorError = colorError,
+                        frequentColors = frequentColors,
+                        isEditMode = filamentState != null,
+                        onColorHexSelected = { colorHex = it }
+                    )
+                }
+
+                // AREA 3: Size & Weight
                 SectionContainer(title = stringResource(R.string.section_size)) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (isLandscape) {
@@ -403,7 +378,7 @@ fun AddFilamentContent(
                     }
                 }
 
-                // AREA 3: Purchase Information
+                // AREA 4: Purchase Information
                 SectionContainer(title = stringResource(R.string.section_purchase_info)) {
                     if (isLandscape) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -566,7 +541,7 @@ private fun ColorField(
 ) {
     val displayColor = ColorUtils.hexToColor(colorHex)
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Show frequent colors chips - only if not editing
         if (!isEditMode && frequentColors.isNotEmpty()) {
             Row(
@@ -574,7 +549,6 @@ private fun ColorField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
-                    .padding(vertical = 4.dp)
             ) {
                 frequentColors.forEach { frequentColor ->
                     val chipColor =
@@ -605,42 +579,52 @@ private fun ColorField(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onOpenColorPicker() }
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
-                value = colorName,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.color_label)) },
-                modifier = Modifier
-                    .testTag("color_input")
-                    .weight(1f)
-                    .clickable { onOpenColorPicker() },
-                isError = colorError != null,
-                supportingText = { colorError?.let { Text(it) } },
-                singleLine = true,
-                enabled = true // to allow click listener
-            )
-
             Box(
                 modifier = Modifier
-                    .padding(bottom = if (colorError != null) 16.dp else 0.dp)
-                    .size(40.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(displayColor ?: Color.Gray)
                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                    .testTag("color_picker_trigger")
-                    .clickable { onOpenColorPicker() },
+                    .testTag("color_picker_trigger"),
                 contentAlignment = Alignment.Center
             ) {
                 if (displayColor == null) {
                     Icon(
                         imageVector = Icons.Default.QuestionMark,
                         contentDescription = "Unknown color",
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = Color.White
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.color_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (colorError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = colorName.ifBlank { stringResource(R.string.select_color) },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (colorName.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+                )
+                if (colorError != null) {
+                    Text(
+                        text = colorError,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
             }
