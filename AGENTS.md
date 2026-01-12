@@ -34,6 +34,7 @@ Also look into the samples here: https://developer.android.com/samples
 ### 3. Testing Requirements
 
 * **Test Coverage:** Every new feature and every refactoring **must** include a JUnit test.
+* If necessary, update existing tests or create new tests.
 * **Test Types:**
     * **Unit Tests:** Use for ViewModels, Repositories, and Business Logic.
     * **UI Tests (ComposeTestRule):** Implement when visual state transitions or user interactions (
@@ -57,5 +58,5 @@ Also look into the samples here: https://developer.android.com/samples
 4. Write the corresponding tests.
 5. See if the Gradle build is successful.
 6. Tell the user: "I will run the tests now."
-7. Run all existing tests.
+7. Always run all existing tests. ALWAYS.
 8. If all this is successful, declare the task finished.
