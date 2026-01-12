@@ -136,14 +136,14 @@ class ColorUtilsTest {
     }
 
     @Test
-    fun `getClosestColorNames returns closest matches`() {
+    fun `getClosestColors returns closest matches`() {
         // Pure red
-        val redMatches = ColorUtils.getClosestColorNames("#FF0000", "en")
-        assertEquals("red", redMatches[0])
-
+        val redMatches = ColorUtils.getClosestColors("#FF0000", "en")
+        assertEquals("red", redMatches[0].first)
+        
         // Something near blue
-        val blueishMatches = ColorUtils.getClosestColorNames("#0000FE", "de")
-        assertEquals("blau", blueishMatches[0])
+        val blueishMatches = ColorUtils.getClosestColors("#0000FE", "de")
+        assertEquals("blau", blueishMatches[0].first)
 
         // Verify we get 3 matches
         assertEquals(3, redMatches.size)

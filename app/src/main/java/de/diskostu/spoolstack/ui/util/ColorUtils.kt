@@ -246,12 +246,13 @@ object ColorUtils {
 
     /**
      * Finds up to 3 closest color names and their hex codes for a given hex color.
+     * Prioritizes shorter ("simpler") names if distances are similar.
      */
     fun getClosestColors(
         hex: String,
         language: String = Locale.getDefault().language
     ): List<Pair<String, String>> {
-        val color = try {
+        val targetColor = try {
             android.graphics.Color.parseColor(hex)
         } catch (e: Exception) {
             return emptyList()
@@ -263,8 +264,11 @@ object ColorUtils {
             .asSequence()
             .map { entry ->
                 val entryColor = android.graphics.Color.parseColor(entry.value)
-                val distance = calculateColorDistance(color, entryColor)
-                Triple(entry.key, entry.value, distance)
+                val distance = calculateColorDistance(targetColor, entryColor)
+                // Score combines distance and name simplicity (length)
+                // A lower score is better. penalty factor for length helps prefer simple names.
+                val score = distance + (entry.key.length * 2.0)
+                Triple(entry.key, entry.value, score)
             }
             .sortedBy { it.third }
             .take(3)
