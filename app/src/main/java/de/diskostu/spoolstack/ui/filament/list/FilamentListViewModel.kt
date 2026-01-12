@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
+import de.diskostu.spoolstack.data.SettingsRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +32,8 @@ enum class SortOrder {
 
 @HiltViewModel
 class FilamentListViewModel @Inject constructor(
-    private val filamentRepository: FilamentRepository
+    private val filamentRepository: FilamentRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     // Internal source list (raw data from DB, potentially animated)
@@ -39,10 +42,10 @@ class FilamentListViewModel @Inject constructor(
     private val _filter = MutableStateFlow(FilamentFilter.ACTIVE)
     val filter = _filter.asStateFlow()
 
-    private val _sort = MutableStateFlow(FilamentSort.VENDOR)
+    private val _sort = MutableStateFlow(FilamentSort.LAST_MODIFIED)
     val sort = _sort.asStateFlow()
 
-    private val _sortOrder = MutableStateFlow(SortOrder.ASCENDING)
+    private val _sortOrder = MutableStateFlow(SortOrder.DESCENDING)
     val sortOrder = _sortOrder.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
@@ -112,6 +115,7 @@ class FilamentListViewModel @Inject constructor(
     private var animationJob: Job? = null
 
     init {
+        loadSettings()
         viewModelScope.launch {
             filamentRepository.getAllFilaments().collect { newList ->
                 val oldList = _sourceFilaments.value
@@ -134,6 +138,28 @@ class FilamentListViewModel @Inject constructor(
                     // Initial load, Add, Delete, or no change
                     _sourceFilaments.value = newList
                     pendingList = null
+                }
+            }
+        }
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val savedSort = settingsRepository.filamentSort.first()
+            val savedOrder = settingsRepository.filamentSortOrder.first()
+
+            if (savedSort != null) {
+                try {
+                    _sort.value = FilamentSort.valueOf(savedSort)
+                } catch (e: Exception) {
+                    // ignore invalid values
+                }
+            }
+            if (savedOrder != null) {
+                try {
+                    _sortOrder.value = SortOrder.valueOf(savedOrder)
+                } catch (e: Exception) {
+                    // ignore invalid values
                 }
             }
         }
@@ -173,15 +199,22 @@ class FilamentListViewModel @Inject constructor(
     }
 
     fun setSort(newSort: FilamentSort) {
-        if (_sort.value == newSort) {
-            _sortOrder.value = if (_sortOrder.value == SortOrder.ASCENDING) {
+        val newOrder = if (_sort.value == newSort) {
+            if (_sortOrder.value == SortOrder.ASCENDING) {
                 SortOrder.DESCENDING
             } else {
                 SortOrder.ASCENDING
             }
         } else {
-            _sort.value = newSort
-            _sortOrder.value = SortOrder.ASCENDING
+            SortOrder.ASCENDING
+        }
+
+        _sort.value = newSort
+        _sortOrder.value = newOrder
+
+        viewModelScope.launch {
+            settingsRepository.setFilamentSort(newSort.name)
+            settingsRepository.setFilamentSortOrder(newOrder.name)
         }
     }
 

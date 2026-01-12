@@ -263,6 +263,15 @@ fun FilamentListContent(
                                     onDismissRequest = { showSortMenu = false }
                                 ) {
                                     SortMenuItem(
+                                        text = stringResource(R.string.sort_by_last_modified),
+                                        isSelected = sort == FilamentSort.LAST_MODIFIED,
+                                        sortOrder = sortOrder,
+                                        onClick = {
+                                            onSortChange(FilamentSort.LAST_MODIFIED)
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    SortMenuItem(
                                         text = stringResource(R.string.sort_by_vendor),
                                         isSelected = sort == FilamentSort.VENDOR,
                                         sortOrder = sortOrder,
@@ -277,15 +286,6 @@ fun FilamentListContent(
                                         sortOrder = sortOrder,
                                         onClick = {
                                             onSortChange(FilamentSort.COLOR)
-                                            showSortMenu = false
-                                        }
-                                    )
-                                    SortMenuItem(
-                                        text = stringResource(R.string.sort_by_last_modified),
-                                        isSelected = sort == FilamentSort.LAST_MODIFIED,
-                                        sortOrder = sortOrder,
-                                        onClick = {
-                                            onSortChange(FilamentSort.LAST_MODIFIED)
                                             showSortMenu = false
                                         }
                                     )

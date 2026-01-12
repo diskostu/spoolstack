@@ -25,6 +25,8 @@ class SettingsRepository @Inject constructor(
 ) {
     private val themeKey = stringPreferencesKey("app_theme")
     private val defaultFilamentSizeKey = intPreferencesKey("default_filament_size")
+    private val filamentSortKey = stringPreferencesKey("filament_sort")
+    private val filamentSortOrderKey = stringPreferencesKey("filament_sort_order")
 
     val appTheme: Flow<AppTheme> = context.dataStore.data
         .map { preferences ->
@@ -37,6 +39,16 @@ class SettingsRepository @Inject constructor(
             preferences[defaultFilamentSizeKey] ?: 1000
         }
 
+    val filamentSort: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[filamentSortKey]
+        }
+
+    val filamentSortOrder: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[filamentSortOrderKey]
+        }
+
     suspend fun setAppTheme(theme: AppTheme) {
         context.dataStore.edit { preferences ->
             preferences[themeKey] = theme.name
@@ -46,6 +58,18 @@ class SettingsRepository @Inject constructor(
     suspend fun setDefaultFilamentSize(size: Int) {
         context.dataStore.edit { preferences ->
             preferences[defaultFilamentSizeKey] = size
+        }
+    }
+
+    suspend fun setFilamentSort(sort: String) {
+        context.dataStore.edit { preferences ->
+            preferences[filamentSortKey] = sort
+        }
+    }
+
+    suspend fun setFilamentSortOrder(order: String) {
+        context.dataStore.edit { preferences ->
+            preferences[filamentSortOrderKey] = order
         }
     }
 }

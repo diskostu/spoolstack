@@ -27,7 +27,6 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddFilamentViewModelTest {
@@ -58,10 +57,12 @@ class AddFilamentViewModelTest {
         // Given
         val vendors = listOf("Vendor A", "Vendor B")
         val frequentColors = listOf(FrequentColor("Red", "#FF0000"))
-        val recentColors = listOf(FrequentColor("Blue", "#0000FF"))
+        // We now allow duplicates between frequent and recent as per requirements
+        val recentColors = listOf(FrequentColor("Blue", "#0000FF"), FrequentColor("Red", "#FF0000"))
+        
         `when`(filamentRepository.getDistinctVendors()).thenReturn(vendors)
-        `when`(filamentRepository.getFrequentColors(3)).thenReturn(frequentColors)
-        `when`(filamentRepository.getRecentColors(3)).thenReturn(recentColors)
+        `when`(filamentRepository.getFrequentColors(any())).thenReturn(frequentColors)
+        `when`(filamentRepository.getRecentColors(any())).thenReturn(recentColors)
 
         // When
         viewModel = AddFilamentViewModel(filamentRepository, settingsRepository, SavedStateHandle())
@@ -70,6 +71,7 @@ class AddFilamentViewModelTest {
         // Then
         assertEquals(vendors, viewModel.vendors.value)
         assertEquals(frequentColors, viewModel.frequentColors.value)
+        // recentColors should contain both Blue and Red, even if Red is in frequentColors
         assertEquals(recentColors, viewModel.recentColors.value)
     }
 
