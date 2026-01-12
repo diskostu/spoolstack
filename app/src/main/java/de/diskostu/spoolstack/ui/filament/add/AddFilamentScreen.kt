@@ -338,7 +338,8 @@ fun AddFilamentContent(
                                         colorError = null
                                     },
                                     onOpenColorPicker = { showColorPicker = true },
-                                    colorError = colorError
+                                    colorError = colorError,
+                                    frequentColors = frequentColors
                                 )
                             }
                         }
@@ -361,7 +362,8 @@ fun AddFilamentContent(
                                     colorError = null
                                 },
                                 onOpenColorPicker = { showColorPicker = true },
-                                colorError = colorError
+                                colorError = colorError,
+                                frequentColors = frequentColors
                             )
                         }
                     }
@@ -582,7 +584,8 @@ private fun ColorField(
     colorHex: String?,
     onColorChange: (String) -> Unit,
     onOpenColorPicker: () -> Unit,
-    colorError: String?
+    colorError: String?,
+    frequentColors: List<FrequentColor> = emptyList()
 ) {
     val inferredColor = ColorUtils.hexToColor(colorHex)
     val closestColors = remember(colorHex) {
@@ -594,6 +597,41 @@ private fun ColorField(
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        // Show frequent colors chips (max 5)
+        if (frequentColors.isNotEmpty()) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                frequentColors.take(5).forEach { frequentColor ->
+                    val chipColor =
+                        ColorUtils.hexToColor(frequentColor.colorHex) ?: Color.Transparent
+                    val isLight = ColorUtils.isColorLight(chipColor)
+
+                    FilterChip(
+                        selected = false,
+                        onClick = { onColorChange(frequentColor.color) },
+                        label = {
+                            Text(
+                                text = frequentColor.color,
+                                color = if (isLight) Color.Black else Color.White
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = chipColor,
+                            labelColor = if (isLight) Color.Black else Color.White
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = false,
+                            borderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

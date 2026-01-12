@@ -61,7 +61,7 @@ class AddFilamentViewModel @Inject constructor(
 
     private fun loadColors() {
         viewModelScope.launch {
-            _frequentColors.value = filamentRepository.getFrequentColors(3)
+            _frequentColors.value = filamentRepository.getFrequentColors(5)
             _recentColors.value = filamentRepository.getRecentColors(3)
         }
     }

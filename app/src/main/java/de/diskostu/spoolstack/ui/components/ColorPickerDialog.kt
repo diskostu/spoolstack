@@ -135,7 +135,7 @@ fun ColorPickerDialog(
                             ColorHistorySection(
                                 modifier = Modifier.weight(1f),
                                 title = stringResource(R.string.frequent_colors_label),
-                                colors = frequentColors,
+                                colors = frequentColors.take(3),
                                 onColorSelected = {
                                     onFrequentColorSelected(it)
                                     onDismissRequest()
@@ -146,7 +146,7 @@ fun ColorPickerDialog(
                             ColorHistorySection(
                                 modifier = Modifier.weight(1f),
                                 title = stringResource(R.string.recent_colors_label),
-                                colors = recentColors,
+                                colors = recentColors.take(3),
                                 onColorSelected = {
                                     onFrequentColorSelected(it)
                                     onDismissRequest()
