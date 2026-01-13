@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -68,12 +66,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
-import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.ColorWithName
+import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.components.ChipRowPlaceholder
-import de.diskostu.spoolstack.ui.components.HorizontalChipRowWithColor
 import de.diskostu.spoolstack.ui.components.ColorPickerDialog
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
+import de.diskostu.spoolstack.ui.components.HorizontalChipRowWithColor
 import de.diskostu.spoolstack.ui.components.SectionContainer
 import de.diskostu.spoolstack.ui.components.animation.HorizontalSlideAnimatedContent
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
@@ -514,7 +512,7 @@ private fun ColorField(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (!isEditMode) {
             HorizontalSlideAnimatedContent(
-                targetState = frequentColors, durationMillis = 500
+                targetState = frequentColors
             ) { currentColors ->
                 if (currentColors.isNotEmpty()) {
                     HorizontalChipRowWithColor(
@@ -532,7 +530,7 @@ private fun ColorField(
         // show recent colors chips - only if not editing
         if (!isEditMode) {
             HorizontalSlideAnimatedContent(
-                targetState = recentColors, durationMillis = 500
+                targetState = recentColors
             ) { currentColors ->
                 if (currentColors.isNotEmpty()) {
                     HorizontalChipRowWithColor(

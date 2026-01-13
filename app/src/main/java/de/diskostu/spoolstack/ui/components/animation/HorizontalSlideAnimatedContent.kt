@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 fun <T> HorizontalSlideAnimatedContent(
     targetState: T,
     modifier: Modifier = Modifier,
-    durationMillis: Int = 100,
+    durationMillis: Int = 200,
     content: @Composable (T) -> Unit
 ) {
     GenericSlideAnimatedContent(
