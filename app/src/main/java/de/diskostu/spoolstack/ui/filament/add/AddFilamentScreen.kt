@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -68,10 +70,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.ColorWithName
+import de.diskostu.spoolstack.ui.components.ChipRowPlaceholder
 import de.diskostu.spoolstack.ui.components.HorizontalChipRowWithColor
 import de.diskostu.spoolstack.ui.components.ColorPickerDialog
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
+import de.diskostu.spoolstack.ui.components.animation.HorizontalSlideAnimatedContent
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import de.diskostu.spoolstack.ui.util.ColorUtils
 import kotlinx.coroutines.flow.collectLatest
@@ -82,8 +86,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun AddFilamentScreen(
-    onNavigateBack: () -> Unit,
-    viewModel: AddFilamentViewModel = hiltViewModel()
+    onNavigateBack: () -> Unit, viewModel: AddFilamentViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val existingVendors by viewModel.vendors.collectAsStateWithLifecycle()
@@ -97,9 +100,7 @@ fun AddFilamentScreen(
     LaunchedEffect(Unit) {
         viewModel.savedFilamentId.collectLatest { newId ->
             Toast.makeText(
-                context,
-                filamentSavedMessage.format(newId),
-                Toast.LENGTH_SHORT
+                context, filamentSavedMessage.format(newId), Toast.LENGTH_SHORT
             ).show()
             onNavigateBack()
         }
@@ -113,8 +114,7 @@ fun AddFilamentScreen(
         defaultFilamentSize = defaultFilamentSize,
         onNavigateBack = onNavigateBack,
         onSave = viewModel::save,
-        getColorName = { viewModel.getColorName(it) }
-    )
+        getColorName = { viewModel.getColorName(it) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,10 +145,8 @@ fun AddFilamentContent(
                             contentDescription = stringResource(id = R.string.back_button_content_description)
                         )
                     }
-                }
-            )
-        },
-        modifier = Modifier.imePadding()
+                })
+        }, modifier = Modifier.imePadding()
     ) { paddingValues ->
         // State hoisting
         var vendor by rememberSaveable { mutableStateOf("") }
@@ -198,18 +196,14 @@ fun AddFilamentContent(
         val datePickerState = rememberDatePickerState()
 
         if (showDatePicker) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showDatePicker = false
-                        boughtDateLong = datePickerState.selectedDateMillis
-                    }) { Text("OK") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-                }
-            ) { DatePicker(state = datePickerState) }
+            DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = {
+                TextButton(onClick = {
+                    showDatePicker = false
+                    boughtDateLong = datePickerState.selectedDateMillis
+                }) { Text("OK") }
+            }, dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }) { DatePicker(state = datePickerState) }
         }
 
         // Color Picker
@@ -221,8 +215,7 @@ fun AddFilamentContent(
                     val hex = ColorUtils.colorToHex(selectedColor)
                     colorHex = hex
                 },
-                onDismissRequest = { showColorPicker = false }
-            )
+                onDismissRequest = { showColorPicker = false })
         }
 
         // Update color name when hex changes
@@ -248,7 +241,9 @@ fun AddFilamentContent(
                             weightToSave,
                             totalWeight,
                             spoolWeightInput.toIntOrNull(),
-                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                            boughtAt.ifBlank { null },
+                            boughtDateLong,
+                            price.toDoubleOrNull(),
                             true // deleted = true
                         )
                     }
@@ -263,7 +258,9 @@ fun AddFilamentContent(
                             weightToSave,
                             totalWeight,
                             spoolWeightInput.toIntOrNull(),
-                            boughtAt.ifBlank { null }, boughtDateLong, price.toDoubleOrNull(),
+                            boughtAt.ifBlank { null },
+                            boughtDateLong,
+                            price.toDoubleOrNull(),
                             false // deleted = false
                         )
                     }
@@ -290,13 +287,10 @@ fun AddFilamentContent(
                 // AREA 1: Filament Details
                 SectionContainer(title = stringResource(R.string.section_filament_details)) {
                     VendorField(
-                        vendor = vendor,
-                        onVendorChange = {
+                        vendor = vendor, onVendorChange = {
                             vendor = it
                             vendorError = null
-                        },
-                        vendorError = vendorError,
-                        existingVendors = existingVendors
+                        }, vendorError = vendorError, existingVendors = existingVendors
                     )
                 }
 
@@ -310,8 +304,7 @@ fun AddFilamentContent(
                         frequentColors = frequentColors,
                         recentColors = recentColors,
                         isEditMode = filamentState != null,
-                        onColorHexSelected = { colorHex = it }
-                    )
+                        onColorHexSelected = { colorHex = it })
                 }
 
                 // AREA 3: Size & Weight
@@ -321,14 +314,12 @@ fun AddFilamentContent(
                             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                 Box(modifier = Modifier.weight(1f)) {
                                     TotalWeightField(
-                                        totalWeight = totalWeight,
-                                        onTotalWeightChange = {
+                                        totalWeight = totalWeight, onTotalWeightChange = {
                                             totalWeight = it
                                             // Synchronize current weight with total weight when purchase size changes
                                             currentWeightInput = it.toString()
                                             sliderValue = it.toFloat()
-                                        },
-                                        enabled = filamentState == null
+                                        }, enabled = filamentState == null
                                     )
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
@@ -341,14 +332,12 @@ fun AddFilamentContent(
                             }
                         } else {
                             TotalWeightField(
-                                totalWeight = totalWeight,
-                                onTotalWeightChange = {
+                                totalWeight = totalWeight, onTotalWeightChange = {
                                     totalWeight = it
                                     // Synchronize current weight with total weight when purchase size changes
                                     currentWeightInput = it.toString()
                                     sliderValue = it.toFloat()
-                                },
-                                enabled = filamentState == null
+                                }, enabled = filamentState == null
                             )
                             SpoolWeightField(
                                 spoolWeight = spoolWeightInput,
@@ -380,12 +369,10 @@ fun AddFilamentContent(
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Box(modifier = Modifier.weight(2f)) {
                                 BoughtAtField(
-                                    boughtAt = boughtAt,
-                                    onBoughtAtChange = {
+                                    boughtAt = boughtAt, onBoughtAtChange = {
                                         boughtAt = it
                                         boughtAtError = null
-                                    },
-                                    boughtAtError = boughtAtError
+                                    }, boughtAtError = boughtAtError
                                 )
                             }
                             Box(modifier = Modifier.weight(1f)) {
@@ -394,19 +381,16 @@ fun AddFilamentContent(
                             Box(modifier = Modifier.weight(1f)) {
                                 BoughtDateField(
                                     boughtDateLong = boughtDateLong,
-                                    onShowDatePicker = { showDatePicker = true }
-                                )
+                                    onShowDatePicker = { showDatePicker = true })
                             }
                         }
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                             BoughtAtField(
-                                boughtAt = boughtAt,
-                                onBoughtAtChange = {
+                                boughtAt = boughtAt, onBoughtAtChange = {
                                     boughtAt = it
                                     boughtAtError = null
-                                },
-                                boughtAtError = boughtAtError
+                                }, boughtAtError = boughtAtError
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Box(modifier = Modifier.weight(1f)) {
@@ -415,8 +399,7 @@ fun AddFilamentContent(
                                 Box(modifier = Modifier.weight(1.2f)) {
                                     BoughtDateField(
                                         boughtDateLong = boughtDateLong,
-                                        onShowDatePicker = { showDatePicker = true }
-                                    )
+                                        onShowDatePicker = { showDatePicker = true })
                                 }
                             }
                         }
@@ -426,8 +409,7 @@ fun AddFilamentContent(
 
             // Save Button
             SaveButtonRow(
-                onCancel = onNavigateBack,
-                onSave = {
+                onCancel = onNavigateBack, onSave = {
                     var hasError = false
                     if (vendor.isBlank()) {
                         vendorError = errorFieldCantBeEmpty
@@ -463,8 +445,7 @@ fun AddFilamentContent(
                             }
                         }
                     }
-                }
-            )
+                })
         }
     }
 }
@@ -484,9 +465,7 @@ private fun VendorField(
     }
 
     ExposedDropdownMenuBox(
-        expanded = vendorExpanded,
-        onExpandedChange = { vendorExpanded = !vendorExpanded }
-    ) {
+        expanded = vendorExpanded, onExpandedChange = { vendorExpanded = !vendorExpanded }) {
         OutlinedTextField(
             value = vendor,
             onValueChange = {
@@ -503,22 +482,16 @@ private fun VendorField(
             trailingIcon = if (existingVendors.isNotEmpty()) {
                 { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vendorExpanded) }
             } else null,
-            singleLine = true
-        )
+            singleLine = true)
 
         if (existingVendors.isNotEmpty() && filteredVendors.isNotEmpty()) {
             ExposedDropdownMenu(
-                expanded = vendorExpanded,
-                onDismissRequest = { vendorExpanded = false }
-            ) {
+                expanded = vendorExpanded, onDismissRequest = { vendorExpanded = false }) {
                 filteredVendors.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            onVendorChange(selectionOption)
-                            vendorExpanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(selectionOption) }, onClick = {
+                        onVendorChange(selectionOption)
+                        vendorExpanded = false
+                    })
                 }
             }
         }
@@ -539,21 +512,39 @@ private fun ColorField(
     val displayColor = ColorUtils.hexToColor(colorHex)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // show frequent colors chips - only if not editing
-        if (!isEditMode && frequentColors.isNotEmpty()) {
-            HorizontalChipRowWithColor(
-                imageVector = Icons.Filled.Whatshot,
-                colors = frequentColors,
-                onColorHexSelected = onColorHexSelected
-            )
+        if (!isEditMode) {
+            HorizontalSlideAnimatedContent(
+                targetState = frequentColors, durationMillis = 500
+            ) { currentColors ->
+                if (currentColors.isNotEmpty()) {
+                    HorizontalChipRowWithColor(
+                        imageVector = Icons.Filled.Whatshot,
+                        colors = currentColors,
+                        onColorHexSelected = onColorHexSelected
+                    )
+                } else {
+                    // Placeholder for frequent colors
+                    ChipRowPlaceholder(height = 48.dp)
+                }
+            }
         }
+
         // show recent colors chips - only if not editing
-        if (!isEditMode && recentColors.isNotEmpty()) {
-            HorizontalChipRowWithColor(
-                imageVector = Icons.Filled.History,
-                colors = recentColors,
-                onColorHexSelected = onColorHexSelected
-            )
+        if (!isEditMode) {
+            HorizontalSlideAnimatedContent(
+                targetState = recentColors, durationMillis = 500
+            ) { currentColors ->
+                if (currentColors.isNotEmpty()) {
+                    HorizontalChipRowWithColor(
+                        imageVector = Icons.Filled.History,
+                        colors = currentColors,
+                        onColorHexSelected = onColorHexSelected
+                    )
+                } else {
+                    // Placeholder for recent colors
+                    ChipRowPlaceholder(height = 48.dp)
+                }
+            }
         }
 
         Row(
@@ -562,16 +553,14 @@ private fun ColorField(
                 .clickable { onOpenColorPicker() }
                 .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+            horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Box(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
                     .background(displayColor ?: Color.Gray)
                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                    .testTag("color_picker_trigger"),
-                contentAlignment = Alignment.Center
+                    .testTag("color_picker_trigger"), contentAlignment = Alignment.Center
             ) {
                 if (displayColor == null) {
                     Icon(
@@ -584,8 +573,7 @@ private fun ColorField(
             }
 
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = stringResource(R.string.color_label),
@@ -614,17 +602,13 @@ private fun ColorField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TotalWeightField(
-    totalWeight: Int,
-    onTotalWeightChange: (Int) -> Unit,
-    enabled: Boolean
+    totalWeight: Int, onTotalWeightChange: (Int) -> Unit, enabled: Boolean
 ) {
     val weightOptions = listOf(500, 750, 1000, 2000)
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
-        expanded = expanded && enabled,
-        onExpandedChange = { if (enabled) expanded = !expanded }
-    ) {
+        expanded = expanded && enabled, onExpandedChange = { if (enabled) expanded = !expanded }) {
         OutlinedTextField(
             value = if (totalWeight >= 1000) "${totalWeight / 1000}kg" else "${totalWeight}g",
             onValueChange = {},
@@ -637,21 +621,17 @@ private fun TotalWeightField(
             modifier = Modifier
                 .testTag("total_weight_input")
                 .fillMaxWidth()
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
-        )
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true))
         if (enabled) {
             ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
+                expanded = expanded, onDismissRequest = { expanded = false }) {
                 weightOptions.forEach { weight ->
                     DropdownMenuItem(
                         text = { Text(if (weight >= 1000) "${weight / 1000}kg" else "${weight}g") },
                         onClick = {
                             onTotalWeightChange(weight)
                             expanded = false
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -660,9 +640,7 @@ private fun TotalWeightField(
 
 @Composable
 private fun SpoolWeightField(
-    spoolWeight: String,
-    onSpoolWeightChange: (String) -> Unit,
-    unitGrams: String
+    spoolWeight: String, onSpoolWeightChange: (String) -> Unit, unitGrams: String
 ) {
     OutlinedTextField(
         value = spoolWeight,
@@ -724,9 +702,7 @@ private fun SizeSection(
 
 @Composable
 private fun BoughtAtField(
-    boughtAt: String,
-    onBoughtAtChange: (String) -> Unit,
-    boughtAtError: String?
+    boughtAt: String, onBoughtAtChange: (String) -> Unit, boughtAtError: String?
 ) {
     OutlinedTextField(
         value = boughtAt,
@@ -743,8 +719,7 @@ private fun BoughtAtField(
 
 @Composable
 private fun PriceField(
-    price: String,
-    onPriceChange: (String) -> Unit
+    price: String, onPriceChange: (String) -> Unit
 ) {
     OutlinedTextField(
         value = price,
@@ -764,8 +739,7 @@ private fun PriceField(
 
 @Composable
 private fun BoughtDateField(
-    boughtDateLong: Long?,
-    onShowDatePicker: () -> Unit
+    boughtDateLong: Long?, onShowDatePicker: () -> Unit
 ) {
     OutlinedTextField(
         value = boughtDateLong?.let {
@@ -796,22 +770,18 @@ private fun BoughtDateField(
 
 @Composable
 private fun SaveButtonRow(
-    onCancel: () -> Unit,
-    onSave: () -> Unit
+    onCancel: () -> Unit, onSave: () -> Unit
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()
     ) {
         OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier
+            onClick = onCancel, modifier = Modifier
                 .testTag("cancel_button")
                 .weight(1f)
         ) { Text(text = stringResource(id = R.string.cancel)) }
         Button(
-            onClick = onSave,
-            modifier = Modifier
+            onClick = onSave, modifier = Modifier
                 .testTag("save_button")
                 .weight(1f)
         ) { Text(text = stringResource(id = R.string.save)) }
@@ -849,12 +819,10 @@ annotation class LandscapePreviews
 fun AddFilamentScreenPreview() {
     SpoolstackTheme {
         val frequentColors = listOf(
-            ColorWithName("#000000", "Black"),
-            ColorWithName("#FF0000", "Red")
+            ColorWithName("#000000", "Black"), ColorWithName("#FF0000", "Red")
         )
         val recentColors = listOf(
-            ColorWithName("#664433", "Lala"),
-            ColorWithName("#FF5577", "Demo")
+            ColorWithName("#664433", "Lala"), ColorWithName("#FF5577", "Demo")
         )
         AddFilamentContent(
             existingVendors = listOf("Prusa", "Creality", "Extrudr"),
@@ -864,7 +832,6 @@ fun AddFilamentScreenPreview() {
             defaultFilamentSize = 1000,
             onNavigateBack = {},
             onSave = { _, _, _, _, _, _, _, _, _ -> },
-            getColorName = { "Black" }
-        )
+            getColorName = { "Black" })
     }
 }

@@ -1,5 +1,12 @@
 package de.diskostu.spoolstack.ui.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +45,8 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.ColorWithName
+import de.diskostu.spoolstack.ui.components.animation.HorizontalSlideAnimatedContent
+import de.diskostu.spoolstack.ui.components.animation.VerticalSlideAnimatedContent
 import de.diskostu.spoolstack.ui.util.ColorUtils
 import kotlinx.coroutines.delay
 
@@ -59,7 +68,6 @@ fun ColorPickerDialog(
 
     // Suggested colors debounced update
     LaunchedEffect(selectedColor) {
-        delay(500)
         val closest = ColorUtils.getClosestColors(ColorUtils.colorToHex(selectedColor))
         suggestedColors = closest.map { ColorWithName(it.second, it.first) }
     }
@@ -140,43 +148,35 @@ fun ColorPickerDialog(
                         .height(rowHeight)
                         .testTag("suggested_colors_container")
                 ) {
-                    if (suggestedColors.isEmpty()) {
-                        // ---------- Platzhalter ----------
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                        )
-                    } else {
-                        // ---------- Echte Chip-Row ----------
-                        HorizontalChipRowWithColor(
-                            imageVector = null,
-                            colors = suggestedColors,
-                            onColorHexSelected = { hex ->
-                                ColorUtils.hexToColor(hex)?.let { color ->
-                                    controller.selectByColor(color, fromUser = true)
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                    // use a slide animation
+                    HorizontalSlideAnimatedContent(
+                        targetState = suggestedColors,
+                        durationMillis = 200,
+                    ) { currentSuggestions ->
+                        if (currentSuggestions.isEmpty()) {
+                            // placeholder at first
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                            )
+                        } else {
+                            HorizontalChipRowWithColor(
+                                imageVector = null,
+                                colors = currentSuggestions,
+                                onColorHexSelected = { hex ->
+                                    ColorUtils.hexToColor(hex)?.let { color ->
+                                        controller.selectByColor(color, fromUser = true)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
-//                if (suggestedColors.isNotEmpty()) {
-//                    HorizontalChipRowWithColor(
-//                        imageVector = null,
-//                        colors = suggestedColors,
-//                        onColorHexSelected = { hex ->
-//                            ColorUtils.hexToColor(hex)?.let {
-//                                controller.selectByColor(it, fromUser = true)
-//                                selectedColor = it
-//                            }
-//                        },
-//                        modifier = Modifier.testTag("suggested_colors_row")
-//                    )
-//                }
             }
         },
         confirmButton = {
