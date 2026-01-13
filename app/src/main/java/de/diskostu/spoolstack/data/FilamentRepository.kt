@@ -42,12 +42,12 @@ class FilamentRepository @Inject constructor(
         return printDao.getAllPrints()
     }
 
-    suspend fun getFrequentColors(limit: Int): List<FrequentColor> {
+    suspend fun getFrequentColors(limit: Int): List<ColorWithName> {
         val colors = filamentDao.getFrequentColors(limit)
         return colors.map { it.copy(name = getColorName(it.colorHex)) }
     }
 
-    suspend fun getRecentColors(limit: Int): List<FrequentColor> {
+    suspend fun getRecentColors(limit: Int): List<ColorWithName> {
         val colors = filamentDao.getRecentColors(limit)
         return colors.map { it.copy(name = getColorName(it.colorHex)) }
     }

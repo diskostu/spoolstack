@@ -97,4 +97,6 @@
     <string name="selected_color_label">Selected Color</string>
     <string name="frequent_colors_label">Frequent Colors</string>
     <string name="recent_colors_label">Recent Colors</string>
+    <string name="frequent_colors_label_short">frequent</string>
+    <string name="recent_colors_label_short">recent</string>
 </resources>

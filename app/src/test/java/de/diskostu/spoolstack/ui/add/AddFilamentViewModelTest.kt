@@ -3,7 +3,7 @@ package de.diskostu.spoolstack.ui.add
 import androidx.lifecycle.SavedStateHandle
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
-import de.diskostu.spoolstack.data.FrequentColor
+import de.diskostu.spoolstack.data.ColorWithName
 import de.diskostu.spoolstack.data.SettingsRepository
 import de.diskostu.spoolstack.ui.filament.add.AddFilamentViewModel
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +56,8 @@ class AddFilamentViewModelTest {
     fun `vendors, frequent and recent colors are loaded initially`() = runTest {
         // Given
         val vendors = listOf("Vendor A", "Vendor B")
-        val frequentColors = listOf(FrequentColor("#FF0000"))
-        val recentColors = listOf(FrequentColor("#0000FF"), FrequentColor("#FF0000"))
+        val frequentColors = listOf(ColorWithName("#FF0000"))
+        val recentColors = listOf(ColorWithName("#0000FF"), ColorWithName("#FF0000"))
         
         `when`(filamentRepository.getDistinctVendors()).thenReturn(vendors)
         `when`(filamentRepository.getFrequentColors(any())).thenReturn(frequentColors)

@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -31,8 +32,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,7 +67,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
-import de.diskostu.spoolstack.data.FrequentColor
+import de.diskostu.spoolstack.data.ColorWithName
+import de.diskostu.spoolstack.ui.components.HorizontalChipRowWithColor
 import de.diskostu.spoolstack.ui.components.ColorPickerDialog
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
 import de.diskostu.spoolstack.ui.components.SectionContainer
@@ -121,8 +121,8 @@ fun AddFilamentScreen(
 @Composable
 fun AddFilamentContent(
     existingVendors: List<String>,
-    frequentColors: List<FrequentColor>,
-    recentColors: List<FrequentColor>,
+    frequentColors: List<ColorWithName>,
+    recentColors: List<ColorWithName>,
     filamentState: Filament?,
     defaultFilamentSize: Int,
     onNavigateBack: () -> Unit,
@@ -313,6 +313,7 @@ fun AddFilamentContent(
                         onOpenColorPicker = { showColorPicker = true },
                         colorError = colorError,
                         frequentColors = frequentColors,
+                        recentColors = recentColors,
                         isEditMode = filamentState != null,
                         onColorHexSelected = { colorHex = it }
                     )
@@ -535,47 +536,29 @@ private fun ColorField(
     colorHex: String?,
     onOpenColorPicker: () -> Unit,
     colorError: String?,
-    frequentColors: List<FrequentColor> = emptyList(),
+    frequentColors: List<ColorWithName> = emptyList(),
+    recentColors: List<ColorWithName> = emptyList(),
     isEditMode: Boolean,
     onColorHexSelected: (String) -> Unit
 ) {
     val displayColor = ColorUtils.hexToColor(colorHex)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Show frequent colors chips - only if not editing
+        // show frequent colors chips - only if not editing
         if (!isEditMode && frequentColors.isNotEmpty()) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-            ) {
-                frequentColors.forEach { frequentColor ->
-                    val chipColor =
-                        ColorUtils.hexToColor(frequentColor.colorHex) ?: Color.Transparent
-                    val isLight = ColorUtils.isColorLight(chipColor)
-
-                    FilterChip(
-                        selected = false,
-                        onClick = { onColorHexSelected(frequentColor.colorHex) },
-                        label = {
-                            Text(
-                                text = frequentColor.name ?: frequentColor.colorHex,
-                                color = if (isLight) Color.Black else Color.White
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = chipColor,
-                            labelColor = if (isLight) Color.Black else Color.White
-                        ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = false,
-                            borderColor = MaterialTheme.colorScheme.outline
-                        )
-                    )
-                }
-            }
+            HorizontalChipRowWithColor(
+                imageVector = Icons.Filled.Whatshot,
+                colors = frequentColors,
+                onColorHexSelected = onColorHexSelected
+            )
+        }
+        // show recent colors chips - only if not editing
+        if (!isEditMode && recentColors.isNotEmpty()) {
+            HorizontalChipRowWithColor(
+                imageVector = Icons.Filled.History,
+                colors = recentColors,
+                onColorHexSelected = onColorHexSelected
+            )
         }
 
         Row(
@@ -849,15 +832,24 @@ annotation class PortraitPreviews
 )
 annotation class LandscapePreviews
 
+@Suppress("SpellCheckingInspection")
 @PortraitPreviews
 @LandscapePreviews
 @Composable
 fun AddFilamentScreenPreview() {
     SpoolstackTheme {
+        val frequentColors = listOf(
+            ColorWithName("#000000", "Black"),
+            ColorWithName("#FF0000", "Red")
+        )
+        val recentColors = listOf(
+            ColorWithName("#664433", "Lala"),
+            ColorWithName("#FF5577", "Demo")
+        )
         AddFilamentContent(
             existingVendors = listOf("Prusa", "Creality", "Extrudr"),
-            frequentColors = emptyList(),
-            recentColors = emptyList(),
+            frequentColors = frequentColors,
+            recentColors = recentColors,
             filamentState = null,
             defaultFilamentSize = 1000,
             onNavigateBack = {},

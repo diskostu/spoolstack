@@ -20,7 +20,7 @@ data class Filament(
     val changeDate: Long = System.currentTimeMillis()
 )
 
-data class FrequentColor(
+data class ColorWithName(
     val colorHex: String,
     val name: String? = null
 )

@@ -35,16 +35,16 @@ import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import de.diskostu.spoolstack.R
-import de.diskostu.spoolstack.data.FrequentColor
+import de.diskostu.spoolstack.data.ColorWithName
 import de.diskostu.spoolstack.ui.util.ColorUtils
 
 @Composable
 fun ColorPickerDialog(
     onColorSelected: (Color) -> Unit,
-    onFrequentColorSelected: (FrequentColor) -> Unit,
+    onFrequentColorSelected: (ColorWithName) -> Unit,
     onDismissRequest: () -> Unit,
-    frequentColors: List<FrequentColor> = emptyList(),
-    recentColors: List<FrequentColor> = emptyList(),
+    frequentColors: List<ColorWithName> = emptyList(),
+    recentColors: List<ColorWithName> = emptyList(),
     initialColor: Color = Color.White
 ) {
     val controller = rememberColorPickerController()
@@ -178,8 +178,8 @@ fun ColorPickerDialog(
 @Composable
 private fun ColorHistorySection(
     title: String,
-    colors: List<FrequentColor>,
-    onColorSelected: (FrequentColor) -> Unit,
+    colors: List<ColorWithName>,
+    onColorSelected: (ColorWithName) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.data.FilamentRepository
-import de.diskostu.spoolstack.data.FrequentColor
+import de.diskostu.spoolstack.data.ColorWithName
 import de.diskostu.spoolstack.data.SettingsRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,11 +36,11 @@ class AddFilamentViewModel @Inject constructor(
     private val _filamentState = MutableStateFlow<Filament?>(null)
     val filamentState: StateFlow<Filament?> = _filamentState.asStateFlow()
 
-    private val _frequentColors = MutableStateFlow<List<FrequentColor>>(emptyList())
-    val frequentColors: StateFlow<List<FrequentColor>> = _frequentColors.asStateFlow()
+    private val _frequentColors = MutableStateFlow<List<ColorWithName>>(emptyList())
+    val frequentColors: StateFlow<List<ColorWithName>> = _frequentColors.asStateFlow()
 
-    private val _recentColors = MutableStateFlow<List<FrequentColor>>(emptyList())
-    val recentColors: StateFlow<List<FrequentColor>> = _recentColors.asStateFlow()
+    private val _recentColors = MutableStateFlow<List<ColorWithName>>(emptyList())
+    val recentColors: StateFlow<List<ColorWithName>> = _recentColors.asStateFlow()
 
     val defaultFilamentSize: StateFlow<Int> = settingsRepository.defaultFilamentSize
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1000)
