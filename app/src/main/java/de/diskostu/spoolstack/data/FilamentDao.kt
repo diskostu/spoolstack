@@ -36,9 +36,29 @@ interface FilamentDao {
     @Query("DELETE FROM filament")
     suspend fun deleteAll()
 
-    @Query("SELECT colorHex FROM filament WHERE deleted = 0 AND colorHex IS NOT NULL GROUP BY colorHex ORDER BY COUNT(*) DESC LIMIT :limit")
+    @Query(
+        """
+        SELECT colorHex 
+        FROM filament
+        WHERE deleted = 0
+        AND colorHex IS NOT NULL
+        GROUP BY colorHex
+        ORDER BY COUNT(*), MAX(changeDate) DESC
+        LIMIT :limit
+        """
+    )
     suspend fun getFrequentColors(limit: Int): List<ColorWithName>
 
-    @Query("SELECT colorHex FROM filament WHERE deleted = 0 AND colorHex IS NOT NULL GROUP BY colorHex ORDER BY MAX(changeDate) DESC LIMIT :limit")
+    @Query(
+        """
+        SELECT colorHex
+        FROM filament
+        WHERE deleted = 0
+        AND colorHex IS NOT NULL
+        GROUP BY colorHex
+        ORDER BY MAX(changeDate) DESC
+        LIMIT :limit
+        """
+    )
     suspend fun getRecentColors(limit: Int): List<ColorWithName>
 }
