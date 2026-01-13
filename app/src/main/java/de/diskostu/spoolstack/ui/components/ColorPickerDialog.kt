@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -131,19 +132,51 @@ fun ColorPickerDialog(
                     controller = controller
                 )
 
-                if (suggestedColors.isNotEmpty()) {
-                    HorizontalChipRowWithColor(
-                        imageVector = null,
-                        colors = suggestedColors,
-                        onColorHexSelected = { hex ->
-                            ColorUtils.hexToColor(hex)?.let {
-                                controller.selectByColor(it, fromUser = true)
-                                selectedColor = it
-                            }
-                        },
-                        modifier = Modifier.testTag("suggested_colors_row")
-                    )
+                val rowHeight = 48.dp
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(rowHeight)
+                        .testTag("suggested_colors_container")
+                ) {
+                    if (suggestedColors.isEmpty()) {
+                        // ---------- Platzhalter ----------
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        )
+                    } else {
+                        // ---------- Echte Chip-Row ----------
+                        HorizontalChipRowWithColor(
+                            imageVector = null,
+                            colors = suggestedColors,
+                            onColorHexSelected = { hex ->
+                                ColorUtils.hexToColor(hex)?.let { color ->
+                                    controller.selectByColor(color, fromUser = true)
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
+//                if (suggestedColors.isNotEmpty()) {
+//                    HorizontalChipRowWithColor(
+//                        imageVector = null,
+//                        colors = suggestedColors,
+//                        onColorHexSelected = { hex ->
+//                            ColorUtils.hexToColor(hex)?.let {
+//                                controller.selectByColor(it, fromUser = true)
+//                                selectedColor = it
+//                            }
+//                        },
+//                        modifier = Modifier.testTag("suggested_colors_row")
+//                    )
+//                }
             }
         },
         confirmButton = {
