@@ -217,14 +217,9 @@ fun AddFilamentContent(
         if (showColorPicker) {
             ColorPickerDialog(
                 initialColor = ColorUtils.hexToColor(colorHex) ?: Color.White,
-                frequentColors = frequentColors,
-                recentColors = recentColors,
                 onColorSelected = { selectedColor ->
                     val hex = ColorUtils.colorToHex(selectedColor)
                     colorHex = hex
-                },
-                onFrequentColorSelected = { selectedFrequentColor ->
-                    colorHex = selectedFrequentColor.colorHex
                 },
                 onDismissRequest = { showColorPicker = false }
             )

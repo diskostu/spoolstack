@@ -135,6 +135,6 @@ class ColorUtilsTest {
         val blueishMatches = ColorUtils.getClosestColors("#0000FE", "de")
         assertEquals("blau", blueishMatches[0].first)
 
-        assertEquals(3, redMatches.size)
+        assertEquals(5, redMatches.size)
     }
 }

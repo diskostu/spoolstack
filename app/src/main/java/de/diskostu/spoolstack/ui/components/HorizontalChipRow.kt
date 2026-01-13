@@ -25,7 +25,7 @@ import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
  */
 @Composable
 fun <T> HorizontalChipRow(
-    imageVector: ImageVector,
+    imageVector: ImageVector? = null,
     items: List<T>,
     modifier: Modifier = Modifier,
     chipContent: @Composable (T) -> Unit
@@ -37,11 +37,13 @@ fun <T> HorizontalChipRow(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = null,
-            modifier = Modifier.size(32.dp)
-        )
+        if (imageVector != null) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+        }
         items.forEach { item ->
             chipContent(item)
         }

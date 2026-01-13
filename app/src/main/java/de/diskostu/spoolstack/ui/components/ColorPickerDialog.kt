@@ -2,7 +2,6 @@ package de.diskostu.spoolstack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,24 +38,29 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.ColorWithName
 import de.diskostu.spoolstack.ui.util.ColorUtils
+import kotlinx.coroutines.delay
 
 @Composable
 fun ColorPickerDialog(
     onColorSelected: (Color) -> Unit,
-    onFrequentColorSelected: (ColorWithName) -> Unit,
     onDismissRequest: () -> Unit,
-    frequentColors: List<ColorWithName> = emptyList(),
-    recentColors: List<ColorWithName> = emptyList(),
     initialColor: Color = Color.White
 ) {
     val controller = rememberColorPickerController()
     var selectedColor by remember { mutableStateOf(initialColor) }
+    var suggestedColors by remember { mutableStateOf<List<ColorWithName>>(emptyList()) }
 
     // Sync the controller with the initial color when the dialog is first shown or initialColor changes.
-    // This ensures that the sliders (Brightness, Alpha) and the wheel thumb correctly reflect the detected color.
     LaunchedEffect(initialColor) {
         controller.selectByColor(initialColor, fromUser = false)
         selectedColor = initialColor
+    }
+
+    // Suggested colors debounced update
+    LaunchedEffect(selectedColor) {
+        delay(500)
+        val closest = ColorUtils.getClosestColors(ColorUtils.colorToHex(selectedColor))
+        suggestedColors = closest.map { ColorWithName(it.second, it.first) }
     }
 
     AlertDialog(
@@ -113,7 +118,6 @@ fun ColorPickerDialog(
                         .height(250.dp),
                     controller = controller,
                     onColorChanged = { colorEnvelope ->
-                        // Update our local preview state when the user interacts with the picker
                         if (colorEnvelope.fromUser) {
                             selectedColor = colorEnvelope.color
                         }
@@ -127,34 +131,18 @@ fun ColorPickerDialog(
                     controller = controller
                 )
 
-                if (frequentColors.isNotEmpty() || recentColors.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        if (frequentColors.isNotEmpty()) {
-                            ColorHistorySection(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.frequent_colors_label),
-                                colors = frequentColors.take(3),
-                                onColorSelected = {
-                                    onFrequentColorSelected(it)
-                                    onDismissRequest()
-                                }
-                            )
-                        }
-                        if (recentColors.isNotEmpty()) {
-                            ColorHistorySection(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.recent_colors_label),
-                                colors = recentColors.take(3),
-                                onColorSelected = {
-                                    onFrequentColorSelected(it)
-                                    onDismissRequest()
-                                }
-                            )
-                        }
-                    }
+                if (suggestedColors.isNotEmpty()) {
+                    HorizontalChipRowWithColor(
+                        imageVector = null,
+                        colors = suggestedColors,
+                        onColorHexSelected = { hex ->
+                            ColorUtils.hexToColor(hex)?.let {
+                                controller.selectByColor(it, fromUser = true)
+                                selectedColor = it
+                            }
+                        },
+                        modifier = Modifier.testTag("suggested_colors_row")
+                    )
                 }
             }
         },
@@ -169,44 +157,13 @@ fun ColorPickerDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
+            TextButton(
+                onClick = onDismissRequest,
+                modifier = Modifier
+                    .testTag("cancel_button_color_picker")
+            ) {
                 Text(stringResource(id = R.string.cancel))
             }
         }
     )
-}
-
-@Composable
-private fun ColorHistorySection(
-    title: String,
-    colors: List<ColorWithName>,
-    onColorSelected: (ColorWithName) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            colors.forEach { frequentColor ->
-                val color = ColorUtils.hexToColor(frequentColor.colorHex) ?: Color.Gray
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                        .clickable { onColorSelected(frequentColor) }
-                )
-            }
-        }
-    }
 }

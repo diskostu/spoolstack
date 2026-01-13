@@ -244,7 +244,7 @@ object ColorUtils {
     }
 
     /**
-     * Finds up to 3 closest color names and their hex codes for a given hex color.
+     * Finds up to 5 closest color names and their hex codes for a given hex color.
      * Prioritizes shorter ("simpler") names if distances are similar.
      */
     fun getClosestColors(
@@ -270,7 +270,7 @@ object ColorUtils {
                 Triple(entry.key, entry.value, score)
             }
             .sortedBy { it.third }
-            .take(3)
+            .take(5)
             .map { it.first to it.second }
             .toList()
     }

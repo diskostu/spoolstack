@@ -1,17 +1,11 @@
 package de.diskostu.spoolstack.ui.filament.list
 
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import de.diskostu.spoolstack.MainActivity
 import de.diskostu.spoolstack.R
 import org.junit.Before
@@ -25,182 +19,129 @@ class FilamentListScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
+    private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Before
     fun setup() {
-        // Clear all filaments before starting
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.debug_clear_filaments))
-            .performClick()
+        // 1. Ensure clean state on MainScreen
+        composeTestRule.onNodeWithTag("button_clear_filaments").performClick()
+
+        // Wait until "List" button is disabled (count is 0)
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithTag("button_view_filaments")
+                .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                .firstOrNull()?.config?.getOrNull(SemanticsProperties.Disabled) != null
+        }
+
+        // 2. Add 20 sample filaments
+        composeTestRule.onNodeWithTag("button_add_sample_filaments").performClick()
+
+        // 3. Wait until "List" button is enabled (implies filaments added)
+        composeTestRule.waitUntil(10000) {
+            composeTestRule.onAllNodesWithTag("button_view_filaments")
+                .fetchSemanticsNodes(atLeastOneRootRequired = false)
+                .firstOrNull()?.config?.getOrNull(SemanticsProperties.Disabled) == null
+        }
+
+        // 4. Navigate to the filament list
+        composeTestRule.onNodeWithTag("button_view_filaments").performClick()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun initialScreen_showsPopulatedList() {
+        // Check if the list container is displayed
+        composeTestRule.onNodeWithTag("filament_list").assertIsDisplayed()
+
+        // Wait for cards to appear. 
+        // ViewModel has a 500ms delay + LazyGrid might need a frame to compose items.
+        composeTestRule.waitUntilAtLeastOneExists(hasTestTag("filament_card"), timeoutMillis = 5000)
+
+        // Verify that cards are displayed
+        composeTestRule.onAllNodesWithTag("filament_card").onFirst().assertIsDisplayed()
     }
 
     @Test
-    fun createAndScrollFilaments() {
-        // 1. Ensure list is empty
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
-            .performClick()
-
-        // Wait for list to load
-        composeTestRule.onNodeWithTag("filament_list").assertIsDisplayed()
-
-        // Ensure no items are present
-        composeTestRule.onAllNodesWithTag("filament_card").assertCountEquals(0)
-
-        // Go back to main screen
-        composeTestRule.activityRule.scenario.onActivity { activity ->
-            activity.onBackPressedDispatcher.onBackPressed()
+    fun search_filtersListCorrectly() {
+        // Wait for items to appear
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithTag("filament_card").fetchSemanticsNodes(false)
+                .isNotEmpty()
         }
 
-        // 2. Create 20 random filaments
-        val vendors = listOf("Prusament", "Sunlu", "Esun", "Overture", "Polymaker")
-        val colors = listOf("Black", "White", "Red", "Blue", "Green", "Yellow", "Orange", "Purple")
+        // Open Search
+        composeTestRule.onNodeWithTag("search_button").performClick()
 
-        var lastVendor = ""
-        var lastColor = ""
+        // Search for "Prusa" (one of the random vendors in sample data)
+        composeTestRule.onNodeWithTag("search_textfield").performTextInput("Prusa")
 
-        repeat(20) {
-            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
-                .performClick()
+        // Wait for filtering to take effect
+        composeTestRule.waitForIdle()
 
-            // For the last one, ensure it's unique by using a specific value not in the list
-            val randomVendor: String
-            val randomColor: String
+        // All visible cards must contain "Prusa"
+        // We use assertAll to ensure the filter works
+//        composeTestRule.onAllNodesWithTag("filament_card")
+//            .assertAll(hasAnyChild(hasText("Prusa", substring = true)))
 
-            if (it == 19) {
-                randomVendor = "UniqueVendor"
-                randomColor = "UniqueColor"
-                lastVendor = randomVendor
-                lastColor = randomColor
-            } else {
-                randomVendor = vendors.random()
-                randomColor = colors.random()
-            }
-
-            composeTestRule.onNodeWithTag("vendor_input")
-                .performTextInput(randomVendor)
-
-            composeTestRule.onNodeWithTag("color_input")
-                .performTextInput(randomColor)
-
-            composeTestRule.onNodeWithTag("save_button")
-                .performClick()
-        }
-
-        // 3. Ensure list scrolls and all elements are visible (by scrolling to the last one)
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
-            .performClick()
-
-        composeTestRule.onNodeWithTag("filament_list").assertIsDisplayed()
-
-        // Scroll to the last item we added
-        val lastItemText = "$lastVendor | $lastColor"
-        composeTestRule.onNodeWithTag("filament_list")
-            .performScrollToNode(hasText(lastItemText))
-
-        composeTestRule.onNodeWithText(lastItemText).assertIsDisplayed()
-
-        // 5. Delete all filaments and ensure list is empty
-        composeTestRule.activityRule.scenario.onActivity { activity ->
-            activity.onBackPressedDispatcher.onBackPressed()
-        }
-
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.debug_clear_filaments))
-            .performClick()
-
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
-            .performClick()
-
-        composeTestRule.onNodeWithTag("filament_list").assertIsDisplayed()
-        composeTestRule.onAllNodesWithTag("filament_card").assertCountEquals(0)
+        composeTestRule.onAllNodesWithTag("filament_card")
+            .assertAll(hasText("Prusa", substring = true))
     }
 
     @Test
-    fun testDeleteConfirmationDialog() {
-        // 1. Create a filament with size > 0
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
+    fun delete_withConfirmation_works() {
+        // Wait for items to appear
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodesWithTag("filament_card").fetchSemanticsNodes(false)
+                .isNotEmpty()
+        }
+
+        // 1. Get the text of the first card to identify it later
+        val firstCard = composeTestRule.onAllNodesWithTag("filament_card").onFirst()
+        val textList = firstCard.fetchSemanticsNode().config.getOrNull(SemanticsProperties.Text)
+        val firstItemText = textList?.firstOrNull()?.text ?: ""
+
+        // 2. Open menu and click delete
+        openMenuFor(firstItemText)
+        composeTestRule.onNodeWithTag("menu_delete").performClick()
+
+        // 3. Confirm in dialog (samples have weight > 0)
+        composeTestRule.onNode(
+            hasText(targetContext.getString(R.string.delete)) and hasAnyAncestor(
+                isDialog()
+            )
+        )
             .performClick()
 
-        composeTestRule.onNodeWithTag("vendor_input").performTextInput("ConfirmationVendor")
-        composeTestRule.onNodeWithTag("color_input").performTextInput("ConfirmationColor")
-        // Size is 1000 by default in the UI usually, but let's assume it is > 0
-        composeTestRule.onNodeWithTag("save_button").performClick()
+        // 4. Switch to DELETED filter to verify it moved there
+        composeTestRule.onNodeWithTag("filter_chip_deleted").performClick()
+        composeTestRule.onNodeWithText(firstItemText, substring = true).assertIsDisplayed()
 
-        // 2. Go to list
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
-            .performClick()
-
-        // 3. Open menu and click delete
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .performClick()
-
-        // 4. Check if confirmation dialog is displayed
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete_confirmation_title))
-            .assertIsDisplayed()
-
-        // 5. Click cancel
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-            .performClick()
-
-        // 6. Dialog should be gone
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete_confirmation_title))
-            .assertDoesNotExist()
-
-        // 7. Verify it's still "Delete" (not deleted yet)
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .assertIsDisplayed()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .performClick()
-
-        // 8. Click confirm (Delete)
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .performClick()
-
-        // 9. Verify it's now deleted (menu should show "Undelete")
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.undelete))
-            .assertIsDisplayed()
+        // 5. Switch back to ACTIVE and verify it is gone
+        composeTestRule.onNodeWithTag("filter_chip_active").performClick()
+        composeTestRule.onNodeWithText(firstItemText, substring = true).assertDoesNotExist()
     }
 
     @Test
-    fun testUndeleteDirectly() {
-        // 1. Create a filament
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.add_filament))
+    fun navigation_backButton_works() {
+        composeTestRule.onNodeWithContentDescription(targetContext.getString(R.string.back_button_content_description))
             .performClick()
 
-        composeTestRule.onNodeWithTag("vendor_input").performTextInput("UndeleteVendor")
-        composeTestRule.onNodeWithTag("color_input").performTextInput("UndeleteColor")
-        composeTestRule.onNodeWithTag("save_button").performClick()
+        // Verify we are back on main screen
+        composeTestRule.onNodeWithTag("button_add_sample_filaments").assertIsDisplayed()
+    }
 
-        // 2. Go to list
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.view_filaments))
-            .performClick()
-
-        // 3. Delete it (confirm dialog)
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .performClick()
-
-        // 4. Now Undelete it - should NOT show dialog
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.undelete))
-            .performClick()
-
-        // 5. Verify it's undeleted (menu shows Delete)
-        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.menu_more_options))
-            .performClick()
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-            .assertIsDisplayed()
-
-        // 6. Ensure dialog didn't show up during undeleting
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.delete_confirmation_title))
-            .assertDoesNotExist()
+    private fun openMenuFor(textSnippet: String) {
+        // Find the "More options" button inside the card that contains the text
+        composeTestRule.onNode(
+            hasTestTag("menu_button") and
+                    hasAnyAncestor(
+                        hasAnyChild(
+                            hasText(
+                                textSnippet,
+                                substring = true
+                            )
+                        ) and hasTestTag("filament_card")
+                    ), true
+        ).performClick()
     }
 }

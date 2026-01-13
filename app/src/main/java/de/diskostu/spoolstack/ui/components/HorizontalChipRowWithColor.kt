@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import de.diskostu.spoolstack.data.ColorWithName
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
@@ -20,7 +21,7 @@ import de.diskostu.spoolstack.ui.util.ColorUtils
  */
 @Composable
 fun HorizontalChipRowWithColor(
-    imageVector: ImageVector,
+    imageVector: ImageVector?,
     colors: List<ColorWithName>,
     onColorHexSelected: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -46,7 +47,8 @@ fun HorizontalChipRowWithColor(
             colors = FilterChipDefaults.filterChipColors(
                 containerColor = chipColor,
                 labelColor = textColor
-            )
+            ),
+            modifier = Modifier.testTag("color_suggestion_chip")
         )
     }
 }
