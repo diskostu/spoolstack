@@ -49,7 +49,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.components.DeleteConfirmationDialog
@@ -87,11 +87,11 @@ fun FilamentListScreen(
     onFilamentClick: (Int) -> Unit,
     viewModel: FilamentListViewModel = hiltViewModel()
 ) {
-    val filaments by viewModel.filaments.collectAsState()
-    val filter by viewModel.filter.collectAsState()
-    val sort by viewModel.sort.collectAsState()
-    val sortOrder by viewModel.sortOrder.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
+    val filaments by viewModel.filaments.collectAsStateWithLifecycle()
+    val filter by viewModel.filter.collectAsStateWithLifecycle()
+    val sort by viewModel.sort.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -200,7 +200,8 @@ fun FilamentListContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
-                                .focusRequester(focusRequester),
+                                .focusRequester(focusRequester)
+                                .testTag("search_textfield"),
                             placeholder = { Text(stringResource(R.string.search_hint)) },
                             singleLine = true,
                             trailingIcon = {
@@ -237,22 +238,28 @@ fun FilamentListContent(
                                 FilterChip(
                                     selected = filter == FilamentFilter.ALL,
                                     onClick = { onFilterChange(FilamentFilter.ALL) },
-                                    label = { Text(stringResource(R.string.filter_all)) }
+                                    label = { Text(stringResource(R.string.filter_all)) },
+                                    modifier = Modifier.testTag("filter_chip_all")
                                 )
                                 FilterChip(
                                     selected = filter == FilamentFilter.ACTIVE,
                                     onClick = { onFilterChange(FilamentFilter.ACTIVE) },
-                                    label = { Text(stringResource(R.string.filter_active)) }
+                                    label = { Text(stringResource(R.string.filter_active)) },
+                                    modifier = Modifier.testTag("filter_chip_active")
                                 )
                                 FilterChip(
                                     selected = filter == FilamentFilter.DELETED,
                                     onClick = { onFilterChange(FilamentFilter.DELETED) },
-                                    label = { Text(stringResource(R.string.filter_deleted)) }
+                                    label = { Text(stringResource(R.string.filter_deleted)) },
+                                    modifier = Modifier.testTag("filter_chip_deleted")
                                 )
                             }
 
                             Box {
-                                IconButton(onClick = { showSortMenu = true }) {
+                                IconButton(
+                                    onClick = { showSortMenu = true },
+                                    modifier = Modifier.testTag("sort_button")
+                                ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.Sort,
                                         contentDescription = stringResource(R.string.sort_button_description)
@@ -269,7 +276,8 @@ fun FilamentListContent(
                                         onClick = {
                                             onSortChange(FilamentSort.LAST_MODIFIED)
                                             showSortMenu = false
-                                        }
+                                        },
+                                        tag = "sort_last_modified"
                                     )
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_vendor),
@@ -278,7 +286,8 @@ fun FilamentListContent(
                                         onClick = {
                                             onSortChange(FilamentSort.VENDOR)
                                             showSortMenu = false
-                                        }
+                                        },
+                                        tag = "sort_vendor"
                                     )
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_color),
@@ -287,7 +296,8 @@ fun FilamentListContent(
                                         onClick = {
                                             onSortChange(FilamentSort.COLOR)
                                             showSortMenu = false
-                                        }
+                                        },
+                                        tag = "sort_color"
                                     )
                                     SortMenuItem(
                                         text = stringResource(R.string.sort_by_remaining_amount),
@@ -296,12 +306,16 @@ fun FilamentListContent(
                                         onClick = {
                                             onSortChange(FilamentSort.REMAINING_AMOUNT)
                                             showSortMenu = false
-                                        }
+                                        },
+                                        tag = "sort_remaining_amount"
                                     )
                                 }
                             }
 
-                            IconButton(onClick = { isSearchActive = true }) {
+                            IconButton(
+                                onClick = { isSearchActive = true },
+                                modifier = Modifier.testTag("search_button")
+                            ) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = stringResource(R.string.search_icon_description)
@@ -336,7 +350,7 @@ fun FilamentListContent(
                                 onToggleDelete(uiModel.filament)
                             }
                         },
-                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                        modifier = Modifier.animateItem()
                     )
                 }
             }
@@ -360,7 +374,8 @@ fun SortMenuItem(
     text: String,
     isSelected: Boolean,
     sortOrder: SortOrder,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    tag: String
 ) {
     DropdownMenuItem(
         text = { Text(text) },
@@ -373,9 +388,9 @@ fun SortMenuItem(
                 )
             }
         } else null,
-        modifier = if (isSelected) {
+        modifier = (if (isSelected) {
             Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
-        } else Modifier,
+        } else Modifier).testTag(tag),
         colors = if (isSelected) {
             MenuDefaults.itemColors(
                 textColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -417,7 +432,8 @@ fun FilamentCard(
             containerColor = backgroundColor,
             contentColor = contentColor
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -472,7 +488,10 @@ fun FilamentCard(
                 )
             }
             Box {
-                IconButton(onClick = { showMenu = true }) {
+                IconButton(
+                    onClick = { showMenu = true },
+                    modifier = Modifier.testTag("menu_button")
+                ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = stringResource(R.string.menu_more_options),
@@ -488,7 +507,8 @@ fun FilamentCard(
                         onClick = {
                             showMenu = false
                             onClick()
-                        }
+                        },
+                        modifier = Modifier.testTag("menu_edit")
                     )
                     DropdownMenuItem(
                         text = {
@@ -501,7 +521,8 @@ fun FilamentCard(
                         onClick = {
                             showMenu = false
                             onToggleDelete()
-                        }
+                        },
+                        modifier = Modifier.testTag("menu_delete")
                     )
                 }
             }

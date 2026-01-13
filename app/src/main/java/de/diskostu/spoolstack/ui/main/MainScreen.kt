@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -119,14 +120,18 @@ internal fun MainScreenContent(
                     ) {
                         Button(
                             onClick = { navController.navigate("add_filament") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("button_add_filament")
                         ) {
                             Text(stringResource(R.string.add))
                         }
 
                         Button(
                             onClick = { navController.navigate("filament_list") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("button_view_filaments"),
                             enabled = filamentCount > 0
                         ) {
                             Text(stringResource(R.string.list))
@@ -145,7 +150,9 @@ internal fun MainScreenContent(
                     ) {
                         Button(
                             onClick = { navController.navigate("record_print") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("button_add_print"),
                             enabled = filamentCount > 0
                         ) {
                             Text(stringResource(R.string.add))
@@ -153,7 +160,9 @@ internal fun MainScreenContent(
 
                         Button(
                             onClick = { navController.navigate("print_list") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("button_view_prints"),
                             enabled = printCount > 0
                         ) {
                             Text(stringResource(R.string.list))
@@ -181,7 +190,9 @@ internal fun MainScreenContent(
                                 }
                             },
                             text = stringResource(R.string.debug_clear_filaments),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("button_clear_filaments")
                         )
 
                         DebugButton(
@@ -210,7 +221,9 @@ internal fun MainScreenContent(
                             }
                         },
                         text = stringResource(R.string.debug_add_sample_filaments),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("button_add_sample_filaments")
                     )
                 }
 

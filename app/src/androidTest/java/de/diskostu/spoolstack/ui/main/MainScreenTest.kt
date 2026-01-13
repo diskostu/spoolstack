@@ -3,7 +3,9 @@ package de.diskostu.spoolstack.ui.main
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.navigation.compose.rememberNavController
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import org.junit.Rule
@@ -29,17 +31,10 @@ class MainScreenTest {
             }
         }
 
-        // Add filament (first "Add" button) should always be enabled
-        composeTestRule.onAllNodesWithText("Add")[0].assertIsEnabled()
-
-        // List filaments (first "List" button) should be disabled if filamentCount is 0
-        composeTestRule.onAllNodesWithText("List")[0].assertIsNotEnabled()
-
-        // Record print (second "Add" button) depends on filaments
-        composeTestRule.onAllNodesWithText("Add")[1].assertIsNotEnabled()
-
-        // List prints (second "List" button) should be disabled if printCount is 0
-        composeTestRule.onAllNodesWithText("List")[1].assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("button_add_filament").assertIsEnabled()
+        composeTestRule.onNodeWithTag("button_view_filaments").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("button_add_print").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("button_view_prints").assertIsNotEnabled()
     }
 
     @Test
@@ -58,9 +53,13 @@ class MainScreenTest {
         }
 
         // All buttons should be enabled
-        composeTestRule.onAllNodesWithText("Add")[0].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("List")[0].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("Add")[1].assertIsEnabled()
-        composeTestRule.onAllNodesWithText("List")[1].assertIsEnabled()
+        listOf(
+            "button_add_filament",
+            "button_view_filaments",
+            "button_add_print",
+            "button_view_prints"
+        ).forEach { tag ->
+            composeTestRule.onNodeWithTag(tag).assertIsEnabled()
+        }
     }
 }
