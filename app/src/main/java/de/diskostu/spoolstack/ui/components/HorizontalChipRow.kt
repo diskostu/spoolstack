@@ -4,6 +4,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -31,21 +32,29 @@ fun <T> HorizontalChipRow(
     chipContent: @Composable (T) -> Unit
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
+        modifier = modifier.fillMaxWidth()
     ) {
         if (imageVector != null) {
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(end = 8.dp)
             )
         }
-        items.forEach { item ->
-            chipContent(item)
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .weight(1f)
+                .horizontalScroll(rememberScrollState())
+        ) {
+            items.forEach { item ->
+                chipContent(item)
+            }
         }
     }
 }
