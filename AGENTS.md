@@ -70,6 +70,8 @@ Jede Änderung → Code sauberer als zuvor.
 - Domain → Unit Test
 - UI-State / Interaktion → Compose UI Test
 - Keine redundanten Tests
+- Pruefe nicht hart gegen Strings, sondern hole die Strings immer per
+  `InstrumentationRegistry.getInstrumentation().targetContext.getString()`
 
 ---
 

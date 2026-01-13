@@ -598,6 +598,7 @@ private fun ColorField(
                     color = if (colorError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
                 Text(
+                    modifier = Modifier.testTag("color_name_text"),
                     text = colorName.ifBlank { stringResource(R.string.select_color) },
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (colorName.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
@@ -678,7 +679,9 @@ private fun SpoolWeightField(
         label = { Text(stringResource(R.string.spool_weight_label)) },
         suffix = { Text(unitGrams) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .testTag("spool_weight_input")
+            .fillMaxWidth(),
         singleLine = true
     )
 }
@@ -717,7 +720,9 @@ private fun SizeSection(
                 onSliderChange(rounded.toString(), rounded.toFloat())
             },
             valueRange = 0f..maxOf(totalWeight.toFloat(), sliderValue),
-            modifier = Modifier.padding(horizontal = 4.dp)
+            modifier = Modifier
+                .testTag("size_slider")
+                .padding(horizontal = 4.dp)
         )
     }
 }
@@ -732,7 +737,9 @@ private fun BoughtAtField(
         value = boughtAt,
         onValueChange = onBoughtAtChange,
         label = { Text(stringResource(R.string.bought_at_label)) },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .testTag("bought_at_input")
+            .fillMaxWidth(),
         isError = boughtAtError != null,
         supportingText = { boughtAtError?.let { Text(it) } },
         singleLine = true
@@ -747,13 +754,15 @@ private fun PriceField(
     OutlinedTextField(
         value = price,
         onValueChange = {
-            if (it.isEmpty() || it.matches(Regex("^\\\\d*\\\\.?\\\\d*$"))) {
+            if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
                 onPriceChange(it)
             }
         },
         label = { Text(stringResource(R.string.price_label)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .testTag("price_input")
+            .fillMaxWidth(),
         singleLine = true
     )
 }
@@ -774,11 +783,15 @@ private fun BoughtDateField(
         readOnly = true,
         label = { Text(stringResource(R.string.bought_date_label)) },
         trailingIcon = {
-            IconButton(onClick = { onShowDatePicker() }) {
+            IconButton(
+                onClick = { onShowDatePicker() },
+                modifier = Modifier.testTag("bought_date_picker_trigger")
+            ) {
                 Icon(Icons.Default.DateRange, contentDescription = "Select Date")
             }
         },
         modifier = Modifier
+            .testTag("bought_date_input")
             .fillMaxWidth()
             .clickable { onShowDatePicker() },
         enabled = true,
@@ -797,7 +810,9 @@ private fun SaveButtonRow(
     ) {
         OutlinedButton(
             onClick = onCancel,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .testTag("cancel_button")
+                .weight(1f)
         ) { Text(text = stringResource(id = R.string.cancel)) }
         Button(
             onClick = onSave,

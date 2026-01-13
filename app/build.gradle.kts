@@ -88,10 +88,16 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.robolectric)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.kaspresso)
+    androidTestImplementation(libs.kaspresso.compose)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
