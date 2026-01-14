@@ -43,7 +43,7 @@ interface FilamentDao {
         WHERE deleted = 0
         AND colorHex IS NOT NULL
         GROUP BY colorHex
-        ORDER BY COUNT(*), MAX(changeDate) DESC
+        ORDER BY COUNT(*) DESC, MAX(changeDate) DESC
         LIMIT :limit
         """
     )

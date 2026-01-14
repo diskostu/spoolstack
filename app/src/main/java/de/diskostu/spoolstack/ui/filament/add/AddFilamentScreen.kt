@@ -509,6 +509,7 @@ private fun ColorField(
 ) {
     val displayColor = ColorUtils.hexToColor(colorHex)
 
+    // show frequent colors chips - only if not editing
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (!isEditMode) {
             HorizontalSlideAnimatedContent(
