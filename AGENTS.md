@@ -4,6 +4,7 @@
 
 Erzeuge **korrekten, modernen, getesteten Android-Code** mit **minimalem Kontext** und **ohne
 Rückfragen**.
+Nutze fuer Kommentare, Klassen-, Methoden- und Feldnamen ausschliesslich die englische Sprache.
 
 ---
 
