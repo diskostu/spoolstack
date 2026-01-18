@@ -2,11 +2,12 @@ package de.diskostu.spoolstack.ui.util
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import me.xdrop.fuzzywuzzy.FuzzySearch
 import java.util.Locale
+import kotlin.math.sqrt
 
 object ColorUtils {
 
+    @Suppress("SpellCheckingInspection")
     private val enColorMap = mapOf(
         "black" to "#000000",
         "white" to "#FFFFFF",
@@ -135,6 +136,7 @@ object ColorUtils {
         "lawngreen" to "#7CFC00"
     )
 
+    @Suppress("SpellCheckingInspection")
     private val deColorMap = mapOf(
         "schwarz" to "#000000",
         "weiss" to "#FFFFFF",
@@ -252,7 +254,7 @@ object ColorUtils {
     ): List<Pair<String, String>> {
         val targetColor = try {
             parseColor(hex)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return emptyList()
         }
 
@@ -290,63 +292,9 @@ object ColorUtils {
         val dg = (g1 - g2).toDouble()
         val db = (b1 - b2).toDouble()
 
-        return Math.sqrt(dr * dr + dg * dg + db * db)
+        return sqrt(dr * dr + dg * dg + db * db)
     }
 
-    fun inferColorFromText(text: String, language: String = Locale.getDefault().language): Color? {
-        val normalizedText = text.trim().lowercase()
-
-        // Check for direct hex match
-        if (normalizedText.startsWith("#") && (normalizedText.length == 7 || normalizedText.length == 9)) {
-            return try {
-                Color(parseColor(normalizedText))
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        if (normalizedText.isEmpty()) return null
-
-        val currentMap = getColorMap(language)
-
-        // First, check for exact matches
-        if (currentMap.containsKey(normalizedText)) {
-            return hexToColor(currentMap[normalizedText])
-        }
-
-        // Sort keys by length descending to match longer phrases first (e.g. "light blue" before "blue")
-        val sortedKeys = currentMap.keys.sortedByDescending { it.length }
-
-        // check for exact substring matches with word boundaries to prioritize "natural" language
-        for (name in sortedKeys) {
-            val hex = currentMap[name]
-            if (normalizedText.contains(" $name") || normalizedText.contains("$name ")) {
-                return hexToColor(hex)
-            }
-        }
-
-        val colorNames = currentMap.keys.toList()
-
-        // Find all matches with score >= 70
-        val matches = FuzzySearch.extractAll(normalizedText, colorNames)
-            .filter { it.score >= 70 }
-
-        // Only return a result if there are matches and at most 3 potential candidates
-        // EXCEPT if there is a 100% score match, we return it regardless of other partial matches
-        if (matches.isNotEmpty()) {
-            val bestMatch = matches.maxByOrNull { it.score }!!
-
-            if (bestMatch.score == 100) {
-                return hexToColor(currentMap[bestMatch.string])
-            }
-
-            if (matches.size <= 3) {
-                return hexToColor(currentMap[bestMatch.string])
-            }
-        }
-
-        return null
-    }
 
     fun colorToHex(color: Color): String {
         return String.format("#%06X", 0xFFFFFF and (color.toArgb()))
@@ -356,7 +304,7 @@ object ColorUtils {
         if (hex.isNullOrBlank()) return null
         return try {
             Color(parseColor(hex))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
