@@ -7,24 +7,47 @@ import kotlin.math.sqrt
 
 object ColorUtils {
 
-    @Suppress("SpellCheckingInspection")
-    private val enColorMap = mapOf(
+    private val enPopularColorMap = mapOf(
         "black" to "#000000",
         "white" to "#FFFFFF",
+        "gray" to "#808080",
+        "beige" to "#D2B48C",
         "red" to "#FF0000",
-        "green" to "#00FF00",
         "blue" to "#0000FF",
+        "green" to "#008000",
         "yellow" to "#FFFF00",
         "orange" to "#FFA500",
-        "purple" to "#800080",
+        "brown" to "#8B4513",
         "pink" to "#FFC0CB",
-        "gray" to "#808080",
-        "grey" to "#808080",
-        "brown" to "#A52A2A",
-        "cyan" to "#00FFFF",
-        "magenta" to "#FF00FF",
+        "purple" to "#800080",
         "silver" to "#C0C0C0",
         "gold" to "#FFD700",
+        "transparent" to "#FFFFFF00"
+    )
+
+    @Suppress("SpellCheckingInspection")
+    private val dePopularColorMap = mapOf(
+        "schwarz" to "#000000",
+        "weiß" to "#FFFFFF",
+        "grau" to "#808080",
+        "beige" to "#D2B48C",
+        "rot" to "#FF0000",
+        "blau" to "#0000FF",
+        "grün" to "#008000",
+        "gelb" to "#FFFF00",
+        "orange" to "#FFA500",
+        "braun" to "#8B4513",
+        "rosa" to "#FFC0CB",
+        "lila" to "#800080",
+        "silber" to "#C0C0C0",
+        "gold" to "#FFD700",
+        "transparent" to "#FFFFFF00"
+    )
+
+    @Suppress("SpellCheckingInspection")
+    private val enColorMap = mapOf(
+        "cyan" to "#00FFFF",
+        "magenta" to "#FF00FF",
         "beige" to "#F5F5DC",
         "navy" to "#000080",
         "teal" to "#008080",
@@ -66,14 +89,12 @@ object ColorUtils {
         "deep pink" to "#FF1493",
         "chartreuse" to "#7FFF00",
         "aquamarine" to "#7FFFD4",
-        "fuchsia" to "#FF00FF",
         "orchid" to "#DA70D6",
         "thistle" to "#D8BFD8",
         "wheat" to "#F5DEB3",
         "chocolate" to "#D2691E",
         "sienna" to "#A0522D",
         "peru" to "#CD853F",
-        "tan" to "#D2B48C",
         "rosy brown" to "#BC8F8F",
         "moccasin" to "#FFE4B5",
         "navajo white" to "#FFDEAD",
@@ -138,24 +159,8 @@ object ColorUtils {
 
     @Suppress("SpellCheckingInspection")
     private val deColorMap = mapOf(
-        "schwarz" to "#000000",
-        "weiss" to "#FFFFFF",
-        "rot" to "#FF0000",
-        "grün" to "#00FF00",
-        "blau" to "#0000FF",
-        "gelb" to "#FFFF00",
-        "orange" to "#FFA500",
-        "violett" to "#800080",
-        "lila" to "#800080",
-        "pink" to "#FFC0CB",
-        "rosa" to "#FFC0CB",
-        "grau" to "#808080",
-        "braun" to "#A52A2A",
-        "cyan" to "#00FFFF",
         "türkis" to "#00FFFF",
         "magenta" to "#FF00FF",
-        "silber" to "#C0C0C0",
-        "gold" to "#FFD700",
         "beige" to "#F5F5DC",
         "marineblau" to "#000080",
         "blaugrün" to "#008080",
@@ -230,23 +235,28 @@ object ColorUtils {
         "rasengrün" to "#7CFC00"
     )
 
-    private fun getColorMap(language: String): Map<String, String> {
+    private fun getColorMaps(language: String): Pair<Map<String, String>, Map<String, String>> {
         return when (language.lowercase()) {
-            "de" -> deColorMap
-            else -> enColorMap
+            "de" -> dePopularColorMap to deColorMap
+            else -> enPopularColorMap to enColorMap
         }
     }
 
-    fun getColorNameForHex(hex: String?, language: String = Locale.getDefault().language): String? {
+    fun getColorNameForHex(
+        hex: String?,
+        language: String = Locale.getDefault().language
+    ): String? {
         if (hex == null) return null
         val normalizedHex = hex.uppercase()
-        val currentMap = getColorMap(language)
-        return currentMap.entries.firstOrNull { it.value.uppercase() == normalizedHex }?.key
+        val (popular, standard) = getColorMaps(language)
+        // Search popular first, then standard
+        return popular.entries.firstOrNull { it.value.uppercase() == normalizedHex }?.key
+            ?: standard.entries.firstOrNull { it.value.uppercase() == normalizedHex }?.key
     }
 
     /**
      * Finds up to 5 closest color names and their hex codes for a given hex color.
-     * Prioritizes shorter ("simpler") names if distances are similar.
+     * Prioritizes shorter ("simpler") names and "popular" colors.
      */
     fun getClosestColors(
         hex: String,
@@ -258,19 +268,24 @@ object ColorUtils {
             return emptyList()
         }
 
-        val currentMap = getColorMap(language)
+        val (popular, standard) = getColorMaps(language)
 
-        return currentMap.entries
+        // Combine maps with a flag to identify popular colors
+        val allEntries = popular.map { it to true } + standard.map { it to false }
+
+        return allEntries
             .asSequence()
-            .map { entry ->
+            .map { (entry, isPopular) ->
                 val entryColor = parseColor(entry.value)
                 val distance = calculateColorDistance(targetColor, entryColor)
-                // Score combines distance and name simplicity (length)
-                // A lower score is better. penalty factor for length helps prefer simple names.
-                val score = distance + (entry.key.length * 2.0)
+                // Popular colors get a significant score bonus (subtraction)
+                val popularityBonus = if (isPopular) -50.0 else 0.0
+                // Score combines distance, name simplicity (length), and popularity
+                val score = distance + (entry.key.length * 1.5) + popularityBonus
                 Triple(entry.key, entry.value, score)
             }
             .sortedBy { it.third }
+            .distinctBy { it.second.uppercase() } // Avoid duplicates if same hex is in both maps
             .take(5)
             .map { it.first to it.second }
             .toList()
@@ -294,7 +309,6 @@ object ColorUtils {
 
         return sqrt(dr * dr + dg * dg + db * db)
     }
-
 
     fun colorToHex(color: Color): String {
         return String.format("#%06X", 0xFFFFFF and (color.toArgb()))
@@ -322,10 +336,8 @@ object ColorUtils {
 
     private fun parseColor(colorString: String): Int {
         if (colorString[0] == '#') {
-            // Use long to avoid sign issue
             var color = colorString.substring(1).toLong(16)
             if (colorString.length == 7) {
-                // Set alpha to opaque
                 color = color or 0x00000000FF000000L
             } else if (colorString.length != 9) {
                 throw IllegalArgumentException("Unknown color")

@@ -3,20 +3,24 @@ package de.diskostu.spoolstack.ui.components
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.diskostu.spoolstack.MainActivity
+import androidx.test.platform.app.InstrumentationRegistry
+import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 
 class ColorPickerDialogTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createComposeRule()
 
     @Test
     fun colorPickerDialog_initialState_showsSaveAndCancel() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val saveText = context.getString(R.string.save)
+        val cancelText = context.getString(R.string.cancel)
+
         composeTestRule.setContent {
             SpoolstackTheme {
                 ColorPickerDialog(
@@ -27,7 +31,8 @@ class ColorPickerDialogTest {
         }
 
         composeTestRule.onNodeWithTag("save_button_color_picker").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Cancel").assertIsDisplayed()
+        composeTestRule.onNodeWithText(saveText, ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText(cancelText, ignoreCase = true).assertIsDisplayed()
     }
 
     @Test

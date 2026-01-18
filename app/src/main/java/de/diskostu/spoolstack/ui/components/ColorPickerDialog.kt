@@ -172,7 +172,9 @@ fun ColorPickerDialog(
                                         controller.selectByColor(color, fromUser = true)
                                     }
                                 },
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .testTag("suggested_colors_row")
                             )
                         }
                     }

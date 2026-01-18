@@ -47,7 +47,7 @@ interface FilamentDao {
         LIMIT :limit
         """
     )
-    suspend fun getFrequentColors(limit: Int): List<ColorWithName>
+    suspend fun getFrequentColors(limit: Int): List<String> // Changed return type
 
     @Query(
         """
@@ -60,5 +60,5 @@ interface FilamentDao {
         LIMIT :limit
         """
     )
-    suspend fun getRecentColors(limit: Int): List<ColorWithName>
+    suspend fun getRecentColors(limit: Int): List<String> // Changed return type
 }

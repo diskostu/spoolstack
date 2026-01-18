@@ -519,7 +519,8 @@ private fun ColorField(
                     HorizontalChipRowWithColor(
                         imageVector = Icons.Filled.Whatshot,
                         colors = currentColors,
-                        onColorHexSelected = onColorHexSelected
+                        onColorHexSelected = onColorHexSelected,
+                        modifier = Modifier.testTag("frequent_colors_row")
                     )
                 } else {
                     // Placeholder for frequent colors
@@ -537,7 +538,8 @@ private fun ColorField(
                     HorizontalChipRowWithColor(
                         imageVector = Icons.Filled.History,
                         colors = currentColors,
-                        onColorHexSelected = onColorHexSelected
+                        onColorHexSelected = onColorHexSelected,
+                        modifier = Modifier.testTag("recent_colors_row")
                     )
                 } else {
                     // Placeholder for recent colors
