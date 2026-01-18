@@ -137,7 +137,6 @@ object ColorUtils {
 
     private val deColorMap = mapOf(
         "schwarz" to "#000000",
-        "weiß" to "#FFFFFF",
         "weiss" to "#FFFFFF",
         "rot" to "#FF0000",
         "grün" to "#00FF00",
