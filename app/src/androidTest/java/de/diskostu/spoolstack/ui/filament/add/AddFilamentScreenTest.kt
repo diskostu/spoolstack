@@ -1,7 +1,5 @@
 package de.diskostu.spoolstack.ui.filament.add
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -11,7 +9,6 @@ import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
 import org.junit.Rule
 import org.junit.Test
-import androidx.test.espresso.Espresso.pressBack
 
 import org.mockito.kotlin.*
 
@@ -44,6 +41,13 @@ class AddFilamentScreenTest {
         composeTestRule.onNodeWithTag("vendor_input").assertTextContains("")
         composeTestRule.onNodeWithTag("total_weight_input").assertTextContains("1kg")
         composeTestRule.onNodeWithTag("size_input").assertTextContains("1000")
+    }
+
+
+    @Test
+    fun frequentColors_isCorrect() {
+
+
     }
 
     @Test
