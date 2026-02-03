@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.diskostu.spoolstack.R
 import de.diskostu.spoolstack.data.Filament
 import de.diskostu.spoolstack.ui.theme.SpoolstackTheme
@@ -57,7 +57,7 @@ fun RecordPrintScreen(
     viewModel: AddPrintViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val filaments by viewModel.filaments.collectAsState()
+    val filaments by viewModel.filaments.collectAsStateWithLifecycle()
 
     val printSavedMessage = stringResource(R.string.print_saved_message)
 
