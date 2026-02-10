@@ -1,11 +1,8 @@
 package de.diskostu.spoolstack.ui.components.animation
 
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -19,14 +16,13 @@ fun <T> HorizontalSlideAnimatedContent(
     GenericSlideAnimatedContent(
         targetState = targetState,
         modifier = modifier,
-        durationMillis = durationMillis,
         label = "HorizontalSlide",
         transitionSpec = {
-            val enter =
-                slideInHorizontally(tween(durationMillis)) { it } + fadeIn(tween(durationMillis))
-            val exit =
-                slideOutHorizontally(tween(durationMillis)) { it } + fadeOut(tween(durationMillis))
-            enter togetherWith exit
+            slideFadeSpec(
+                durationMillis = durationMillis,
+                enterSlide = slideInHorizontally(tween(durationMillis)) { it },
+                exitSlide = slideOutHorizontally(tween(durationMillis)) { it }
+            )
         },
         content = content
     )

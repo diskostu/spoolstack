@@ -1,11 +1,8 @@
 package de.diskostu.spoolstack.ui.components.animation
 
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -19,14 +16,13 @@ fun <T> VerticalSlideAnimatedContent(
     GenericSlideAnimatedContent(
         targetState = targetState,
         modifier = modifier,
-        durationMillis = durationMillis,
         label = "VerticalSlide",
         transitionSpec = {
-            val enter =
-                slideInVertically(tween(durationMillis)) { it } + fadeIn(tween(durationMillis))
-            val exit =
-                slideOutVertically(tween(durationMillis)) { it } + fadeOut(tween(durationMillis))
-            enter togetherWith exit
+            slideFadeSpec(
+                durationMillis = durationMillis,
+                enterSlide = slideInVertically(tween(durationMillis)) { it },
+                exitSlide = slideOutVertically(tween(durationMillis)) { it }
+            )
         },
         content = content
     )
